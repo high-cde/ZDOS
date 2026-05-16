@@ -9,7 +9,8 @@ ZDOS/
 ├── core/                # Neural Cortex, AAAK, and Memory Systems
 │   ├── cortex/          # Z-GENESIS-CORTEX logic
 │   ├── aaak/            # Autonomous Agent Access Kernel
-│   └── memory/          # memzdos high-performance memory
+│           ├── memory/          # memzdos high-performance memory
+        └── primordia/         # ZDOS // PRIMORDIA - The Self-Generating Core
 ├── os/                  # Operating System and Kernel
 │   ├── kernel/          # z.OS (CollapseOS fork)
 │   └── ghostnet/        # Quantum Ghostnet OS components
@@ -28,7 +29,7 @@ ZDOS/
 
 ## Integration Strategy
 
-1.  **Shared Core**: The `core/` directory will serve as the brain of the system, providing neural routing and memory services to other modules.
+1.  **Shared Core**: The `core/` directory will serve as the brain of the system, with `primordia/` acting as the self-generating core, providing neural routing and memory services to other modules.
 2.  **Unified CLI**: The `zgenctl` will be updated to manage all modules within the monorepo.
 3.  **Global Build System**: A root-level `Makefile` or `build.sh` will orchestrate the compilation and deployment of various components.
 4.  **Data Persistence**: Centralized database management (DSN-PALACE) within the `core/` or `network/` layer.
