@@ -1,0 +1,6 @@
+class ZNetSocket:
+    def send(self, msg):
+        print("Sending:", msg)
+
+    def receive(self):
+        print("Receiving message")

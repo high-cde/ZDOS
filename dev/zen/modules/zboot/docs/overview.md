@@ -1,0 +1,2 @@
+# zboot
+Documentazione generata automaticamente.

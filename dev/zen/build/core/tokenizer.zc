@@ -1,0 +1,13 @@
+fn tokenize(code) {
+    tokens = []
+    current = ""
+    for c in code {
+        if c in [" ", "\n", "\t"] {
+            if current != "" { tokens.push(current); current = "" }
+        } else {
+            current += c
+        }
+    }
+    if current != "" { tokens.push(current) }
+    return tokens
+}

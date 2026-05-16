@@ -1,0 +1,2 @@
+def boot():
+    print("Booting GENESIS OS...")

@@ -1,0 +1,12 @@
+class ZOS_ServiceManager:
+    def __init__(self):
+        self.services = {}
+
+    def register(self, name, service):
+        self.services[name] = service
+        print("[zOS] Registered service:", name)
+
+    def start_all(self):
+        print("[zOS] Starting all services...")
+        for name, svc in self.services.items():
+            svc.start()

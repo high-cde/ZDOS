@@ -1,0 +1,16 @@
+[project]
+name = "aaak"
+version = "1.0.0"
+description = "AAAK — Adaptive Autonomous Abstract Knowledge engine"
+authors = [
+    { name = "High", email = "highkali13@proton.me" }
+]
+readme = "README.md"
+requires-python = ">=3.10"
+
+[project.urls]
+Homepage = "https://github.com/high-cde/Z-GENESIS-AAAK"
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"

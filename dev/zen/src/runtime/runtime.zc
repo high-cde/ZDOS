@@ -1,0 +1,20 @@
+class Runtime:
+    def __init__(self):
+        self.state = {
+            "node": "stopped",
+            "mesh": "idle",
+            "shield": "down",
+            "workers": []
+        }
+
+    def execute(self, ast):
+        for node in ast:
+            if node.type == "NODE_START":
+                self.state["node"] = "running"
+            if node.type == "MESH_SYNC":
+                self.state["mesh"] = "synced"
+            if node.type == "SHIELD_RAISE":
+                self.state["shield"] = "raised"
+            if node.type == "WORKER_SPAWN":
+                self.state["workers"].append("worker")
+        return self.state

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+echo "========================================="
+echo "   🧬 Z‑GENESIS — GIT STATUS & PUSH"
+echo "========================================="
+
+cd ~/memzdos
+
+echo ""
+echo "📌 Stato del repository principale:"
+git status
+
+echo ""
+echo "📌 Differenze:"
+git diff --stat
+
+echo ""
+echo "📌 Submodules:"
+git submodule status
+
+echo ""
+echo ">>> Aggiungo modifiche..."
+git add .
+
+echo ">>> Commit..."
+git commit -m "Auto‑sync from Termux" || echo "Nessun cambiamento da committare"
+
+echo ">>> Push..."
+git push
+
+echo ""
+echo "========================================="
+echo "   🧬 COMPLETATO"
+echo "========================================="

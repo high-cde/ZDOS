@@ -1,0 +1,6 @@
+class ZOS_TimeD:
+    def start(self):
+        print("[zOS][timed] Time daemon started")
+
+    def now(self):
+        return "00:00:00 (virtual)"

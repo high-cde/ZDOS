@@ -1,0 +1,1 @@
+async function loadChart(){const ctx=document.getElementById("entropy-chart").getContext("2d");const r=await fetch("data/entropy.json?t="+Date.now());const d=await r.json();new Chart(ctx,{type:"line",data:{labels:d.timestamps,datasets:[{label:"Entropy",data:d.values,borderColor:"#00eaff",tension:.3}]},options:{responsive:true}})}loadChart();

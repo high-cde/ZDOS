@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-ZDOS Quantum GhostNet OS</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'JetBrains Mono', monospace; 
+            background: #0A0E27; 
+            color: #00FF00; 
+            overflow: hidden;
+        }
+        .container { display: flex; height: 100vh; }
+        .sidebar { 
+            width: 80px; 
+            background: #0A0E27; 
+            border-right: 2px dashed #00FF00; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+        .nav-item { 
+            width: 60px; 
+            height: 60px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            margin: 10px 0; 
+            border: 2px dashed #00FF00; 
+            border-radius: 5px; 
+            font-size: 24px;
+            transition: all 0.3s;
+        }
+        .nav-item:hover, .nav-item.active { 
+            background: #00FF00; 
+            color: #0A0E27; 
+            box-shadow: 0 0 10px #00FF00;
+        }
+        .main-content { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            background: #0A0E27;
+        }
+        .content-area { 
+            flex: 1; 
+            padding: 30px; 
+            overflow-y: auto; 
+            border: 2px dashed #00FF00;
+            margin: 10px;
+        }
+        .section { display: none; }
+        .section.active { display: block; }
+        h1 { 
+            color: #00FF00; 
+            margin-bottom: 20px; 
+            text-shadow: 0 0 10px #00FF00;
+        }
+        .card { 
+            background: #1a1f3a; 
+            border: 2px dashed #00FF00; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border-radius: 5px;
+        }
+        button { 
+            background: #00FF00; 
+            color: #0A0E27; 
+            border: none; 
+            padding: 10px 20px; 
+            cursor: pointer; 
+            font-family: 'JetBrains Mono', monospace;
+            border-radius: 3px;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        button:hover { 
+            box-shadow: 0 0 10px #00FF00; 
+            transform: scale(1.05);
+        }
+        input, textarea { 
+            background: #1a1f3a; 
+            color: #00FF00; 
+            border: 2px dashed #00FF00; 
+            padding: 10px; 
+            font-family: 'JetBrains Mono', monospace;
+            margin: 5px 0;
+            width: 100%;
+        }
+        .message { 
+            background: #1a1f3a; 
+            border-left: 3px solid #00FF00; 
+            padding: 10px; 
+            margin: 5px 0;
+        }
+        .stats { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 10px;
+        }
+        .stat-box { 
+            background: #1a1f3a; 
+            border: 2px dashed #00FF00; 
+            padding: 15px; 
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="nav-item active" data-section="identity">🔐</div>
+            <div class="nav-item" data-section="channels">📡</div>
+            <div class="nav-item" data-section="chat">💬</div>
+            <div class="nav-item" data-section="dashboard">📊</div>
+            <div class="nav-item" data-section="mining">⛏️</div>
+            <div class="nav-item" data-section="security">🛡️</div>
+            <div class="nav-item" data-section="marketplace">🛒</div>
+            <div class="nav-item" data-section="quantumeco">🌱</div>
+            <div class="nav-item" data-section="wallet">💰</div>
+            <div class="nav-item" data-section="settings">⚙️</div>
+        </div>
+
+        <div class="main-content">
+            <div class="content-area">
+                <!-- IDENTITY -->
+                <div id="identity" class="section active">
+                    <h1>🔐 GHOSTNET IDENTITY</h1>
+                    <div class="card">
+                        <p><strong>GHOST Address:</strong> <span id="ghostAddress">GHOST-XXXXXXXX</span></p>
+                        <p><strong>Display Alias:</strong> <span id="displayAlias">ghost_xxxxxxxx</span></p>
+                        <p><strong>Public Key:</strong> <span id="publicKey">pk_xxxxxxxx</span></p>
+                        <button onclick="regenerateIdentity()">Regenerate Identity</button>
+                    </div>
+                </div>
+
+                <!-- CHANNELS -->
+                <div id="channels" class="section">
+                    <h1>📡 CHANNELS</h1>
+                    <div class="card">
+                        <h3>Canali Disponibili</h3>
+                        <div id="channelsList"></div>
+                        <h3 style="margin-top: 20px;">Crea Nuovo Canale</h3>
+                        <input type="text" id="newChannelName" placeholder="Nome canale">
+                        <button onclick="createChannel()">Crea</button>
+                    </div>
+                </div>
+
+                <!-- CHAT -->
+                <div id="chat" class="section">
+                    <h1>💬 CHAT ANONIMA</h1>
+                    <div class="card">
+                        <div id="chatMessages" style="height: 300px; overflow-y: auto; margin-bottom: 10px; border: 1px dashed #00FF00; padding: 10px;"></div>
+                        <textarea id="messageInput" placeholder="Scrivi messaggio..." style="height: 60px;"></textarea>
+                        <button onclick="sendMessage()">Invia</button>
+                    </div>
+                </div>
+
+                <!-- DASHBOARD -->
+                <div id="dashboard" class="section">
+                    <h1>📊 DASHBOARD</h1>
+                    <div class="stats">
+                        <div class="stat-box">
+                            <p>Blockchain Height</p>
+                            <h2 id="blockchainHeight">1,247</h2>
+                        </div>
+                        <div class="stat-box">
+                            <p>Total Transactions</p>
+                            <h2 id="totalTx">3,891</h2>
+                        </div>
+                        <div class="stat-box">
+                            <p>Active Peers</p>
+                            <h2 id="activePeers">42</h2>
+                        </div>
+                        <div class="stat-box">
+                            <p>Network Difficulty</p>
+                            <h2 id="difficulty">2.847</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MINING -->
+                <div id="mining" class="section">
+                    <h1>⛏️ MINING</h1>
+                    <div class="card">
+                        <p><strong>Hash Rate:</strong> <span id="hashRate">0 H/s</span></p>
+                        <p><strong>Blocks Found:</strong> <span id="blocksFound">0</span></p>
+                        <p><strong>GNT Earned:</strong> <span id="gntEarned">0 GNT</span></p>
+                        <button id="miningBtn" onclick="toggleMining()">Avvia Mining</button>
+                    </div>
+                </div>
+
+                <!-- SECURITY -->
+                <div id="security" class="section">
+                    <h1>🛡️ CYBERSECURITY SOC</h1>
+                    <div class="card">
+                        <p><strong>Threat Level:</strong> <span id="threatLevel">LOW</span></p>
+                        <p><strong>Encryption:</strong> Active</p>
+                        <p><strong>Firewall:</strong> Active</p>
+                        <button onclick="togglePanicMode()">Panic Mode</button>
+                    </div>
+                </div>
+
+                <!-- MARKETPLACE -->
+                <div id="marketplace" class="section">
+                    <h1>🛒 MARKETPLACE</h1>
+                    <div class="card">
+                        <h3>Moduli Disponibili</h3>
+                        <div class="card" style="margin-top: 10px;">
+                            <p>🔐 Advanced Encryption - 50 GNT</p>
+                            <button onclick="buyModule('encryption')">Acquista</button>
+                        </div>
+                        <div class="card">
+                            <p>🌐 Mesh Network Pro - 100 GNT</p>
+                            <button onclick="buyModule('mesh')">Acquista</button>
+                        </div>
+                        <div class="card">
+                            <p>⚡ Lightning Network - 75 GNT</p>
+                            <button onclick="buyModule('lightning')">Acquista</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUANTUMECO -->
+                <div id="quantumeco" class="section">
+                    <h1>🌱 QUANTUMECO SERVICES</h1>
+                    <div class="card">
+                        <h3>Servizi Disponibili</h3>
+                        <div class="card" style="margin-top: 10px;">
+                            <p>🌍 Carbon Offset</p>
+                            <button onclick="activateService('carbon')">Attiva</button>
+                        </div>
+                        <div class="card">
+                            <p>♻️ Renewable Energy</p>
+                            <button onclick="activateService('energy')">Attiva</button>
+                        </div>
+                        <div class="card">
+                            <p>🌱 Tree Planting</p>
+                            <button onclick="activateService('tree')">Attiva</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WALLET -->
+                <div id="wallet" class="section">
+                    <h1>💰 WALLET</h1>
+                    <div class="card">
+                        <h3>Wallet Disponibili</h3>
+                        <button onclick="connectWallet('metamask')">🦊 MetaMask</button>
+                        <button onclick="connectWallet('phantom')">👻 Phantom</button>
+                        <button onclick="connectWallet('walletconnect')">🔗 WalletConnect</button>
+                        <p style="margin-top: 20px;"><strong>Balance:</strong> <span id="walletBalance">0 GNT</span></p>
+                    </div>
+                </div>
+
+                <!-- SETTINGS -->
+                <div id="settings" class="section">
+                    <h1>⚙️ SETTINGS</h1>
+                    <div class="card">
+                        <label><input type="checkbox" checked> Dark Mode</label><br>
+                        <label><input type="checkbox" checked> Notifiche</label><br>
+                        <label><input type="checkbox"> 2FA</label><br>
+                        <button onclick="exportData()">Esporta Dati</button>
+                        <button onclick="resetNode()">Reset Node</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const section = this.dataset.section;
+                showSection(section);
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        // Identity
+        function generateGhostAddress() {
+            const chars = '0123456789ABCDEF';
+            let address = 'GHOST-';
+            for (let i = 0; i < 8; i++) {
+                address += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return address;
+        }
+
+        function regenerateIdentity() {
+            const ghostAddr = generateGhostAddress();
+            const alias = 'ghost_' + Math.random().toString(16).substr(2, 8);
+            const publicKey = 'pk_' + Math.random().toString(16).substr(2, 8);
+            
+            document.getElementById('ghostAddress').textContent = ghostAddr;
+            document.getElementById('displayAlias').textContent = alias;
+            document.getElementById('publicKey').textContent = publicKey;
+            
+            localStorage.setItem('ghostAddress', ghostAddr);
+            localStorage.setItem('displayAlias', alias);
+            localStorage.setItem('publicKey', publicKey);
+        }
+
+        // Chat
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const messages = document.getElementById('chatMessages');
+            const msgEl = document.createElement('div');
+            msgEl.className = 'message';
+            msgEl.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            messages.appendChild(msgEl);
+            messages.scrollTop = messages.scrollHeight;
+            input.value = '';
+        }
+
+        // Channels
+        function createChannel() {
+            const name = document.getElementById('newChannelName').value.trim();
+            if (!name) return;
+            
+            const list = document.getElementById('channelsList');
+            const item = document.createElement('div');
+            item.className = 'card';
+            item.textContent = `📡 ${name}`;
+            list.appendChild(item);
+            document.getElementById('newChannelName').value = '';
+        }
+
+        // Mining
+        let miningActive = false;
+        function toggleMining() {
+            miningActive = !miningActive;
+            const btn = document.getElementById('miningBtn');
+            btn.textContent = miningActive ? 'Ferma Mining' : 'Avvia Mining';
+            
+            if (miningActive) {
+                let hashRate = 0;
+                const interval = setInterval(() => {
+                    if (!miningActive) {
+                        clearInterval(interval);
+                        return;
+                    }
+                    hashRate += Math.random() * 1000;
+                    document.getElementById('hashRate').textContent = hashRate.toFixed(0) + ' H/s';
+                }, 500);
+            }
+        }
+
+        // Wallet
+        function connectWallet(wallet) {
+            alert(`Connessione a ${wallet} in corso...`);
+            document.getElementById('walletBalance').textContent = Math.floor(Math.random() * 1000) + ' GNT';
+        }
+
+        // Utility
+        function buyModule(module) {
+            alert(`Acquisto di ${module} in corso...`);
+        }
+
+        function activateService(service) {
+            alert(`Attivazione di ${service} in corso...`);
+        }
+
+        function exportData() {
+            alert('Esportazione dati in corso...');
+        }
+
+        function resetNode() {
+            if (confirm('Sei sicuro? Questa azione è irreversibile.')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function togglePanicMode() {
+            alert('Panic Mode attivato!');
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            regenerateIdentity();
+            
+            // Create default channels
+            const channels = ['General', 'GhostNet', 'Anonymous', 'Trading', 'X-ZDOS'];
+            const list = document.getElementById('channelsList');
+            channels.forEach(ch => {
+                const item = document.createElement('div');
+                item.className = 'card';
+                item.textContent = `📡 ${ch}`;
+                list.appendChild(item);
+            });
+        });
+    </script>
+</body>
+</html>

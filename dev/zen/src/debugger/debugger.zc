@@ -1,0 +1,40 @@
+from src.tokenizer import tokenize
+from src.parser import parse
+from src.compiler.compiler import compile
+from src.zcore.bridge import translate
+from src.zcore.loader import ZCoreLoader
+
+from src.debugger.ast_viewer import view_ast
+from src.debugger.bytecode_viewer import view_bytecode
+from src.debugger.runtime_inspector import inspect_runtime
+
+class ZenDebugger:
+    def __init__(self):
+        self.loader = ZCoreLoader()
+
+    def debug(self, source):
+        print("TOKENIZING")
+        tokens = tokenize(source)
+
+        print("PARSING")
+        ast = parse(tokens)
+
+        print("AST")
+        view_ast(ast)
+
+        print("COMPILING")
+        bytecode = compile(ast)
+
+        print("BYTECODE")
+        view_bytecode(bytecode)
+
+        print("TRANSLATING TO ZCORE")
+        zcore_code = translate(ast)
+
+        print("EXECUTING")
+        state = self.loader.load(zcore_code)
+
+        print("RUNTIME")
+        inspect_runtime(state)
+
+        return state

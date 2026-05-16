@@ -1,0 +1,65 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -e
+
+ROOT=/data/data/com.termux/files/home/memzdos
+LOGS="$ROOT/logs"
+MASTRO1="$ROOT/scripts/zgen-mastro"
+
+mkdir -p "$LOGS"
+
+echo "========================================="
+echo "   🤖 Z‑GENESIS — MASTRO v2 (AGI MODE)"
+echo "   Supervisore Intelligente del Sistema"
+echo "========================================="
+
+echo
+echo ">>> [1/4] ANALISI DEL SISTEMA"
+
+CORTEX_DIR="$ROOT/modules/cortex/cortex"
+LIVE_DIR="$ROOT/modules/live"
+
+CORTEX_OK=true
+LIVE_OK=true
+
+[ -f "$CORTEX_DIR/server.py" ] || CORTEX_OK=false
+[ -f "$CORTEX_DIR/middleware.py" ] || CORTEX_OK=false
+[ -f "$CORTEX_DIR/router.py" ] || CORTEX_OK=false
+
+[ -f "$LIVE_DIR/server/server.js" ] || LIVE_OK=false
+
+echo "CORTEX struttura: $CORTEX_OK"
+echo "LIVE struttura:   $LIVE_OK"
+
+echo
+echo ">>> [2/4] DECISIONE AGI"
+
+NEED_REBUILD=false
+
+if [ "$CORTEX_OK" = false ]; then
+  echo "AGI: CORTEX non è coerente → ricostruzione necessaria."
+  NEED_REBUILD=true
+fi
+
+if [ "$LIVE_OK" = false ]; then
+  echo "AGI: LIVE non è coerente → ricostruzione necessaria."
+  NEED_REBUILD=true
+fi
+
+echo
+echo ">>> [3/4] AZIONE"
+
+if [ "$NEED_REBUILD" = true ]; then
+  echo "AGI: Invio istruzioni a Mastro v1..."
+  bash "$MASTRO1"
+else
+  echo "AGI: Sistema coerente. Avvio normale."
+  bash "$MASTRO1"
+fi
+
+echo
+echo ">>> [4/4] REPORT AGI"
+echo "========================================="
+echo "   🤖 MASTRO v2 — Supervisione completata"
+echo "========================================="
+echo "Log: $LOGS"
+echo "========================================="

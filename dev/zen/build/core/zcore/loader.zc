@@ -1,0 +1,10 @@
+from src.zcore.runtime import ZCoreRuntime
+
+class ZCoreLoader:
+    def __init__(self):
+        self.runtime = ZCoreRuntime()
+
+    def load(self, bytecode):
+        for op in bytecode:
+            self.runtime.execute_opcode(op)
+        return self.runtime.state

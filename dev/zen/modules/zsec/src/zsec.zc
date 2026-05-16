@@ -1,0 +1,6 @@
+class Sandbox:
+    def allow(self, action):
+        print("Allow:", action)
+
+    def deny(self, action):
+        print("Deny:", action)

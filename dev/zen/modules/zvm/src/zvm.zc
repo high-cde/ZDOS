@@ -1,0 +1,8 @@
+class ZVM:
+    def __init__(self):
+        self.stack = []
+        self.pc = 0
+
+    def execute(self, bytecode):
+        for op in bytecode:
+            print("Executing opcode:", op)

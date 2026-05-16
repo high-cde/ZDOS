@@ -1,0 +1,5 @@
+def assemble(code):
+    print("Assembling:", code)
+
+def disassemble(bytecode):
+    print("Disassembling:", bytecode)

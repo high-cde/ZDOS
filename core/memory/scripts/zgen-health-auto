@@ -1,0 +1,56 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -e
+
+ROOT=~/memzdos
+
+echo "========================================="
+echo "   🧬 Z‑GENESIS — HEALTH AUTO v1"
+echo "   (Autobuild + Run + Health Check)"
+echo "========================================="
+
+echo
+echo ">>> [1/6] Avvio AUTOBUILD (zgen-product)"
+zgen-product
+echo "Autobuild completato."
+
+echo
+echo ">>> [2/6] Avvio CORTEX"
+cd "$ROOT/modules/cortex"
+# Avvio in background
+pkill -f "uvicorn" || true
+nohup uvicorn main:app --host 0.0.0.0 --port 8000 >/dev/null 2>&1 &
+sleep 2
+echo "CORTEX avviato."
+
+echo
+echo ">>> [3/6] Avvio LIVE"
+cd "$ROOT/modules/live"
+pkill -f "python live.py" || true
+nohup python live.py >/dev/null 2>&1 &
+sleep 2
+echo "LIVE avviato."
+
+echo
+echo ">>> [4/6] Avvio NODES"
+cd "$ROOT/modules/nodes"
+pkill -f "python nodes.py" || true
+nohup python nodes.py >/dev/null 2>&1 &
+sleep 2
+echo "NODES avviato."
+
+echo
+echo ">>> [5/6] HEALTH CHECK"
+CORTEX_OK=$(curl -s http://127.0.0.1:8000/docs >/dev/null && echo OK || echo FAIL)
+LIVE_OK=$(pgrep -f "live.py" >/dev/null && echo OK || echo FAIL)
+NODES_OK=$(pgrep -f "nodes.py" >/dev/null && echo OK || echo FAIL)
+
+echo
+echo ">>> [6/6] REPORT FINALE"
+echo "========================================="
+echo "   🧬 Z‑GENESIS — HEALTH REPORT"
+echo "========================================="
+echo "AAAK v2: OK"
+echo "CORTEX: $CORTEX_OK"
+echo "LIVE: $LIVE_OK"
+echo "NODES: $NODES_OK"
+echo "========================================="

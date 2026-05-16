@@ -1,0 +1,10 @@
+import json
+
+def zen_to_json(ast):
+    output = []
+    for node in ast:
+        output.append({
+            "type": node.type,
+            "args": node.args
+        })
+    return json.dumps(output, indent=2)

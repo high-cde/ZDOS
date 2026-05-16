@@ -1,0 +1,83 @@
+#!/bin/bash
+
+echo "========================================="
+echo "   🧬 Z‑GENESIS — SYSTEM HEALTH"
+echo "========================================="
+
+cd ~/memzdos
+
+echo ""
+echo "📌 [GIT] Stato memzdos:"
+git status -sb
+
+echo ""
+echo "📌 [GIT] Submodules:"
+git submodule status
+
+echo ""
+echo "📌 [GIT] Differenze (root):"
+git diff --stat || echo "Nessuna differenza"
+
+echo ""
+echo "📌 [PROC] Processi chiave:"
+ps aux | grep -E "uvicorn|server.js|agent.py" | grep -v grep || echo "Nessun processo attivo"
+
+echo ""
+echo "📌 [PORTS] Porte 7001 (CORTEX) e 8080 (LIVE):"
+ss -tuln | grep -E ":7001|:8080" || echo "Porte non in ascolto"
+
+echo ""
+echo "📌 [AAAK] Verifica modulo:"
+python - << 'EOF'
+try:
+    import aaak
+    print("AAAK: OK (import riuscito)")
+except Exception as e:
+    print("AAAK: ERRORE:", e)
+EOF
+
+echo ""
+echo "📌 [PALACE] Verifica DB:"
+if [ -f "$HOME/Z-GENESIS-PALACE/DSN-PALACE.db" ]; then
+  echo "PALACE DB: trovato"
+else
+  echo "PALACE DB: NON trovato"
+fi
+
+echo ""
+echo "📌 [NODES] Heartbeat rapido:"
+for n in vps kali termux; do
+  if pgrep -f "nodes/$n/agent.py" >/dev/null 2>&1; then
+    echo "  - $n: attivo"
+  else
+    echo "  - $n: spento"
+  fi
+done
+
+echo ""
+read -p '👉 Vuoi sincronizzare TUTTO il codice ora? [y/N] ' SYNC
+
+if [[ "$SYNC" == "y" || "$SYNC" == "Y" ]]; then
+  echo ""
+  echo "🔄 Avvio zgen-git-all..."
+  zgen-git-all
+else
+  echo "⏭  Sync globale saltato."
+fi
+
+echo ""
+read -p '👉 Vuoi eseguire anche l’autobuild prodotto (zgen-product)? [y/N] ' BUILD
+
+if [[ "$BUILD" == "y" || "$BUILD" == "Y" ]]; then
+  echo ""
+  echo "🚀 Avvio zgen-product..."
+  zgen-product
+else
+  echo "⏭  Autobuild saltato."
+fi
+
+echo ""
+echo "========================================="
+echo "   🧬 SYSTEM HEALTH CHECK COMPLETATO"
+echo "========================================="
+echo ""

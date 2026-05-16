@@ -1,0 +1,12 @@
+BYTECODES = {
+    "NODE_START": 1,
+    "MESH_SYNC": 2,
+    "SHIELD_RAISE": 3,
+    "WORKER_SPAWN": 4
+}
+
+def compile(ast):
+    bytecode = []
+    for node in ast:
+        bytecode.append(BYTECODES[node.type])
+    return bytecode

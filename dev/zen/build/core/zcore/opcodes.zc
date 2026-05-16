@@ -1,0 +1,10 @@
+OPCODES = {
+    "NODE_START": 16,
+    "NODE_STOP": 17,
+    "MESH_SYNC": 32,
+    "MESH_BROADCAST": 33,
+    "SHIELD_RAISE": 48,
+    "SHIELD_LOWER": 49,
+    "WORKER_SPAWN": 64,
+    "WORKER_KILL": 65
+}

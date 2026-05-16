@@ -1,0 +1,4 @@
+def inspect_runtime(state):
+    print("RUNTIME STATE")
+    for key in state:
+        print(key, ":", state[key])

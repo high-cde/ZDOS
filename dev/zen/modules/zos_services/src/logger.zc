@@ -1,0 +1,6 @@
+class ZOS_Logger:
+    def start(self):
+        print("[zOS][logger] Logging service started")
+
+    def log(self, msg):
+        print("[LOG]", msg)

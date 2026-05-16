@@ -1,0 +1,2 @@
+def shell():
+    print("GENESIS Shell Ready")

@@ -1,0 +1,2 @@
+def print_line(x):
+    print(x)

@@ -1,0 +1,9 @@
+README.md
+pyproject.toml
+aaak/__init__.py
+aaak/core.py
+aaak.egg-info/PKG-INFO
+aaak.egg-info/SOURCES.txt
+aaak.egg-info/dependency_links.txt
+aaak.egg-info/top_level.txt
+tests/test_aaak_v2.py

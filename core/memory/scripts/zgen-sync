@@ -1,0 +1,20 @@
+#!/bin/bash
+
+echo "🔄 Sync Z‑GENESIS — memzdos + submodules"
+
+cd ~/memzdos
+git pull
+git add .
+git commit -m "Sync memzdos" || true
+git push
+
+for module in cortex palace live nodes aaak; do
+  echo "🔄 Sync module: $module"
+  cd ~/memzdos/modules/$module
+  git pull
+  git add .
+  git commit -m "Sync $module" || true
+  git push
+done
+
+echo "✨ Sync completato"

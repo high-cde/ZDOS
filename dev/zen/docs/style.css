@@ -1,0 +1,6 @@
+body { background:#0d0d0d; color:#eee; font-family:Inter; margin:0; }
+header { padding:40px; text-align:center; background:#111; }
+nav a { margin:0 15px; color:#aaa; text-decoration:none; }
+nav a:hover { color:#fff; }
+.section { max-width:900px; margin:auto; padding:50px 20px; }
+.card { background:#141414; padding:20px; border-radius:10px; margin-bottom:20px; }

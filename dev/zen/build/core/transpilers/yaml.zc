@@ -1,0 +1,8 @@
+def zen_to_yaml(ast):
+    lines = []
+    for node in ast:
+        lines.append("- type: " + node.type)
+        if node.args:
+            for k in node.args:
+                lines.append("  " + k + ": " + str(node.args[k]))
+    return "\n".join(lines)

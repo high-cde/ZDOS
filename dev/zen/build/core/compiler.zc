@@ -1,0 +1,9 @@
+fn compile(ast) {
+    bytecode = []
+    for node in ast {
+        if node.type == "word" {
+            bytecode.push(node.value)
+        }
+    }
+    return bytecode
+}

@@ -1,0 +1,1 @@
+fn assemble(code) { return tokenize(code) }

@@ -1,0 +1,4 @@
+def view_bytecode(bytecode):
+    print("BYTECODE VIEW")
+    for op in bytecode:
+        print(" -", op)

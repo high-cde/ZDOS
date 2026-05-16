@@ -1,0 +1,112 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -e
+
+ROOT=/data/data/com.termux/files/home/memzdos
+LOGS="$ROOT/logs"
+mkdir -p "$LOGS"
+
+echo "========================================="
+echo "   🧬 Z‑GENESIS — MASTRO v1"
+echo "   (Costruttore interno di sistema)"
+echo "========================================="
+
+echo
+echo ">>> [1/6] Allineo struttura e import CORTEX"
+
+CORTEX_DIR="$ROOT/modules/cortex/cortex"
+
+# Corregge server.py
+cat > "$CORTEX_DIR/server.py" << 'EOF'
+from starlette.applications import Starlette
+from starlette.middleware import Middleware
+from starlette.responses import JSONResponse
+from starlette.routing import Mount
+
+from cortex.middleware import RequestLogger
+from cortex.router import cortex_routes
+
+app = Starlette(
+    debug=True,
+    routes=[Mount("/", routes=cortex_routes)],
+    middleware=[Middleware(RequestLogger)]
+)
+
+@app.route("/")
+async def root(request):
+    return JSONResponse({"status": "CORTEX OK"})
+EOF
+
+# Corregge middleware.py
+cat > "$CORTEX_DIR/middleware.py" << 'EOF'
+from starlette.middleware.base import BaseHTTPMiddleware
+from cortex.utils.logging import log
+
+class RequestLogger(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        log(f"Request: {request.method} {request.url}")
+        response = await call_next(request)
+        log(f"Response: {response.status_code}")
+        return response
+EOF
+
+echo "CORTEX: struttura e import allineati."
+
+echo
+echo ">>> [2/6] AUTOBUILD (zgen-product)"
+cd "$ROOT"
+zgen-product
+echo "Autobuild completato."
+
+echo
+echo ">>> [3/6] Avvio CORTEX"
+cd "$ROOT/modules/cortex"
+pkill -f "uvicorn" || true
+nohup python3 -m uvicorn cortex.server:app \
+  --host 0.0.0.0 --port 8000 \
+  > "$LOGS/cortex.out" 2> "$LOGS/cortex.err" &
+sleep 3
+echo "CORTEX avviato."
+
+echo
+echo ">>> [4/6] Avvio LIVE"
+cd "$ROOT/modules/live"
+pkill -f "node server/server.js" || true
+nohup node server/server.js \
+  > "$LOGS/live.out" 2> "$LOGS/live.err" &
+sleep 3
+echo "LIVE avviato."
+
+echo
+echo ">>> [5/6] HEALTH CHECK"
+
+check_service() {
+  NAME=$1
+  CMD=$2
+  RETRIES=10
+
+  for i in $(seq 1 $RETRIES); do
+    if eval "$CMD"; then
+      echo "$NAME: OK"
+      return 0
+    fi
+    echo "$NAME: waiting ($i/$RETRIES)..."
+    sleep 1
+  done
+
+  echo "$NAME: FAIL"
+  return 1
+}
+
+check_service "CORTEX" "curl -s http://127.0.0.1:8000 >/dev/null"
+check_service "LIVE"   "pgrep -f 'node server/server.js' >/dev/null"
+
+echo
+echo ">>> [6/6] REPORT FINALE"
+echo "========================================="
+echo "   🧬 Z‑GENESIS — MASTRO REPORT"
+echo "========================================="
+echo "AAAK v2: OK (da zgen-product)"
+echo "CORTEX: $(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8000 2>/dev/null | grep -q '^200$' && echo OK || echo FAIL)"
+echo "LIVE:   $(pgrep -f 'node server/server.js' >/dev/null && echo OK || echo FAIL)"
+echo "Log:    $LOGS"
+echo "========================================="

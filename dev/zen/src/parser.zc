@@ -1,0 +1,7 @@
+fn parse(tokens) {
+    ast = []
+    for t in tokens {
+        ast.push({ type: "word", value: t })
+    }
+    return ast
+}

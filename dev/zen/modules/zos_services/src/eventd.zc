@@ -1,0 +1,14 @@
+class ZOS_EventD:
+    def __init__(self):
+        self.listeners = []
+
+    def start(self):
+        print("[zOS][eventd] Event daemon active")
+
+    def emit(self, event):
+        print("[zOS][eventd] Event:", event)
+        for l in self.listeners:
+            l(event)
+
+    def on(self, callback):
+        self.listeners.append(callback)

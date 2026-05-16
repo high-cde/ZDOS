@@ -1,0 +1,10 @@
+def install(pkg):
+    print("Installing package:", pkg)
+
+def publish(pkg):
+    print("Publishing package:", pkg)
+
+def list_packages():
+    print("Available packages:")
+    print(" - core")
+    print(" - std")

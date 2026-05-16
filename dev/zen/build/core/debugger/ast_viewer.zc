@@ -1,0 +1,4 @@
+def view_ast(ast):
+    print("AST VIEW")
+    for node in ast:
+        print(" -", node.type)

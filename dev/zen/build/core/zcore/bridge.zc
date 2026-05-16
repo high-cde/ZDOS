@@ -1,0 +1,15 @@
+from src.zcore.opcodes import OPCODES
+
+ZEN_TO_ZCORE = {
+    "NODE_START": OPCODES["NODE_START"],
+    "MESH_SYNC": OPCODES["MESH_SYNC"],
+    "SHIELD_RAISE": OPCODES["SHIELD_RAISE"],
+    "WORKER_SPAWN": OPCODES["WORKER_SPAWN"]
+}
+
+def translate(ast):
+    bytecode = []
+    for node in ast:
+        if node.type in ZEN_TO_ZCORE:
+            bytecode.append(ZEN_TO_ZCORE[node.type])
+    return bytecode

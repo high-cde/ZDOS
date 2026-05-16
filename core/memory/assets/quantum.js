@@ -1,0 +1,1 @@
+document.querySelectorAll(".panel").forEach(p=>{p.addEventListener("mousemove",e=>{const r=p.getBoundingClientRect();const x=e.clientX-r.left;const y=e.clientY-r.top;p.style.background=`radial-gradient(circle at ${x}px ${y}px,#0a1224,#070b16 60%)`})});

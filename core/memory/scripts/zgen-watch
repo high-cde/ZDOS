@@ -1,0 +1,55 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+ROOT=~/memzdos
+
+while true; do
+    clear
+    echo "========================================="
+    echo "   🧬 Z‑GENESIS — WATCHDOG v1"
+    echo "   (Realtime System Monitor)"
+    echo "========================================="
+
+    echo
+    echo ">>> CPU & RAM"
+    procs=$(ps -A | wc -l)
+    mem=$(free -m | awk '/Mem:/ {print $3 "/" $2 " MB"}')
+    cpu=$(top -bn 1 | head -n 5 | grep "CPU:" | awk '{print $2}')
+    echo "CPU: $cpu"
+    echo "RAM: $mem"
+    echo "PROC: $procs"
+
+    echo
+    echo ">>> PROCESSI Z‑GENESIS"
+    cortex=$(pgrep -f "uvicorn" >/dev/null && echo "RUNNING" || echo "STOPPED")
+    live=$(pgrep -f "live.py" >/dev/null && echo "RUNNING" || echo "STOPPED")
+    nodes=$(pgrep -f "nodes.py" >/dev/null && echo "RUNNING" || echo "STOPPED")
+    echo "CORTEX: $cortex"
+    echo "LIVE:   $live"
+    echo "NODES:  $nodes"
+
+    echo
+    echo ">>> PORTE"
+    cortex_port=$(nc -z 127.0.0.1 8000 && echo "8000 OPEN" || echo "8000 CLOSED")
+    echo "CORTEX PORT: $cortex_port"
+
+    echo
+    echo ">>> HEARTBEAT AAAK"
+    hb=$(python3 - << 'EOF'
+import aaak
+try:
+    out = aaak.encode("heartbeat")
+    print("OK  | FP:", out["fingerprint"][:12])
+except Exception as e:
+    print("FAIL |", e)
+EOF
+)
+    echo "$hb"
+
+    echo
+    echo ">>> TEMPO REALE"
+    date
+
+    echo
+    echo "Premi CTRL+C per uscire."
+    sleep 2
+done

@@ -1,0 +1,5 @@
+def zen_to_python(ast):
+    lines = ["program = []"]
+    for node in ast:
+        lines.append("program.append({\"type\": \"" + node.type + "\", \"args\": " + str(node.args) + "})")
+    return "\n".join(lines)

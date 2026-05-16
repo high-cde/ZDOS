@@ -1,0 +1,10 @@
+class ZOS_ServiceRegistry:
+    def __init__(self):
+        self.registry = {}
+
+    def add(self, name, info):
+        self.registry[name] = info
+        print("[zOS][registry] Added:", name)
+
+    def list(self):
+        print("[zOS][registry] Services:", list(self.registry.keys()))

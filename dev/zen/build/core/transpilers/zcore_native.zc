@@ -1,0 +1,9 @@
+from src.zcore.bridge import ZEN_TO_ZCORE
+
+def zen_to_zcore_native(ast):
+    lines = []
+    for node in ast:
+        if node.type in ZEN_TO_ZCORE:
+            opcode = ZEN_TO_ZCORE[node.type]
+            lines.append("OP " + str(opcode))
+    return "\n".join(lines)

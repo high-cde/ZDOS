@@ -1,0 +1,14 @@
+class ZFS:
+    def __init__(self):
+        self.files = {}
+
+    def write(self, path, content):
+        self.files[path] = content
+        print("[zFS] WRITE", path)
+
+    def read(self, path):
+        print("[zFS] READ", path)
+        return self.files.get(path, "")
+
+    def list(self):
+        print("[zFS] FILES:", list(self.files.keys()))

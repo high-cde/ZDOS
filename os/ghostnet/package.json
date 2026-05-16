@@ -1,0 +1,56 @@
+{
+  "name": "@high-cde/x-zdos-quantum",
+  "version": "1.0.0-quantum",
+  "description": "ZDOS Quantum System - Integrated AGI + Crypto Payments + Tor Infrastructure",
+  "main": "src/server-quantum.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "build:wasm": "cd wasm && npm run build",
+    "test": "node --test src/**/*.test.js",
+    "clean": "rm -rf dist/ *.db"
+  },
+  "keywords": [
+    "zdos",
+    "quantum",
+    "agi",
+    "crypto",
+    "payments",
+    "tor",
+    "onion",
+    "blockchain",
+    "decentralized",
+    "privacy",
+    "monero",
+    "dsn",
+    "ghostnet"
+  ],
+  "author": "X-ZDOS Team <dev@x-zdos.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "directories": {
+    "doc": "docs",
+    "lib": "src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/high-cde/x-zdos-quantum-ghostnet-os.git"
+  },
+  "bugs": {
+    "url": "https://github.com/high-cde/x-zdos-quantum-ghostnet-os/issues"
+  },
+  "homepage": "https://github.com/high-cde/x-zdos-quantum-ghostnet-os#readme",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/high-cde"
+  }
+}

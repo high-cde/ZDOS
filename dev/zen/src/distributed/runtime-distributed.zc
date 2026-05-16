@@ -1,0 +1,14 @@
+class DistributedRuntime:
+    def __init__(self):
+        self.nodes = []
+
+    def broadcast(self, message):
+        for n in self.nodes:
+            n.receive(message)
+
+class Node:
+    def __init__(self, id):
+        self.id = id
+
+    def receive(self, message):
+        print("[Node {}] {}".format(self.id, message))

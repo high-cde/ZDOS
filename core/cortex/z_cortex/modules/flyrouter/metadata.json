@@ -1,0 +1,6 @@
+{
+  "name": "FLY-ROUTER",
+  "version": "0.1.0",
+  "source": "FlyWire / flyconnectome",
+  "description": "Drosophila brain connectome module for Z-CORTEX"
+}

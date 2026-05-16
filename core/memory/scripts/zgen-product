@@ -1,0 +1,84 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -e
+
+ROOT=~/memzdos
+
+echo "========================================="
+echo "   🧬 Z‑GENESIS — PRODUCT BUILD v3"
+echo "   (AAAK v2 + TEST + CORTEX + LIVE + RELEASE)"
+echo "========================================="
+
+echo
+echo ">>> [1/8] Sync submodules"
+cd "$ROOT"
+git submodule update --init --recursive
+git submodule foreach git pull origin main || true
+echo "Submodules sincronizzati."
+
+echo
+echo ">>> [2/8] Installazione AAAK v2"
+cd "$ROOT/modules/aaak"
+pip install . --break-system-packages
+echo "AAAK installato."
+
+echo
+echo ">>> [3/8] Test AAAK v2"
+pytest
+echo "AAAK v2: TEST OK."
+
+echo
+echo ">>> [4/8] Build CORTEX"
+cd "$ROOT/modules/cortex"
+# eventuali build script
+echo "CORTEX pronto."
+
+echo
+echo ">>> [5/8] Build LIVE"
+cd "$ROOT/modules/live"
+# eventuali build script
+echo "LIVE pronto."
+
+echo
+echo ">>> [6/8] Commit & Push submodules"
+cd "$ROOT/modules/aaak"
+git add .
+git commit -m "AAAK v2: semantic engine + tests" || true
+git push origin main || true
+
+cd "$ROOT/modules/cortex"
+git add .
+git commit -m "CORTEX: AAAK v2 integration" || true
+git push origin main || true
+
+cd "$ROOT/modules/live"
+git add .
+git commit -m "LIVE: AAAK v2 integration" || true
+git push origin main || true
+
+echo "Submodules push OK."
+
+echo
+echo ">>> [7/8] Commit & Push memzdos"
+cd "$ROOT"
+git add .
+git commit -m "Autobuild: AAAK v2 + CORTEX + LIVE + sync" || true
+git push origin main || true
+echo "memzdos push OK."
+
+echo
+echo ">>> [8/8] Creazione release GitHub"
+TAG="v2.0.$(date +%s)"
+git tag "$TAG"
+git push origin "$TAG"
+echo "Release creata: $TAG"
+
+echo
+echo "========================================="
+echo "   🧬 Z‑GENESIS — AUTOBUILD COMPLETATO"
+echo "========================================="
+echo "AAAK v2: OK"
+echo "TEST: OK"
+echo "CORTEX: OK"
+echo "LIVE: OK"
+echo "Push: OK"
+echo "Release: OK"

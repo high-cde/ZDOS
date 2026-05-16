@@ -1,0 +1,10 @@
+fn run(ast) {
+    stack = []
+    for node in ast {
+        if node.value.isNumber() {
+            stack.push(node.value.toInt())
+        } else if node.value == "print" {
+            println(stack.pop())
+        }
+    }
+}

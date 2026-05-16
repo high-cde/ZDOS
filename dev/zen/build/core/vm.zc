@@ -1,0 +1,10 @@
+fn execute(bytecode) {
+    stack = []
+    for op in bytecode {
+        if op.isNumber() {
+            stack.push(op.toInt())
+        } else if op == "print" {
+            println(stack.pop())
+        }
+    }
+}

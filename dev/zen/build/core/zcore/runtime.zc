@@ -1,0 +1,28 @@
+class ZCoreRuntime:
+    def __init__(self):
+        self.state = {
+            "node": "stopped",
+            "mesh": "idle",
+            "shield": "down",
+            "workers": []
+        }
+
+    def execute_opcode(self, opcode):
+        if opcode == 16:
+            self.state["node"] = "running"
+        if opcode == 17:
+            self.state["node"] = "stopped"
+        if opcode == 32:
+            self.state["mesh"] = "synced"
+        if opcode == 33:
+            self.state["mesh"] = "broadcast"
+        if opcode == 48:
+            self.state["shield"] = "raised"
+        if opcode == 49:
+            self.state["shield"] = "lowered"
+        if opcode == 64:
+            self.state["workers"].append("worker")
+        if opcode == 65:
+            if self.state["workers"]:
+                self.state["workers"].pop()
+        return self.state

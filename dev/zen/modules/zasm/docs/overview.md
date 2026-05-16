@@ -1,0 +1,2 @@
+# zasm
+Documentazione generata automaticamente.

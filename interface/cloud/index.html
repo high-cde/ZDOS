@@ -1,0 +1,205 @@
+	<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xCLOUD × ZDOS — Control Hub</title>
+
+    <!-- SEO -->
+    <meta name="description" content="CloudX × ZDOS — Unified Control Hub for HighKali systems, GhostTrack-v2, RZA-pulciz and distributed nodes.">
+    <meta name="theme-color" content="#00eaff">
+
+    <style>
+        /* GLOBAL */
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            color: #e0e0e0;
+            font-family: "JetBrains Mono", monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* CRT EFFECT */
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(255,255,255,0.03),
+                rgba(255,255,255,0.03) 1px,
+                transparent 1px,
+                transparent 3px
+            );
+            opacity: 0.25;
+        }
+
+        h1 {
+            margin-top: 60px;
+            font-size: 3rem;
+            color: #7df9ff;
+            text-shadow: 0 0 12px #00eaff, 0 0 24px #00eaff;
+        }
+
+        h2 {
+            margin-top: 5px;
+            font-size: 1.1rem;
+            color: #888;
+            font-weight: 300;
+        }
+
+        .container {
+            margin-top: 40px;
+            width: 90%;
+            max-width: 700px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .btn {
+            padding: 16px;
+            border-radius: 10px;
+            background: #0d0d0d;
+            border: 1px solid #222;
+            color: #7df9ff;
+            text-decoration: none;
+            font-size: 1.1rem;
+            text-align: center;
+            transition: 0.25s;
+            box-shadow: 0 0 10px #003b45 inset;
+        }
+
+        .btn:hover {
+            background: #001f24;
+            border-color: #00eaff;
+            box-shadow: 0 0 18px #00eaff;
+            transform: translateY(-2px);
+        }
+
+        /* TERMINAL */
+        .terminal {
+            margin-top: 50px;
+            width: 90%;
+            max-width: 700px;
+            background: #050505;
+            border: 1px solid #0a0a0a;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #00eaff55 inset;
+            color: #7df9ff;
+            font-size: 0.95rem;
+            line-height: 1.4rem;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            background: #7df9ff;
+            animation: blink 0.8s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 20px;
+            font-size: 0.9rem;
+            color: #444;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>CloudX × ZDOS</h1>
+    <h2>Unified Control Hub — Pragone Node</h2>
+
+    <!-- TERMINAL ANIMATO -->
+    <div class="terminal" id="terminal">
+        <span id="term-text"></span><span class="cursor"></span>
+    </div>
+
+    <script>
+        const lines = [
+            "Initializing CloudX × ZDOS...",
+            "Loading distributed nodes...",
+            "Syncing GhostTrack-v2...",
+            "Activating RZA-pulciz cognitive layer...",
+            "Deploying Pragone mesh identity...",
+            "System online. Welcome, HighKali."
+        ];
+
+        let index = 0;
+        let charIndex = 0;
+        const speed = 45;
+        const term = document.getElementById("term-text");
+
+        function typeLine() {
+            if (index < lines.length) {
+                if (charIndex < lines[index].length) {
+                    term.innerHTML += lines[index][charIndex];
+                    charIndex++;
+                    setTimeout(typeLine, speed);
+                } else {
+                    term.innerHTML += "<br>";
+                    index++;
+                    charIndex = 0;
+                    setTimeout(typeLine, 300);
+                }
+            }
+        }
+
+        typeLine();
+    </script>
+
+    <!-- BUTTON HUB -->
+    <div class="container">
+
+        <a class="btn" href="https://github.com/HighKali/xCLOUD-by-zdos" target="_blank">
+            🚀 xCLOUD-by-zdos — Main Repository
+        </a>
+
+        <a class="btn" href="https://github.com/HighKali/GhostTrack-v2" target="_blank">
+            👻 GhostTrack-v2 — Core System
+        </a>
+
+        <a class="btn" href="https://github.com/HighKali/GhostTrack-v2-edu" target="_blank">
+            📚 GhostTrack-v2 EDU — Educational Build
+        </a>
+
+        <a class="btn" href="https://github.com/HighKali/RZA-pulciz" target="_blank">
+            🧠 RZA-pulciz — Generative Socio Engine
+        </a>
+
+        <a class="btn" href="https://github.com/HighKali" target="_blank">
+            🗂 Tutti i Repository HighKali
+        </a>
+
+        <a class="btn" href="https://discord.gg/" target="_blank">
+            💬 Discord Server — Join the Network
+        </a>
+
+        <a class="btn" href="https://highkali.github.io" target="_blank">
+            🌐 HighKali Web Hub
+        </a>
+
+    </div>
+
+    <footer>
+        CloudX × ZDOS — Distributed Node • Powered by HighKali
+    </footer>
+
+</body>
+</html>
+

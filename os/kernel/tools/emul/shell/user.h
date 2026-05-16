@@ -1,0 +1,34 @@
+.equ    USER_CODE       0x4200
+.equ    USER_RAMSTART   USER_CODE+0x1800
+.equ    FS_HANDLE_SIZE  8
+.equ    BLOCKDEV_SIZE   8
+
+; *** JUMP TABLE ***
+.equ	strncmp			0x03
+.equ	addDE			@+3
+.equ	addHL			@+3
+.equ	upcase			@+3
+.equ	unsetZ			@+3
+.equ	intoDE			@+3
+.equ	intoHL			@+3
+.equ	writeHLinDE		@+3
+.equ	findchar		@+3
+.equ	parseHex		@+3
+.equ	parseHexPair	@+3
+.equ	blkSel			@+3
+.equ	blkSet			@+3
+.equ	fsFindFN		@+3
+.equ	fsOpen			@+3
+.equ	fsGetC			@+3
+.equ	fsPutC			@+3
+.equ	fsSetSize		@+3
+.equ	cpHLDE			@+3
+.equ	parseArgs		@+3
+.equ	printstr		@+3
+.equ	_blkGetC		@+3
+.equ	_blkPutC		@+3
+.equ	_blkSeek		@+3
+.equ	_blkTell		@+3
+.equ	printcrlf		@+3
+.equ	stdioPutC		@+3
+.equ	stdioReadLine	@+3

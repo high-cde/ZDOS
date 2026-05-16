@@ -1,0 +1,16 @@
+class ZUI_Window:
+    def __init__(self, title):
+        self.title = title
+        self.widgets = []
+
+    def add(self, widget):
+        self.widgets.append(widget)
+        print("[zUI] Added widget:", widget)
+
+class ZUI_Label:
+    def __init__(self, text):
+        self.text = text
+
+class ZUI_Button:
+    def __init__(self, text):
+        self.text = text

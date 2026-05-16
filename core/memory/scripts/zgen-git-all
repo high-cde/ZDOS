@@ -1,0 +1,42 @@
+#!/bin/bash
+
+echo "========================================="
+echo "   🧬 Z‑GENESIS — GLOBAL GIT SYNC"
+echo "========================================="
+
+echo ""
+echo "📌 [ROOT] Stato memzdos:"
+cd ~/memzdos
+git status
+git diff --stat
+
+echo ""
+echo "📌 [ROOT] Aggiungo modifiche..."
+git add .
+git commit -m "Global sync: memzdos" || echo "Nessun cambiamento"
+git push
+
+echo ""
+echo "========================================="
+echo "   🔄 SUBMODULES SYNC"
+echo "========================================="
+
+for module in cortex palace live nodes aaak; do
+  echo ""
+  echo "📌 [$module] Stato:"
+  cd ~/memzdos/modules/$module
+  git status
+  git diff --stat
+
+  echo "📌 [$module] Aggiungo modifiche..."
+  git add .
+  git commit -m "Global sync: $module" || echo "Nessun cambiamento"
+  git push || echo "Nessun push necessario"
+done
+
+echo ""
+echo "========================================="
+echo "   🧬 GLOBAL SYNC COMPLETATO"
+echo "========================================="
+echo "memzdos + tutti i moduli sincronizzati."
+echo ""

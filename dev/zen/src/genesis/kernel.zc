@@ -1,0 +1,6 @@
+class Kernel:
+    def __init__(self):
+        self.services = []
+
+    def start(self):
+        print("GENESIS OS Kernel Booting")
