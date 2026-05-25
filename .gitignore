@@ -1,0 +1,50 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python/
+build/
+dist/
+*.egg-info/
+.env
+.venv
+env/
+venv/
+
+# Node.js
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# General
+.DS_Store
+.vscode/
+.idea/
+*.log
+*.tmp
+*.swp
+
+# ZDOS specific
+/core/aaak/__pycache__/
+/core/cortex/__pycache__/
+/core/memory/__pycache__/
+/os/kernel/__pycache__/
+/os/ghostnet/__pycache__/
+/network/nodes/__pycache__/
+/network/dsn/__pycache__/
+/interface/cli/__pycache__/
+/interface/web/build/
+/interface/cloud/build/
+/dev/zen/__pycache__/
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+
+# OS generated files
+.DS_Store
+.Trashes
+Thumbs.db
