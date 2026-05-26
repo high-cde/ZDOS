@@ -1,0 +1,35 @@
+{
+  "chains": {
+    "primary": "HighCoin"
+  },
+  "language": {
+    "core": "Zlang",
+    "integration": "zdos-zlang"
+  },
+  "runtime": {
+    "core": "zdos-core"
+  },
+  "bridge": {
+    "modules": [
+      "BridgeChain.zmod",
+      "high-bridgechain",
+      "zbridge-template"
+    ]
+  },
+  "web": {
+    "mobile": "x-zdos",
+    "dashboard": "x-zdos.it"
+  },
+  "agi": {
+    "core": "zdos-agi",
+    "memory": [
+      "zdos-brain",
+      "memzdos"
+    ]
+  },
+  "genesis": {
+    "cli": "Z-GENESIS-CLI",
+    "nodes": "Z-GENESIS-NODES",
+    "cortex": "Z-GENESIS-CORTEX"
+  }
+}
