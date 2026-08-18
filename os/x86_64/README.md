@@ -1,6 +1,12 @@
 # ZDOS x86_64 — prototipo avviabile con Zlang
 
+[![Architettura](https://img.shields.io/badge/architettura-x86__64%20bare--metal-1f6feb?style=for-the-badge)](ARCHITECTURE.md)
+[![Boot](https://img.shields.io/badge/boot-QEMU%20verificato-2ea043?style=for-the-badge)](tools/verify_qemu.sh)
+[![Runtime](https://img.shields.io/badge/runtime-ZLB0%20v1-d29922?style=for-the-badge)](../../../Zlang/blob/main/docs/zdos-x86_64-profile.md)
+
 Questo percorso costruisce un’immagine ISO bootabile in QEMU. L’immagine contiene un kernel bare-metal x86_64, una console seriale COM1 e un runtime Zlang minimo che esegue un programma incorporato durante il boot.
+
+![Pipeline Zlang → ZDOS](assets/zdos-zlang-pipeline.png)
 
 ## Prerequisiti
 
@@ -42,6 +48,8 @@ sh tools/verify_qemu.sh
 ```
 
 L’esito positivo deve contenere `ZDOS x86_64 bootstrap`, `Zlang runtime v1 ready`, `ZDOS: native Zlang program executed` e `ZDOS: Zlang halted cleanly`.
+
+Per comprendere il flusso, il formato bytecode e i confini tra programma, runtime e kernel, segui il **[Laboratorio ZDOS x86_64 + Zlang](LEARNING_PATH.md)**. La guida include esercizi riproducibili, esempi negativi e la progressione teorica verso capacità future.
 
 ## Profilo Zlang disponibile
 

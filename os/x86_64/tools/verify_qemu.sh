@@ -5,7 +5,11 @@ ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 LOG=$(mktemp)
 trap 'rm -f "$LOG"' EXIT
 
-make -C "$ROOT" all
+if [ -n "${ZLANGC:-}" ]; then
+    make -C "$ROOT" ZLANGC="$ZLANGC" all
+else
+    make -C "$ROOT" all
+fi
 
 set +e
 timeout 20s qemu-system-x86_64 \

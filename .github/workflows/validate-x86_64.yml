@@ -1,0 +1,40 @@
+name: Validate ZDOS x86_64
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  bootable-prototype:
+    name: Build and boot ZDOS x86_64
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ZDOS
+        uses: actions/checkout@v4
+
+      - name: Checkout canonical Zlang compiler
+        uses: actions/checkout@v4
+        with:
+          repository: high-cde/Zlang
+          path: Zlang
+
+      - name: Install build and emulation tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc binutils make grub-pc-bin xorriso qemu-system-x86 python3
+
+      - name: Compile and verify Multiboot2 kernel
+        env:
+          ZLANGC: ${{ github.workspace }}/Zlang/tools/zlangc.py
+        run: |
+          make -C os/x86_64 clean
+          make -C os/x86_64 verify
+
+      - name: Boot in QEMU and verify serial output
+        env:
+          ZLANGC: ${{ github.workspace }}/Zlang/tools/zlangc.py
+        run: sh os/x86_64/tools/verify_qemu.sh

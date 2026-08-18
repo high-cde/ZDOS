@@ -4,7 +4,21 @@ Benvenuti nel **ZDOS Unified Repository**. Questo monorepo consolida l'intera su
 
 ## 🚀 Panoramica
 
-ZDOS è un ecosistema decentralizzato di nuova generazione che combina calcolo neurale ad alte prestazioni, gestione autonoma degli agenti e un sistema operativo pronto per il quantum.
+ZDOS è un ecosistema in evoluzione che riunisce componenti di runtime, automazione, ricerca e sistemi operativi sperimentali. Il percorso oggi **effettivamente avviabile e verificato** è il prototipo bare-metal `os/x86_64`, eseguito in QEMU con un programma Zlang nativo; gli altri sottosistemi vanno considerati componenti o direzioni progettuali finché non dispongono di una prova equivalente.
+
+## ✅ Percorso verificato: Zlang → ZDOS x86_64
+
+[![Target](https://img.shields.io/badge/target-x86__64-1f6feb?style=for-the-badge)](os/x86_64/)
+[![Boot](https://img.shields.io/badge/boot-QEMU%20verificato-2ea043?style=for-the-badge)](os/x86_64/)
+[![Bytecode](https://img.shields.io/badge/bytecode-ZLB0%20v1-d29922?style=for-the-badge)](os/x86_64/ARCHITECTURE.md)
+
+Il flusso verificato è **programma Zlang → compilatore ZLB0 v1 → kernel bare-metal → ISO GRUB Multiboot2 → QEMU → console seriale**. La guida completa, con prerequisiti, esempi e limiti, è disponibile in [`os/x86_64/`](os/x86_64/).
+
+```sh
+cd os/x86_64
+make clean && make verify
+sh tools/verify_qemu.sh
+```
 
 ## 📂 Struttura del Progetto
 
@@ -12,9 +26,10 @@ ZDOS è un ecosistema decentralizzato di nuova generazione che combina calcolo n
   - `cortex/`: Routing neurale e elaborazione del segnale.
   - `aaak/`: Kernel di accesso autonomo agli agenti.
   - `memory/`: Sistemi di memoria AI ad alto punteggio.
-- **`os/`**: Le fondamenta.
-  - `kernel/`: Kernel del sistema operativo di base.
-  - `ghostnet/`: Componenti del sistema operativo Quantum Ghostnet.
+- **`os/`**: Le fondamenta sperimentali.
+  - `x86_64/`: Prototipo bare-metal avviabile in QEMU con runtime Zlang incorporato.
+  - `kernel/`: Base kernel Z80/Collapse OS e relativi strumenti.
+  - `ghostnet/`: Componenti di ricerca del sottosistema Ghostnet.
 - **`network/`**: L'infrastruttura.
   - `nodes/`: Gestione dei nodi distribuiti.
   - `dsn/`: Logica della rete di servizi distribuiti.

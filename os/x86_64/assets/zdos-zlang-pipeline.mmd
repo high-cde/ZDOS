@@ -1,0 +1,18 @@
+flowchart LR
+    A[📝 Programma Zlang<br/>boot.zlang] --> B[⚙️ zlangc.py<br/>profilo ZLB0 v1]
+    B --> C[📦 Bytecode<br/>boot.zlb]
+    B --> D[🧩 Header C<br/>zlang_program.h]
+    D --> E[🧠 Kernel bare-metal<br/>x86_64]
+    E --> F[💿 ISO GRUB<br/>Multiboot2]
+    F --> G[🖥️ QEMU]
+    G --> H[✅ Console seriale<br/>programma Zlang eseguito]
+
+    classDef source fill:#102a43,color:#ffffff,stroke:#1f6feb,stroke-width:2px;
+    classDef build fill:#123524,color:#ffffff,stroke:#2ea043,stroke-width:2px;
+    classDef runtime fill:#3c2a4d,color:#ffffff,stroke:#a371f7,stroke-width:2px;
+    classDef verify fill:#4a2c0b,color:#ffffff,stroke:#d29922,stroke-width:2px;
+
+    class A source;
+    class B,C,D,E,F build;
+    class G runtime;
+    class H verify;
