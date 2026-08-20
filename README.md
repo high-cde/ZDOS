@@ -1,95 +1,132 @@
-# ZDOS: The Unified Ecosystem
+![ZDOS — Unified Ecosystem](https://capsule-render.vercel.app/api?type=waving&color=0:09090b,35:312e81,68:2563eb,100:10b981&height=230&section=header&text=ZDOS&fontSize=78&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=Unified%20Operating%20System%20%2B%20Zlang%20Ecosystem&descAlignY=61&descSize=20)
 
-Benvenuti nel **ZDOS Unified Repository**. Questo monorepo consolida l'intera suite di tecnologie Z-GENESIS e ZDOS in un framework unico e coeso.
+# ZDOS · ecosistema operativo, runtime e strumenti
 
-## 🚀 Panoramica
+[![Validate ZDOS x86_64](https://github.com/high-cde/ZDOS/actions/workflows/validate-x86_64.yml/badge.svg)](https://github.com/high-cde/ZDOS/actions/workflows/validate-x86_64.yml)
+[![Linux distro](https://img.shields.io/badge/distro-ZDOS%20Linux%200.2-10b981?style=for-the-badge&logo=linux&logoColor=white)](distro/)
+[![Bare metal](https://img.shields.io/badge/OS-bare--metal%20x86__64-2563eb?style=for-the-badge&logo=linux&logoColor=white)](os/x86_64/)
+[![Runtime](https://img.shields.io/badge/runtime-ZLB0%20v1-7c3aed?style=for-the-badge&logo=rust&logoColor=white)](https://github.com/high-cde/Zlang)
+[![Portal](https://img.shields.io/badge/portal-ZDOS--SEC-ef4444?style=for-the-badge&logo=socketdotio&logoColor=white)](https://github.com/high-cde/ZDOS-SEC-PORTAL)
+[![License](https://img.shields.io/badge/license-MIT-64748b?style=for-the-badge)](LICENSE)
 
-ZDOS è un ecosistema in evoluzione che riunisce componenti di runtime, automazione, ricerca e sistemi operativi sperimentali. Il percorso oggi **effettivamente avviabile e verificato** è il prototipo bare-metal `os/x86_64`, eseguito in QEMU con un programma Zlang nativo; gli altri sottosistemi vanno considerati componenti o direzioni progettuali finché non dispongono di una prova equivalente.
+> **ZDOS è un ecosistema in costruzione:** una distribuzione Linux minimale, un prototipo bare-metal x86_64, il runtime linguistico Zlang, strumenti di sviluppo, servizi di rete e un portale operativo. Ogni capacità viene dichiarata soltanto quando esistono codice, test e una prova osservabile.
 
-## ✅ Percorso verificato: Zlang → ZDOS x86_64
+## 🧭 Mappa dell’ecosistema
 
-[![Target](https://img.shields.io/badge/target-x86__64-1f6feb?style=for-the-badge)](os/x86_64/)
-[![Boot](https://img.shields.io/badge/boot-QEMU%20verificato-2ea043?style=for-the-badge)](os/x86_64/)
-[![Bytecode](https://img.shields.io/badge/bytecode-ZLB0%20v1-d29922?style=for-the-badge)](os/x86_64/ARCHITECTURE.md)
+```mermaid
+flowchart LR
+    A[📝 Zlang source] --> B[⚙️ Zlang compiler]
+    B --> C[🧩 ZLB0 bytecode]
+    C --> D[🧠 ZDOS bare metal]
+    D --> E[💿 GRUB ISO]
+    E --> F[🖥️ QEMU + CI]
+    G[🐧 ZDOS Linux] --> H[📦 BusyBox + initramfs]
+    H --> I[🌐 DHCP + persistence]
+    J[🛰️ ZDOS-SEC-PORTAL] --> K[🔌 Socket.IO + APIs]
+    D -. runtime .-> J
+    G -. future services .-> J
+```
 
-Il flusso verificato è **programma Zlang → compilatore ZLB0 v1 → kernel bare-metal → ISO GRUB Multiboot2 → QEMU → console seriale**. La guida completa, con prerequisiti, esempi e limiti, è disponibile in [`os/x86_64/`](os/x86_64/).
+## ✅ Cosa è verificato oggi
+
+| Percorso | Stato | Prova |
+|---|---|---|
+| 🐧 **ZDOS Linux** | ISO live x86_64 con kernel Linux bootstrap, BusyBox, initramfs, account base, DHCP opzionale e persistenza `/dev/vda1` | `distro/build.sh` + boot QEMU con `ZDOS_READY` |
+| 🧠 **ZDOS bare-metal** | Kernel freestanding x86_64, GRUB Multiboot2 e runtime Zlang incorporato | GitHub Actions + `os/x86_64/tools/verify_qemu.sh` |
+| ⚙️ **Zlang** | Compilatore ZLB0 v1 e contratto bytecode verificato | [Repository Zlang](https://github.com/high-cde/Zlang) |
+| 🛰️ **SEC Portal** | HUD web, feed sociale, ledger locale e stream Socket.IO | [Repository ZDOS-SEC-PORTAL](https://github.com/high-cde/ZDOS-SEC-PORTAL) |
+
+## 🚀 Avvio rapido
+
+### ZDOS Linux
 
 ```sh
+git clone https://github.com/high-cde/ZDOS.git
+cd ZDOS
+./distro/build.sh
+./distro/test-qemu.sh
+```
+
+La build produce `distro/build/zdos-linux-x86_64.iso`. Per avviare manualmente la console:
+
+```sh
+qemu-system-x86_64 \
+  -cdrom distro/build/zdos-linux-x86_64.iso \
+  -serial stdio -display none
+```
+
+La milestone Linux include l’utente `zdos`, il tentativo DHCP su `eth0` e il mount opzionale di `/dev/vda1` su `/mnt/data`. La procedura completa è descritta in [`distro/README.md`](distro/README.md).
+
+### Prototipo ZDOS x86_64 + Zlang
+
+Per la catena bare-metal, clonare Zlang accanto a ZDOS:
+
+```sh
+git clone https://github.com/high-cde/Zlang.git ../Zlang
 cd os/x86_64
-make clean && make verify
+make clean
+make verify
 sh tools/verify_qemu.sh
 ```
 
-## 📂 Struttura del Progetto
+L’output seriale atteso è:
 
-- **`core/`**: Il livello di intelligenza.
-  - `cortex/`: Routing neurale e elaborazione del segnale.
-  - `aaak/`: Kernel di accesso autonomo agli agenti.
-  - `memory/`: Sistemi di memoria AI ad alto punteggio.
-- **`os/`**: Le fondamenta sperimentali.
-  - `x86_64/`: Prototipo bare-metal avviabile in QEMU con runtime Zlang incorporato.
-  - `kernel/`: Base kernel Z80/Collapse OS e relativi strumenti.
-  - `ghostnet/`: Componenti di ricerca del sottosistema Ghostnet.
-- **`network/`**: L'infrastruttura.
-  - `nodes/`: Gestione dei nodi distribuiti.
-  - `dsn/`: Logica della rete di servizi distribuiti.
-- **`interface/`**: Il livello di interazione.
-  - `cli/`: Interfaccia a riga di comando unificata (`zgenctl`).
-  - `web/`: Dashboard e visualizzazione live.
-  - `cloud/`: Portale cloud aziendale.
-- **`dev/`**: Il toolkit.
-  - `zen/`: Hub di programmazione e SDK.
+```text
+ZDOS x86_64 bootstrap
+Zlang runtime v1 ready
+ZDOS: native Zlang program executed
+ZDOS: Zlang halted cleanly
+```
 
-## 🛠 Guida Rapida e Setup
+## 📂 Struttura del repository
 
-Per iniziare con ZDOS, seguire i passaggi seguenti:
+| Area | Responsabilità | Documentazione |
+|---|---|---|
+| `distro/` | Build della distro Linux, root filesystem, initramfs e test QEMU | [`distro/README.md`](distro/README.md) |
+| `os/x86_64/` | Kernel bare-metal sperimentale e runtime ZLB0 | [`os/x86_64/README.md`](os/x86_64/README.md) |
+| `core/` | Cortex, AAAK, memoria e componenti di ricerca | [`docs/docs/overview.md`](docs/docs/overview.md) |
+| `network/` | Nodi e servizi distribuiti | [`docs/docs/nodes.md`](docs/docs/nodes.md) |
+| `interface/` | CLI, web dashboard e cloud interface | [`interface/web/README.md`](interface/web/README.md) |
+| `os/ghostnet/` | Ricerca e componenti del sottosistema Ghostnet | [`os/ghostnet/README.md`](os/ghostnet/README.md) |
+| `dev/zen/` | Toolchain e automazione per lo sviluppo | [`dev/zen/README.md`](dev/zen/README.md) |
+| `docs/` | Architettura, operazioni, roadmap e contratti | [`docs/README.md`](docs/README.md) |
 
-1.  **Clonare il repository:**
-    ```bash
-    git clone https://github.com/high-cde/ZDOS.git
-    cd ZDOS
-    ```
+## 🛡️ Confini e sicurezza
 
-2.  **Installare le dipendenze:**
-    Assicurarsi di avere Python 3.8+ e Node.js 16+ installati. Quindi, eseguire lo script di setup principale:
-    ```bash
-    ./scripts/setup_all.sh
-    ```
-    Questo script installerà tutte le dipendenze necessarie e configurerà l'ambiente.
+ZDOS non deve essere presentato come una distro general-purpose completa finché non dispone di package manager, installer, aggiornamenti firmati, gestione utenti completa, filesystem persistente verificato, rete configurabile e test hardware. La base attuale è una milestone reale e avviabile, ma alcune componenti restano sperimentali.
 
-3.  **Avviare i servizi:**
-    Per avviare tutti i componenti di ZDOS, utilizzare:
-    ```bash
-    ./scripts/start_all.sh
-    ```
+Il portale SEC contiene endpoint che avviano processi di build e, nel codice attuale, una password di sviluppo hard-coded. **Non esporre il portale su Internet senza autenticazione reale, secret tramite environment, rate limiting, validazione degli URL, sandbox del compilatore e audit degli eventi.** Vedere la documentazione del [portale SEC](https://github.com/high-cde/ZDOS-SEC-PORTAL) prima di un deployment.
 
-## 💡 Esempi di Utilizzo
+## 📚 Documentazione essenziale
 
--   **Interazione con la CLI:**
-    ```bash
-    zgenctl status
-    zgenctl agent create --name my_agent
-    ```
--   **Accesso alla Dashboard Web:**
-    Dopo aver avviato i servizi, la dashboard web sarà disponibile all'indirizzo `http://localhost:3000`.
+| Documento | Scopo |
+|---|---|
+| [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md) | Mappa dei repository e contratti tra i componenti |
+| [`docs/OPERATIONS.md`](docs/OPERATIONS.md) | Build, boot, CI, troubleshooting e release |
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Architettura generale del monorepo |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Workflow di contributo |
+| [`SECURITY.md`](SECURITY.md) | Segnalazioni e principi di sicurezza |
+| [Profilo ZLB0 v1](https://github.com/high-cde/Zlang/blob/main/docs/zdos-x86_64-profile.md) | Contratto tra compilatore Zlang e runtime ZDOS |
+| [ZDOS-SEC-PORTAL](https://github.com/high-cde/ZDOS-SEC-PORTAL) | Portale HUD e API operative |
 
-## 🤝 Contribuzione
+## 🤝 Contribuire
 
-Siamo entusiasti di accogliere contributi alla piattaforma ZDOS! Se desideri contribuire, segui queste linee guida:
+Prima di proporre una nuova capacità, descrivere il contratto, il limite, l’errore atteso, il test positivo e almeno un test negativo. Le modifiche devono mantenere il linguaggio visuale dell’ecosistema: sezioni leggibili, badge coerenti, diagrammi quando chiariscono l’architettura e limiti dichiarati senza ambiguità.
 
-1.  **Fork del repository.**
-2.  **Crea un nuovo branch** per la tua funzionalità o correzione di bug (`git checkout -b feature/nome-funzionalita` o `bugfix/nome-bug`).
-3.  **Effettua le tue modifiche** e assicurati che il codice sia conforme agli standard di stile esistenti.
-4.  **Scrivi test** per le tue modifiche, se applicabile.
-5.  **Esegui i test** per assicurarti che tutto funzioni correttamente.
-6.  **Fai il commit delle tue modifiche** (`git commit -m 'Descrizione dettagliata della tua modifica'`).
-7.  **Fai il push del branch** (`git push origin feature/nome-funzionalita`).
-8.  **Apri una Pull Request** descrivendo le tue modifiche e il problema che risolvono.
+```sh
+git checkout -b docs/nome-della-modifica
+# modifica, verifica link e test locali
+git diff --check
+git commit -m "docs: descrivi la nuova capacità"
+git push origin docs/nome-della-modifica
+```
 
-## 🛡 Licenza
+## 📜 Licenza
 
-Questo progetto è rilasciato sotto la licenza MIT. Vedere il file `LICENSE` per maggiori dettagli.
+Questo progetto è distribuito secondo la licenza indicata in [`LICENSE`](LICENSE).
 
 ---
-*Costruito con precisione. Alimentato da ZDOS.*
-# Test
+
+**ZDOS · Zlang · ZDOS-SEC** · _Build what you can prove._ ✨
+
+![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:10b981,42:2563eb,100:7c3aed&height=120&section=footer)
