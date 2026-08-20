@@ -1,20 +1,21 @@
 #!/bin/bash
 # ==========================================
 # ZDOS-SEC // Universal Build & Sync Tool
-# Scegli quale modulo compilare nello userland
 # ==========================================
 
 echo "Seleziona il modulo Z-Lang da compilare ed eseguire:"
-echo "1) zdos_license.zlang (Scudo Anti-Clonazione xCLOUD)"
-echo "2) calc.zlang          (Calcolatrice Nativa ALU)"
-echo "3) notes.zlang         (Blocco Note di Sicurezza)"
-read -p "Inserisci il numero della scelta [1-3]: " choice
+echo "1) zdos_license.zlang    (Scudo Anti-Clonazione xCLOUD)"
+echo "2) calc.zlang             (Calcolatrice Nativa ALU)"
+echo "3) notes.zlang            (Blocco Note di Sicurezza)"
+echo "4) security_core.zlang    (Tor & Anti-Fingerprint Core)"
+read -p "Inserisci il numero della scelta [1-4]: " choice
 
 case $choice in
     1) MODULE="userland/zdos_license.zlang";;
     2) MODULE="userland/calc.zlang";;
     3) MODULE="userland/notes.zlang";;
-    *) echo "Scelta non valida. Default su Calcolatrice."; MODULE="userland/calc.zlang";;
+    4) MODULE="userland/security_core.zlang";;
+    *) echo "Scelta non valida. Default su Security Core."; MODULE="userland/security_core.zlang";;
 esac
 
 echo "🚀 Avvio compilazione per: $MODULE"
