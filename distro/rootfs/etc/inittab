@@ -1,0 +1,3 @@
+::sysinit:/bin/mount -a
+::respawn:-/bin/sh
+::ctrlaltdel:/bin/reboot
