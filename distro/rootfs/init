@@ -6,8 +6,23 @@ mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
 mount -t tmpfs tmpfs /run
 
 hostname zdos
-printf '\nZDOS Linux 0.1\n'
+mkdir -p /home/zdos /mnt/data
+
+# Configure the first Ethernet interface when BusyBox provides udhcpc.
+if [ -x /bin/udhcpc ] && [ -e /sys/class/net/eth0 ]; then
+  /bin/udhcpc -i eth0 -n -q -t 3 >/run/udhcpc.log 2>&1 || true
+fi
+
+# Optional persistence: a filesystem on the first virtual disk is mounted at
+# /mnt/data when present. The live image remains usable without a disk.
+if [ -b /dev/vda1 ]; then
+  mount /dev/vda1 /mnt/data 2>/run/persistence.log || true
+fi
+
+printf '\nZDOS Linux 0.2\n'
 printf 'Kernel: '; uname -r
+printf 'Network: '; ip -brief address 2>/dev/null || printf 'not configured\n'
+printf 'Persistence: '; mountpoint -q /mnt/data && printf 'enabled\n' || printf 'live-only\n'
 printf 'ZDOS_READY\n'
 
 exec /bin/sh

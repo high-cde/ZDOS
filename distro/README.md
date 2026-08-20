@@ -37,9 +37,20 @@ Per il test automatico:
 
 Il test termina quando rileva `ZDOS_READY` sulla console seriale oppure restituisce errore se il guest non esegue il percorso di init.
 
-## Roadmap
+## Milestone 0.2
 
-La milestone 0.2 introdurrà configurazione di rete e un'immagine persistente. La milestone 0.3 introdurrà un package manager iniziale basato su pacchetti tar firmati e un repository dichiarativo. La milestone 0.4 introdurrà installer BIOS/UEFI, utenti non privilegiati, logging, aggiornamenti atomici e test hardware più estesi.
+La milestone 0.2 aggiunge una base userspace più reale. Sono presenti gli account `root` e `zdos`, i gruppi di sistema, il tentativo automatico DHCP su `eth0` tramite BusyBox `udhcpc` e il mount opzionale di `/dev/vda1` su `/mnt/data`. L'immagine live continua ad avviarsi anche quando non è disponibile una scheda di rete o un disco persistente.
+
+Per provare la persistenza in QEMU è possibile aggiungere un disco vuoto:
+
+```sh
+qemu-img create -f raw distro/build/zdos-data.img 128M
+qemu-system-x86_64 -cdrom distro/build/zdos-linux-x86_64.iso \
+  -drive file=distro/build/zdos-data.img,format=raw,if=virtio \
+  -serial stdio -display none
+```
+
+La milestone 0.3 introdurrà un package manager iniziale basato su pacchetti tar firmati e un repository dichiarativo. La milestone 0.4 introdurrà installer BIOS/UEFI, logging persistente, aggiornamenti atomici e test hardware più estesi.
 
 ## Requisiti
 
