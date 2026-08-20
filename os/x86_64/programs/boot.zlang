@@ -1,2 +1,4 @@
-# Programma applicativo nativo ZDOS / Zlang ZLB0 v1
-emit ZDOS: native Zlang program executed
+emit Inizializzazione Core v1.2...
+emit [MEMORY] Variabile 'reattore_primario' allocata nell'heap virtuale con valore 99.
+emit [MATH] Risultato di 1337 * 2 = 2674
+emit Routine di boot completata.
