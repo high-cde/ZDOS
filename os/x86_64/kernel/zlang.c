@@ -1,52 +1,64 @@
-#include "zlang.h"
+#include <stddef.h>
+#include <stdint.h>
 
-enum {
-    ZLANG_MAGIC_0 = 'Z',
-    ZLANG_MAGIC_1 = 'L',
-    ZLANG_MAGIC_2 = 'B',
-    ZLANG_MAGIC_3 = '0',
-    ZLANG_VERSION_1 = 1,
-    ZLANG_OP_EMIT = 0x01,
-    ZLANG_OP_HALT = 0xff,
-};
+// Funzione interna per scrivere sulla seriale QEMU (0x3F8)
+static void zlang_serial_putchar(char c) {
+    __asm__ volatile("outb %0, %1" : : "a"((uint8_t)c), "Nd"((uint16_t)0x3F8));
+}
 
-int zlang_run(const uint8_t *program, size_t length, zlang_write_fn write) {
-    size_t cursor = 0;
-
-    if (length < 6) {
-        return ZLANG_ERR_TRUNCATED;
+static void zlang_serial_print(const char* str) {
+    while (*str) {
+        zlang_serial_putchar(*str++);
     }
-    if (program[0] != ZLANG_MAGIC_0 || program[1] != ZLANG_MAGIC_1 ||
-        program[2] != ZLANG_MAGIC_2 || program[3] != ZLANG_MAGIC_3) {
-        return ZLANG_ERR_MAGIC;
+}
+
+// Hypervisor v2.5.1 - Interprete bytecode Z-Lang con supporto ALU e RAM virtuale
+void zlang_run(const unsigned char* bytecode, size_t length) {
+    size_t pc = 0;
+    int64_t vram[16] = {0}; // 16 registri di memoria virtuale
+
+    zlang_serial_print("[Z-LANG VM] Avvio interprete Hypervisor v2.5.1...\n");
+
+    while (pc < length) {
+        uint8_t op = bytecode[pc++];
+
+        // Opcode 0x01: EMIT (Stampa stringa letterale incorporata nel bytecode)
+        if (op == 0x01) {
+            uint16_t str_len = bytecode[pc] | (bytecode[pc+1] << 8);
+            pc += 2;
+            
+            // Stampa carattere per carattere la stringa emessa dallo script
+            for (int i = 0; i < str_len && pc < length; i++) {
+                zlang_serial_putchar((char)bytecode[pc++]);
+            }
+            zlang_serial_putchar('\n');
+        }
+        // Opcode 0x02: LET / ALLOCAZIONE REGISTRO
+        else if (op == 0x02) {
+            uint8_t reg_id = bytecode[pc++];
+            int64_t val = *(int64_t*)(bytecode + pc);
+            pc += 8;
+            if (reg_id < 16) {
+                vram[reg_id] = val;
+            }
+        }
+        // Opcode 0x03: OPERAZIONI ALU (Addizioni, Moltiplicazioni, ecc.)
+        else if (op == 0x03) {
+            uint8_t dest = bytecode[pc++];
+            uint8_t src1 = bytecode[pc++];
+            uint8_t op_type = bytecode[pc++];
+            uint8_t src2 = bytecode[pc++];
+            
+            if (op_type == 1) { // Addizione (+)
+                vram[dest] = vram[src1] + vram[src2];
+            } else if (op_type == 2) { // Moltiplicazione (*)
+                vram[dest] = vram[src1] * vram[src2];
+            }
+        }
+        else {
+            // Opcode sconosciuto o fine flusso
+            break;
+        }
     }
-    if (program[4] != ZLANG_VERSION_1) {
-        return ZLANG_ERR_VERSION;
-    }
-
-    cursor = 5;
-    while (cursor < length) {
-        uint8_t opcode = program[cursor++];
-        if (opcode == ZLANG_OP_HALT) {
-            return cursor == length ? ZLANG_OK : ZLANG_ERR_TRAILING;
-        }
-        if (opcode != ZLANG_OP_EMIT) {
-            return ZLANG_ERR_OPCODE;
-        }
-        if (cursor + 2 > length) {
-            return ZLANG_ERR_TRUNCATED;
-        }
-
-        uint16_t text_length = (uint16_t)program[cursor] |
-                               ((uint16_t)program[cursor + 1] << 8);
-        cursor += 2;
-        if ((size_t)text_length > length - cursor) {
-            return ZLANG_ERR_TRUNCATED;
-        }
-
-        write((const char *)&program[cursor], text_length);
-        cursor += text_length;
-    }
-
-    return ZLANG_ERR_TRUNCATED;
+    zlang_serial_print("[Z-LANG VM] Esecuzione bytecode terminata.\n");
 }

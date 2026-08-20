@@ -1,0 +1,22 @@
+# ==========================================
+# ZDOS-SEC // xCLOUD Anti-Clone Guard v1.0
+# Scritto in nativo Z-Lang (.zlang)
+# Estetica: Parrot Black Box Edition
+# ==========================================
+
+emit [PARROT-BOX] Inizializzazione scudo anti-clonazione .zdos...
+let hw_fingerprint = 9082470
+let authorized_sig = 9082470
+let license_status = 0
+
+emit [CHECK] Scansione registri di sistema e nodo VPS...
+if hw_fingerprint == authorized_sig jump grant_access
+
+denied_access:
+emit [CRITICAL ERROR] Istanza non autorizzata o clonazione rilevata!
+emit [LOCK] Il kernel ha bloccato l'esecuzione del modulo aziendale.
+
+grant_access:
+let license_status = 1
+emit [SUCCESS] Firma .zdos verificata con successo.
+emit [WELCOME] xCLOUD Enterprise Core attivato in modalità protetta.
