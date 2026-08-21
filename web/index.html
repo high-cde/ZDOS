@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZDOS Space Command // C2 Portal</title>
+    <!-- Google Analytics G-5JVXZ7TYH1 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5JVXZ7TYH1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-5JVXZ7TYH1');
+    </script>
+    <style>
+        body { background-color: #0b0f19; color: #00ff66; font-family: 'Courier New', monospace; margin: 0; padding: 20px; }
+        header { border-bottom: 2px solid #00ff66; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        h1 { margin: 0; font-size: 1.5rem; text-shadow: 0 0 10px rgba(0,255,102,0.5); }
+        .status-badge { background: #00ff66; color: #0b0f19; padding: 4px 8px; font-weight: bold; border-radius: 4px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .panel { background: #111827; border: 1px solid #1f2937; padding: 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        h2 { border-bottom: 1px solid #374151; padding-bottom: 8px; margin-top: 0; color: #38bdf8; font-size: 1.1rem; }
+        pre { background: #030712; padding: 15px; border-radius: 5px; color: #e2e8f0; overflow-x: auto; border-left: 3px solid #38bdf8; }
+        button { background: #00ff66; color: #0b0f19; border: none; padding: 10px 15px; font-weight: bold; cursor: pointer; border-radius: 4px; margin-top: 10px; transition: 0.2s; }
+        button:hover { background: #38bdf8; box-shadow: 0 0 10px rgba(56,189,248,0.5); }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1>ZDOS SPACE COMMAND // C2 PORTAL</h1>
+            <small>Target: https://x-zdos.it | Analytics: G-5JVXZ7TYH1</small>
+        </div>
+        <div>
+            <span class="status-badge">HYPERVISOR v2.5.1 ACTIVE</span>
+        </div>
+    </header>
+
+    <div class="grid">
+        <div class="panel">
+            <h2>📡 Telemetria e Stato Nodi</h2>
+            <p>Stato Connessione: <strong>CRittografata (Tor SOCKS5 Proxy)</strong></p>
+            <p>Anti-Fingerprint Shield: <span style="color: #00ff66;">ATTIVO</span></p>
+            <p>Protocollo ALU: <strong>v2.5.1 (Hardware Virtus)</strong></p>
+            <button onclick="fetchTelemetry()">Aggiorna Telemetria Backend</button>
+            <pre id="telemetry-output">In attesa di dati dal backend...</pre>
+        </div>
+
+        <div class="panel">
+            <h2>⚡ Controllo Moduli Z-Lang</h2>
+            <p>Invia un comando di esecuzione remota al kernel ZDOS:</p>
+            <button onclick="triggerModule('calc')">Esegui calc.zlang</button>
+            <button onclick="triggerModule('security')">Attiva Security Core</button>
+            <pre id="console-output">ZDOS C2 Terminal pronto ai comandi...</pre>
+        </div>
+    </div>
+
+    <script>
+        function fetchTelemetry() {
+            fetch('/backend/api.php?action=status')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('telemetry-output').innerText = JSON.stringify(data, null, 2);
+                })
+                .catch(err => {
+                    document.getElementById('telemetry-output').innerText = "Errore di connessione al backend C2: " + err;
+                });
+        }
+
+        function triggerModule(moduleName) {
+            document.getElementById('console-output').innerText = "[C2] Invio segnale di esecuzione per modulo: " + moduleName + "...\n[SUCCESS] Modulo accodato nel buffer di boot.";
+        }
+    </script>
+</body>
+</html>
