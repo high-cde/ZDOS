@@ -2,7 +2,7 @@
 
 [![Architettura](https://img.shields.io/badge/architettura-x86__64%20bare--metal-1f6feb?style=for-the-badge)](ARCHITECTURE.md)
 [![Boot](https://img.shields.io/badge/boot-QEMU%20verificato-2ea043?style=for-the-badge)](tools/verify_qemu.sh)
-[![Runtime](https://img.shields.io/badge/runtime-ZLB0%20v1-d29922?style=for-the-badge)](../../../Zlang/blob/main/docs/zdos-x86_64-profile.md)
+[![Runtime](https://img.shields.io/badge/runtime-ZLB2%20v2.5-d29922?style=for-the-badge)](../../../Zlang/blob/main/docs/zdos-x86_64-profile.md)
 
 Questo percorso costruisce un’immagine ISO bootabile in QEMU. L’immagine contiene un kernel bare-metal x86_64, una console seriale COM1 e un runtime Zlang minimo che esegue un programma incorporato durante il boot.
 
@@ -47,16 +47,20 @@ Per eseguire la prova end-to-end automatica:
 sh tools/verify_qemu.sh
 ```
 
-L’esito positivo deve contenere `ZDOS x86_64 bootstrap`, `Zlang runtime v1 ready`, `ZDOS: native Zlang program executed` e `ZDOS: Zlang halted cleanly`.
+L’esito positivo deve contenere `ZDOS x86_64 bootstrap`, `Zlang runtime ZLB2 v2.5 ready`, `ZDOS: native Zlang program executed` e `ZDOS: Zlang halted cleanly`.
 
 Per comprendere il flusso, il formato bytecode e i confini tra programma, runtime e kernel, segui il **[Laboratorio ZDOS x86_64 + Zlang](LEARNING_PATH.md)**. La guida include esercizi riproducibili, esempi negativi e la progressione teorica verso capacità future.
 
 ## Profilo Zlang disponibile
 
-Il profilo ZLB0 v1 supporta soltanto:
+Il profilo corrente è **ZLB2 v2.5**. Il compilatore accetta `emit`, `let`, `if`, label e `wait`; il runtime bootstrap esegue `emit`, valida tutti i record riconosciuti e attraversa in sicurezza le istruzioni non ancora eseguite.
 
 ```zlang
 emit Testo da inviare alla console seriale
+let node_id = 2026
+if node_id == 2026 jump secure
+secure:
+wait
 ```
 
 Righe vuote e commenti con `#` sono ignorati. Ogni altra sintassi viene rifiutata dal compilatore con exit status non-zero. Il runtime nel kernel convalida magic, versione, opcode, lunghezze e terminazione; non esegue bytecode sconosciuto.

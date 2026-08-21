@@ -5,7 +5,7 @@
 [![Validate ZDOS x86_64](https://github.com/high-cde/ZDOS/actions/workflows/validate-x86_64.yml/badge.svg)](https://github.com/high-cde/ZDOS/actions/workflows/validate-x86_64.yml)
 [![Linux distro](https://img.shields.io/badge/distro-ZDOS%20Linux%200.2-10b981?style=for-the-badge&logo=linux&logoColor=white)](distro/)
 [![Bare metal](https://img.shields.io/badge/OS-bare--metal%20x86__64-2563eb?style=for-the-badge&logo=linux&logoColor=white)](os/x86_64/)
-[![Runtime](https://img.shields.io/badge/runtime-ZLB0%20v1-7c3aed?style=for-the-badge&logo=rust&logoColor=white)](https://github.com/high-cde/Zlang)
+[![Runtime](https://img.shields.io/badge/runtime-ZLB2%20v2.5-7c3aed?style=for-the-badge&logo=rust&logoColor=white)](https://github.com/high-cde/Zlang)
 [![Portal](https://img.shields.io/badge/portal-ZDOS--SEC-ef4444?style=for-the-badge&logo=socketdotio&logoColor=white)](https://github.com/high-cde/ZDOS-SEC-PORTAL)
 [![License](https://img.shields.io/badge/license-MIT-64748b?style=for-the-badge)](LICENSE)
 
@@ -16,7 +16,7 @@
 ```mermaid
 flowchart LR
     A[📝 Zlang source] --> B[⚙️ Zlang compiler]
-    B --> C[🧩 ZLB0 bytecode]
+    B --> C[🧩 ZLB2 v2.5 bytecode]
     C --> D[🧠 ZDOS bare metal]
     D --> E[💿 GRUB ISO]
     E --> F[🖥️ QEMU + CI]
@@ -33,7 +33,7 @@ flowchart LR
 |---|---|---|
 | 🐧 **ZDOS Linux** | ISO live x86_64 con kernel Linux bootstrap, BusyBox, initramfs, account base, DHCP opzionale e persistenza `/dev/vda1` | `distro/build.sh` + boot QEMU con `ZDOS_READY` |
 | 🧠 **ZDOS bare-metal** | Kernel freestanding x86_64, GRUB Multiboot2 e runtime Zlang incorporato | GitHub Actions + `os/x86_64/tools/verify_qemu.sh` |
-| ⚙️ **Zlang** | Compilatore ZLB0 v1 e contratto bytecode verificato | [Repository Zlang](https://github.com/high-cde/Zlang) |
+| ⚙️ **Zlang** | Compilatore ZLB2 v2.5 e contratto bytecode verificato | [Repository Zlang](https://github.com/high-cde/Zlang) |
 | 🛰️ **SEC Portal** | HUD web, feed sociale, ledger locale e stream Socket.IO | [Repository ZDOS-SEC-PORTAL](https://github.com/high-cde/ZDOS-SEC-PORTAL) |
 
 ## 🚀 Avvio rapido
@@ -73,7 +73,7 @@ L’output seriale atteso è:
 
 ```text
 ZDOS x86_64 bootstrap
-Zlang runtime v1 ready
+Zlang runtime ZLB2 v2.5 ready
 ZDOS: native Zlang program executed
 ZDOS: Zlang halted cleanly
 ```
@@ -83,7 +83,7 @@ ZDOS: Zlang halted cleanly
 | Area | Responsabilità | Documentazione |
 |---|---|---|
 | `distro/` | Build della distro Linux, root filesystem, initramfs e test QEMU | [`distro/README.md`](distro/README.md) |
-| `os/x86_64/` | Kernel bare-metal sperimentale e runtime ZLB0 | [`os/x86_64/README.md`](os/x86_64/README.md) |
+| `os/x86_64/` | Kernel bare-metal sperimentale e runtime ZLB2 v2.5 | [`os/x86_64/README.md`](os/x86_64/README.md) |
 | `core/` | Cortex, AAAK, memoria e componenti di ricerca | [`docs/docs/overview.md`](docs/docs/overview.md) |
 | `network/` | Nodi e servizi distribuiti | [`docs/docs/nodes.md`](docs/docs/nodes.md) |
 | `interface/` | CLI, web dashboard e cloud interface | [`interface/web/README.md`](interface/web/README.md) |
@@ -106,7 +106,7 @@ Il portale SEC contiene endpoint che avviano processi di build e, nel codice att
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Architettura generale del monorepo |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Workflow di contributo |
 | [`SECURITY.md`](SECURITY.md) | Segnalazioni e principi di sicurezza |
-| [Profilo ZLB0 v1](https://github.com/high-cde/Zlang/blob/main/docs/zdos-x86_64-profile.md) | Contratto tra compilatore Zlang e runtime ZDOS |
+| [Profilo ZLB2 v2.5](https://github.com/high-cde/Zlang/blob/main/docs/zdos-x86_64-profile.md) | Contratto tra compilatore Zlang e runtime ZDOS |
 | [ZDOS-SEC-PORTAL](https://github.com/high-cde/ZDOS-SEC-PORTAL) | Portale HUD e API operative |
 
 ## 🤝 Contribuire

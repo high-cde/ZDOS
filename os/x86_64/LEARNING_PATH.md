@@ -13,7 +13,7 @@ intenzione → sintassi → bytecode → runtime → kernel → macchina
 | Domanda | Componente | Risposta pratica |
 |---|---|---|
 | Cosa vuole comunicare il programma? | `programs/boot.zlang` | Usa `emit <testo>` |
-| Come diventa un formato eseguibile? | `Zlang/tools/zlangc.py` | Produce ZLB0 v1 |
+| Come diventa un formato eseguibile? | `Zlang/tools/zlangc.py` | Produce ZLB2 v2.5 |
 | Come si rende disponibile al kernel? | Header C generato | Il bytecode è incluso nell’immagine |
 | Chi ha accesso all’hardware? | `kernel/kernel.c` | Solo il kernel controlla COM1 |
 | Come verifichiamo il risultato? | `tools/verify_qemu.sh` | QEMU e output seriale obbligatorio |
@@ -31,12 +31,14 @@ L’istruzione non apre file, non invoca shell e non accede a rete. Chiede solta
 
 ## 3. Il compilatore: trasformare testo in contratto
 
-Il compilatore Zlang produce il formato **ZLB0 v1**. Il payload include il magic `ZLB0`, la versione `1`, l’opcode `EMIT`, la lunghezza del testo, il testo UTF-8 e infine `HALT`.
+Il compilatore Zlang produce il formato **ZLB2 v2.5**. Il buffer include magic, versione, record con opcode e lunghezza, payload e infine `HALT`.
 
 ```text
-5a 4c 42 30 | 01 | 01 | lunghezza u16 | payload UTF-8 | ff
- Z  L  B  0 | v1 | EMIT |               testo          | HALT
+5a 4c 42 32 | 02 05 | opcode | lunghezza u16 | payload | ff 00 00
+ Z  L  B  2 | v2.5  | record |               dati    | HALT
 ```
+
+Il profilo corrente comprende `EMIT`, `LET`, `IF`, label e `WAIT`. Il bootstrap runtime esegue `EMIT` e valida/attraversa in sicurezza i record non ancora eseguiti.
 
 La presenza di versione e lunghezza non è decorativa. La versione permette al runtime di rifiutare formati che non comprende; la lunghezza impedisce al runtime di leggere oltre i confini del programma.
 
@@ -106,7 +108,7 @@ Il comando deve fallire. Non è un bug: dimostra che il compilatore non presenta
 
 | Evoluzione | Nuovo potere | Nuova responsabilità |
 |---|---|---|
-| File ZLB0 esterni | Programmi non incorporati | Validazione, checksum, policy di caricamento |
+| File ZLB2 esterni | Programmi non incorporati | Validazione, checksum, policy di caricamento |
 | Valori e aritmetica | Calcolo locale | Limiti, overflow, gestione errore |
 | Syscall capability | Osservare tempo, input o log | Scope, allowlist, audit, quota, timeout |
 | Programmi multipli | Più attività | Scheduler, isolamento, risorse |
@@ -123,7 +125,7 @@ Il prototipo non pretende di essere un OS completo. È più utile: dimostra una 
 ## Riferimenti
 
 [1] [Guida operativa ZDOS x86_64](README.md)
-[2] [Architettura e contratto ZLB0 v1](ARCHITECTURE.md)
+[2] [Architettura e contratto ZLB2 v2.5](ARCHITECTURE.md)
 [3] [Profilo del compilatore Zlang](https://github.com/high-cde/Zlang/blob/main/docs/zdos-x86_64-profile.md)
 [4] [Repository ZDOS](https://github.com/high-cde/ZDOS)
 [5] [Repository Zlang](https://github.com/high-cde/Zlang)

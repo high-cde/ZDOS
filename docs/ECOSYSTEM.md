@@ -9,7 +9,7 @@ ZDOS riunisce una base operativa Linux, un laboratorio bare-metal, il runtime Zl
 | Repository | Ruolo | Contratto principale | Evidenza attuale |
 |---|---|---|---|
 | [ZDOS](https://github.com/high-cde/ZDOS) | Kernel sperimentale, distro Linux e orchestrazione dell’ecosistema | Boot, init, runtime, CI e documentazione | ISO Linux live e boot bare-metal QEMU |
-| [Zlang](https://github.com/high-cde/Zlang) | Compilatore e specifica del linguaggio | ZLB0 v1: `EMIT`, lunghezze, `HALT`, rifiuto default-deny | Test del compilatore e integrazione ZDOS |
+| [Zlang](https://github.com/high-cde/Zlang) | Compilatore e specifica del linguaggio | ZLB2 v2.5: record `EMIT`, `LET`, `IF`, `LABEL`, `WAIT`, lunghezze e `HALT` bounds-checked | Test del compilatore e integrazione ZDOS |
 | [ZDOS-SEC-PORTAL](https://github.com/high-cde/ZDOS-SEC-PORTAL) | HUD web, feed, ledger locale e stream terminale | API JSON e messaggi Socket.IO | Server Express avviabile e interfaccia HUD |
 
 ## Flusso verificato
@@ -23,7 +23,7 @@ sequenceDiagram
     participant CI as ✅ GitHub Actions
 
     Dev->>ZLang: programs/boot.zlang
-    ZLang->>OS: zlang_program.h + ZLB0 bytecode
+    ZLang->>OS: zlang_program.h + ZLB2 v2.5 bytecode
     OS->>QEMU: GRUB Multiboot2 ISO
     QEMU-->>CI: console seriale
     CI-->>Dev: marker di boot + HALT cleanly

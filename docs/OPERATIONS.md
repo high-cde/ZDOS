@@ -62,7 +62,7 @@ ZLANGC=/path/to/zlangc.py sh tools/verify_qemu.sh
 
 ## CI
 
-Il workflow [`validate-x86_64.yml`](../.github/workflows/validate-x86_64.yml) esegue checkout di ZDOS e Zlang, installa gli strumenti, verifica Multiboot2, crea la ISO e controlla l’output seriale in QEMU. Un fallimento va diagnosticato distinguendo tra dipendenze, compilazione, packaging GRUB e marker runtime.
+Il workflow [`validate-x86_64.yml`](../.github/workflows/validate-x86_64.yml) esegue due controlli separati. Il job bare-metal fa checkout di ZDOS e Zlang, verifica il contratto ZLB2 v2.5, controlla Multiboot2, crea la ISO e controlla l’output seriale in QEMU. Il job `web-contract` verifica shell, PHP e risposta HTTP della telemetria locale. Un fallimento va diagnosticato distinguendo tra dipendenze, compilazione, packaging GRUB, marker runtime e contratto web.
 
 ## Troubleshooting
 
@@ -74,6 +74,8 @@ Il workflow [`validate-x86_64.yml`](../.github/workflows/validate-x86_64.yml) es
 | ISO non avviabile | Packaging GRUB o immagine incompleta | Eseguire `make clean`, ricostruire e verificare Multiboot2 |
 | `Network: not configured` | QEMU non ha una NIC disponibile o DHCP non risponde | Controllare `eth0`, `udhcpc` e la rete del guest |
 | `Persistence: live-only` | `/dev/vda1` assente o non montabile | Collegare un disco con partizione e filesystem validi |
+| `LOCAL_STATUS_ONLY` | Il backend web non verifica Tor o cifratura | È lo stato corretto del laboratorio; configurare e testare il deployment prima di dichiarare sicurezza |
+| `php -l` fallisce | PHP CLI assente o errore nel backend | Installare `php-cli` e correggere prima di pubblicare |
 
 ## Checklist di release
 

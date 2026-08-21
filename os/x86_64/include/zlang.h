@@ -4,8 +4,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-typedef void (*zlang_write_fn)(const char *data, size_t length);
-
 enum {
     ZLANG_OK = 0,
     ZLANG_ERR_MAGIC = -1,
@@ -15,6 +13,6 @@ enum {
     ZLANG_ERR_TRAILING = -5,
 };
 
-int zlang_run(const uint8_t *program, size_t length, zlang_write_fn write);
+int zlang_run(const uint8_t *program, size_t length);
 
 #endif

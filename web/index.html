@@ -39,8 +39,8 @@
     <div class="grid">
         <div class="panel">
             <h2>📡 Telemetria e Stato Nodi</h2>
-            <p>Stato Connessione: <strong>Crittografata (Tor SOCKS5 Proxy)</strong></p>
-            <p>Anti-Fingerprint Shield: <span style="color: #00ff66;">ATTIVO</span></p>
+            <p>Stato Connessione: <strong>Telemetria locale; cifratura non verificata</strong></p>
+            <p>Tor / Anti-Fingerprint: <span style="color: #ffcc00;">DA VERIFICARE</span></p>
             <p>Protocollo ALU: <strong>v2.5.1 (Hardware Virtus)</strong></p>
             <button onclick="fetchTelemetry()">Aggiorna Telemetria Backend</button>
             <pre id="telemetry-output">In attesa di dati dal backend...</pre>
@@ -48,7 +48,7 @@
 
         <div class="panel">
             <h2>⚡ Controllo Moduli Z-Lang</h2>
-            <p>Invia un comando di esecuzione remota al kernel ZDOS:</p>
+            <p>Moduli disponibili per il laboratorio locale; nessuna esecuzione remota viene dichiarata dalla UI.</p>
             <button onclick="triggerModule('calc')">Esegui calc.zlang</button>
             <button onclick="triggerModule('security')">Attiva Security Core</button>
             <pre id="console-output">ZDOS C2 Terminal pronto ai comandi...</pre>
@@ -68,7 +68,7 @@
         }
 
         function triggerModule(moduleName) {
-            document.getElementById('console-output').innerText = "[C2] Invio segnale di esecuzione per modulo: " + moduleName + "...\n[SUCCESS] Modulo accodato nel buffer di boot.";
+            document.getElementById('console-output').innerText = "[LAB] Modulo selezionato: " + moduleName + "\n[INFO] Esecuzione remota non implementata: usare la toolchain locale documentata.";
         }
     </script>
 </body>

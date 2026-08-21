@@ -1,27 +1,32 @@
 #include <stddef.h>
 #include <stdint.h>
+#include "zlang.h"
 #include "zlang_program.h"
 
-extern void zlang_run(const unsigned char* bytecode, size_t length);
-
-static void serial_putchar(char c) {
-    __asm__ volatile("outb %0, %1" : : "a"((uint8_t)c), "Nd"((uint16_t)0x3F8));
+static void serial_putchar(char value) {
+    __asm__ volatile("outb %0, %1" : : "a"((uint8_t)value), "Nd"((uint16_t)0x3f8));
 }
 
-static void serial_print(const char* str) {
-    while (*str) serial_putchar(*str++);
+static void serial_print(const char *text) {
+    while (*text != '\0') {
+        serial_putchar(*text++);
+    }
 }
 
 void kernel_main(void) {
+    int result;
+
     serial_print("ZDOS x86_64 bootstrap (Hypervisor v2.5.1 Active)\n");
     serial_print("ZDOS: Esecuzione bytecode nativo in corso...\n");
+    result = zlang_run(zlang_bytecode, sizeof(zlang_bytecode));
+    if (result == ZLANG_OK) {
+        serial_print("ZDOS: native Zlang program executed\n");
+        serial_print("ZDOS: Zlang halted cleanly\n");
+    } else {
+        serial_print("ZDOS: Zlang runtime rejected program\n");
+    }
 
-    // Esecuzione dinamica della Calcolatrice Z-Lang tramite l'Hypervisor
-    zlang_run(zlang_program, zlang_program_length);
-
-    serial_print("ZDOS: Sessione calcolatrice completata.\n");
-
-    while (1) {
+    for (;;) {
         __asm__ volatile("hlt");
     }
 }

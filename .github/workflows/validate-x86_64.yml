@@ -25,7 +25,7 @@ jobs:
       - name: Install build and emulation tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc binutils make grub-pc-bin xorriso mtools qemu-system-x86 python3
+          sudo apt-get install -y gcc binutils make grub-pc-bin xorriso mtools qemu-system-x86 python3 php-cli curl
 
       - name: Compile and verify Multiboot2 kernel
         env:
@@ -38,3 +38,24 @@ jobs:
         env:
           ZLANGC: ${{ github.workspace }}/Zlang/tools/zlangc.py
         run: sh os/x86_64/tools/verify_qemu.sh
+
+  web-contract:
+    name: Validate ZDOS web telemetry contract
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ZDOS
+        uses: actions/checkout@v4
+      - name: Install web checks
+        run: sudo apt-get update && sudo apt-get install -y php-cli curl
+      - name: Validate scripts and PHP
+        run: |
+          bash -n scripts/setup_all.sh
+          bash -n os/x86_64/update_and_build.sh
+          php -l web/backend/api.php
+      - name: Serve and query local telemetry
+        run: |
+          php -S 127.0.0.1:8088 -t web >/tmp/zdos-php.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid"' EXIT
+          sleep 1
+          curl --fail --silent http://127.0.0.1:8088/backend/api.php?action=status | grep -F 'LOCAL_STATUS_ONLY'

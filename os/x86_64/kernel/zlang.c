@@ -1,64 +1,77 @@
 #include <stddef.h>
 #include <stdint.h>
+#include "zlang.h"
 
-// Funzione interna per scrivere sulla seriale QEMU (0x3F8)
-static void zlang_serial_putchar(char c) {
-    __asm__ volatile("outb %0, %1" : : "a"((uint8_t)c), "Nd"((uint16_t)0x3F8));
+#define ZLB2_HEADER_SIZE 6U
+
+static void serial_putchar(char value) {
+    __asm__ volatile("outb %0, %1" : : "a"((uint8_t)value), "Nd"((uint16_t)0x3f8));
 }
 
-static void zlang_serial_print(const char* str) {
-    while (*str) {
-        zlang_serial_putchar(*str++);
+static void serial_text(const char *text) {
+    while (*text != '\0') {
+        serial_putchar(*text++);
     }
 }
 
-// Hypervisor v2.5.1 - Interprete bytecode Z-Lang con supporto ALU e RAM virtuale
-void zlang_run(const unsigned char* bytecode, size_t length) {
-    size_t pc = 0;
-    int64_t vram[16] = {0}; // 16 registri di memoria virtuale
+static uint16_t read_u16(const uint8_t *data) {
+    return (uint16_t)data[0] | ((uint16_t)data[1] << 8);
+}
 
-    zlang_serial_print("[Z-LANG VM] Avvio interprete Hypervisor v2.5.1...\n");
+static int has_bytes(size_t pc, size_t length, size_t needed) {
+    return pc <= length && needed <= length - pc;
+}
 
+int zlang_run(const uint8_t *program, size_t length) {
+    size_t pc;
+
+    if (!has_bytes(0, length, ZLB2_HEADER_SIZE)) {
+        return ZLANG_ERR_TRUNCATED;
+    }
+    if (program[0] != 'Z' || program[1] != 'L' ||
+        program[2] != 'B' || program[3] != '2') {
+        return ZLANG_ERR_MAGIC;
+    }
+    if (program[4] != 0x02 || program[5] != 0x05) {
+        return ZLANG_ERR_VERSION;
+    }
+
+    pc = ZLB2_HEADER_SIZE;
+    serial_text("Zlang runtime ZLB2 v2.5 ready\n");
     while (pc < length) {
-        uint8_t op = bytecode[pc++];
+        uint8_t opcode;
+        uint16_t payload_length;
+        const uint8_t *payload;
 
-        // Opcode 0x01: EMIT (Stampa stringa letterale incorporata nel bytecode)
-        if (op == 0x01) {
-            uint16_t str_len = bytecode[pc] | (bytecode[pc+1] << 8);
-            pc += 2;
-            
-            // Stampa carattere per carattere la stringa emessa dallo script
-            for (int i = 0; i < str_len && pc < length; i++) {
-                zlang_serial_putchar((char)bytecode[pc++]);
+        if (!has_bytes(pc, length, 3)) {
+            return ZLANG_ERR_TRUNCATED;
+        }
+        opcode = program[pc++];
+        payload_length = read_u16(program + pc);
+        pc += 2;
+        if (!has_bytes(pc, length, payload_length)) {
+            return ZLANG_ERR_TRUNCATED;
+        }
+        payload = program + pc;
+
+        if (opcode == 0xff) {
+            if (payload_length != 0 || pc + payload_length != length) {
+                return ZLANG_ERR_TRAILING;
             }
-            zlang_serial_putchar('\n');
+            serial_text("Zlang HALT accepted\n");
+            return ZLANG_OK;
         }
-        // Opcode 0x02: LET / ALLOCAZIONE REGISTRO
-        else if (op == 0x02) {
-            uint8_t reg_id = bytecode[pc++];
-            int64_t val = *(int64_t*)(bytecode + pc);
-            pc += 8;
-            if (reg_id < 16) {
-                vram[reg_id] = val;
+        if (opcode == 0x01) {
+            for (uint16_t index = 0; index < payload_length; ++index) {
+                serial_putchar((char)payload[index]);
             }
+            serial_putchar('\n');
+        } else if (opcode == 0x02 || opcode == 0x03 || opcode == 0x04 || opcode == 0x05) {
+            /* Bootstrap runtime: validate and skip non-EMIT records safely. */
+        } else {
+            return ZLANG_ERR_OPCODE;
         }
-        // Opcode 0x03: OPERAZIONI ALU (Addizioni, Moltiplicazioni, ecc.)
-        else if (op == 0x03) {
-            uint8_t dest = bytecode[pc++];
-            uint8_t src1 = bytecode[pc++];
-            uint8_t op_type = bytecode[pc++];
-            uint8_t src2 = bytecode[pc++];
-            
-            if (op_type == 1) { // Addizione (+)
-                vram[dest] = vram[src1] + vram[src2];
-            } else if (op_type == 2) { // Moltiplicazione (*)
-                vram[dest] = vram[src1] * vram[src2];
-            }
-        }
-        else {
-            // Opcode sconosciuto o fine flusso
-            break;
-        }
+        pc += payload_length;
     }
-    zlang_serial_print("[Z-LANG VM] Esecuzione bytecode terminata.\n");
+    return ZLANG_ERR_TRUNCATED;
 }

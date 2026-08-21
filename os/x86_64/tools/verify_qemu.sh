@@ -29,7 +29,7 @@ fi
 
 for EXPECTED in \
     'ZDOS x86_64 bootstrap' \
-    'Zlang runtime v1 ready' \
+    'Zlang runtime ZLB2 v2.5 ready' \
     'ZDOS: native Zlang program executed' \
     'ZDOS: Zlang halted cleanly'
 do
