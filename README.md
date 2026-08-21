@@ -99,6 +99,8 @@ La build `os/x86_64/update_and_build.sh` è ora parametrica e non interattiva, m
 
 Il portale web non simula più uno stato operativo: l’endpoint PHP restituisce `LOCAL_STATUS_ONLY` quando Tor non è raggiungibile, espone solo un probe TCP configurabile e dichiara esplicitamente che la risposta non certifica anonimato, cifratura o sicurezza. I controlli dei moduli nella UI sono presentati come laboratorio locale; l’esecuzione remota non viene dichiarata implementata.
 
+L’estetica condivisa può essere applicata con un solo comando: `./scripts/apply-zdos-theme.sh`. Il tema fonde ciano e viola per Zlang, blu per il core ZDOS, verde per gli stati verificati e ambra per le capacità sperimentali. Il comando è idempotente: può essere rieseguito senza duplicare CSS o alterare la logica delle interfacce.
+
 ## 🛡️ Confini e sicurezza
 
 ZDOS non deve essere presentato come una distro general-purpose completa finché non dispone di package manager, installer, aggiornamenti firmati, gestione utenti completa, filesystem persistente verificato, rete configurabile e test hardware. La base attuale è una milestone reale e avviabile, ma alcune componenti restano sperimentali.
