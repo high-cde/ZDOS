@@ -91,6 +91,14 @@ ZDOS: Zlang halted cleanly
 | `dev/zen/` | Toolchain e automazione per lo sviluppo | [`dev/zen/README.md`](dev/zen/README.md) |
 | `docs/` | Architettura, operazioni, roadmap e contratti | [`docs/README.md`](docs/README.md) |
 
+## 🆕 Novità implementate
+
+La pipeline bare-metal ora usa un runtime **ZLB2 v2.5** coerente con l’header generato dal compilatore: magic e versione vengono validate, ogni record viene controllato nei propri limiti, gli opcode sconosciuti vengono rifiutati e `HALT` deve chiudere esattamente il buffer. Il bootstrap esegue realmente `EMIT`; gli altri record v2.5 vengono validati e restano esplicitamente in roadmap finché non saranno collegate capability sicure.
+
+La build `os/x86_64/update_and_build.sh` è ora parametrica e non interattiva, mentre `scripts/setup_all.sh` controlla le dipendenze e indica gli entrypoint senza dichiarare servizi non avviati. La CI verifica separatamente il boot QEMU bare-metal, la build ISO e il contratto web PHP. La distro Linux continua a essere verificata con `ZDOS_READY` in QEMU.
+
+Il portale web non simula più uno stato operativo: l’endpoint PHP restituisce `LOCAL_STATUS_ONLY` quando Tor non è raggiungibile, espone solo un probe TCP configurabile e dichiara esplicitamente che la risposta non certifica anonimato, cifratura o sicurezza. I controlli dei moduli nella UI sono presentati come laboratorio locale; l’esecuzione remota non viene dichiarata implementata.
+
 ## 🛡️ Confini e sicurezza
 
 ZDOS non deve essere presentato come una distro general-purpose completa finché non dispone di package manager, installer, aggiornamenti firmati, gestione utenti completa, filesystem persistente verificato, rete configurabile e test hardware. La base attuale è una milestone reale e avviabile, ma alcune componenti restano sperimentali.

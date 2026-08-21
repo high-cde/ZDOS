@@ -34,6 +34,9 @@ jobs:
           make -C os/x86_64 clean
           make -C os/x86_64 verify
 
+      - name: Validate generated ZLB2 bytecode
+        run: python3 os/x86_64/tools/test_zlb2.py os/x86_64/build/generated/zlang_program.h
+
       - name: Boot in QEMU and verify serial output
         env:
           ZLANGC: ${{ github.workspace }}/Zlang/tools/zlangc.py

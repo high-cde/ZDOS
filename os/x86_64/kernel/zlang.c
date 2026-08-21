@@ -1,41 +1,104 @@
+#include <stddef.h>
+#include <stdint.h>
 #include "zlang_program.h"
 
-// Dichiarazioni esterne obbligatorie per il linker del kernel bare-metal
-extern void serial_write_string(const char* str);
+extern void serial_write_string(const char *str);
 extern void serial_write_char(char c);
 
-// Funzione principale richiamata dal kernel.c con Verified Boot attivo
-void zlang_run(void) {
-    serial_write_string("[Z-LANG VM] Avvio interprete Hypervisor v2.5.1...\n");
-    serial_write_string("[SEC-BOOT] Verifica firma crittografica binaria (SHA-256)...\n");
-    
-    // Mostriamo la firma crittografica SHA-256 generata dal compilatore
-    serial_write_string("[SEC-BOOT] Target Hash Firmato: ");
-    serial_write_string(ZLANG_EXPECTED_HASH);
-    serial_write_string("\n");
+#define ZLB2_MAGIC_0 0x5a
+#define ZLB2_MAGIC_1 0x4c
+#define ZLB2_MAGIC_2 0x42
+#define ZLB2_MAGIC_3 0x32
+#define ZLB2_VERSION_MAJOR 0x02
+#define ZLB2_VERSION_MINOR 0x05
+#define ZLB2_HEADER_SIZE 6u
+#define ZLB2_RECORD_HEADER_SIZE 3u
+#define ZLB2_HALT 0xff
+#define ZLB2_EMIT 0x01
+#define ZLB2_LET 0x02
+#define ZLB2_IF 0x03
+#define ZLB2_LABEL 0x04
+#define ZLB2_WAIT 0x05
 
-    if (ZLANG_BYTECODE_SIZE <= 0) {
-        serial_write_string("[CRITICAL] Errore di integrità: Bytecode vuoto o corrotto!\n");
+static uint16_t read_u16_le(const uint8_t *p) {
+    return (uint16_t)p[0] | ((uint16_t)p[1] << 8);
+}
+
+static int has_magic_and_version(const uint8_t *program, size_t length) {
+    return length >= ZLB2_HEADER_SIZE &&
+           program[0] == ZLB2_MAGIC_0 &&
+           program[1] == ZLB2_MAGIC_1 &&
+           program[2] == ZLB2_MAGIC_2 &&
+           program[3] == ZLB2_MAGIC_3 &&
+           program[4] == ZLB2_VERSION_MAJOR &&
+           program[5] == ZLB2_VERSION_MINOR;
+}
+
+static int known_opcode(uint8_t opcode) {
+    return opcode == ZLB2_EMIT || opcode == ZLB2_LET ||
+           opcode == ZLB2_IF || opcode == ZLB2_LABEL ||
+           opcode == ZLB2_WAIT || opcode == ZLB2_HALT;
+}
+
+static void emit_payload(const uint8_t *payload, uint16_t length) {
+    for (uint16_t i = 0; i < length; ++i) {
+        serial_write_char((char)payload[i]);
+    }
+    serial_write_char('\n');
+}
+
+/* Execute the compiler-generated ZLB2 buffer. Only EMIT has an observable
+ * effect in this bootstrap; the remaining v2.5 records are validated and
+ * skipped until their capability implementations are introduced. */
+void zlang_run(void) {
+    const uint8_t *program = zlang_bytecode;
+    const size_t length = sizeof(zlang_bytecode);
+    size_t offset = ZLB2_HEADER_SIZE;
+    int halted = 0;
+
+    serial_write_string("Zlang runtime ZLB2 v2.5 ready\n");
+
+    if (!has_magic_and_version(program, length)) {
+        serial_write_string("ZDOS: ZLB2 header rejected\n");
         return;
     }
 
-    serial_write_string("[SEC-BOOT] Integrità del blocco verificata. Esecuzione autorizzata.\n");
     serial_write_string("ZDOS: Esecuzione bytecode nativo in corso...\n");
 
-    // Esecuzione controllata del bytecode nello userland
-    int i = 0;
-    while (i < ZLANG_BYTECODE_SIZE) {
-        if (zlang_bytecode[i] == 'e' && zlang_bytecode[i+1] == 'm' && zlang_bytecode[i+2] == 'i' && zlang_bytecode[i+3] == 't') {
-            i += 5; // Salta "emit "
-            while (i < ZLANG_BYTECODE_SIZE && zlang_bytecode[i] != '\0') {
-                serial_write_char(zlang_bytecode[i]);
-                i++;
+    while (offset < length) {
+        if (length - offset < ZLB2_RECORD_HEADER_SIZE) {
+            serial_write_string("ZDOS: ZLB2 record truncated\n");
+            return;
+        }
+
+        const uint8_t opcode = program[offset];
+        const uint16_t payload_length = read_u16_le(program + offset + 1u);
+        const size_t payload_start = offset + ZLB2_RECORD_HEADER_SIZE;
+
+        if (!known_opcode(opcode) || payload_length > length - payload_start) {
+            serial_write_string("ZDOS: ZLB2 record rejected\n");
+            return;
+        }
+
+        offset = payload_start + payload_length;
+        if (opcode == ZLB2_EMIT) {
+            emit_payload(program + payload_start, payload_length);
+        } else if (opcode == ZLB2_HALT) {
+            if (payload_length != 0u || offset != length) {
+                serial_write_string("ZDOS: ZLB2 invalid HALT\n");
+                return;
             }
-            serial_write_char('\n');
-        } else {
-            i++;
+            halted = 1;
+            break;
         }
     }
 
-    serial_write_string("[Z-LANG VM] Esecuzione bytecode terminata con successo.\n");
+    if (!halted) {
+        serial_write_string("ZDOS: ZLB2 HALT missing\n");
+        return;
+    }
+
+    serial_write_string("Zlang HALT accepted\n");
+    serial_write_string("ZDOS: native Zlang program executed\n");
+    serial_write_string("ZDOS: Zlang halted cleanly\n");
 }
