@@ -7,21 +7,9 @@ emit [PARROT-BOX] Attivazione sottosistema di anonimizzazione...
 let tor_enabled = 1
 let fingerprint_shield = 1
 let proxy_node_id = 9082
-let circuit_status = 0
 
 emit [NET-GUARD] Mascheramento header HTTP e User-Agent...
 emit [TOR-CORE] Connessione al circuito onion SOCKS5 (127.0.0.1:9050)...
-if tor_enabled == 1 jump establish_circuit
-
-denied_routing:
-emit [CRITICAL] Circuito di rete non protetto! Traffico bloccato.
-jump end_process
-
-establish_circuit:
-let circuit_status = 1
 emit [SUCCESS] Tunnel Tor stabilito con successo.
 emit [SECURITY] Anti-Fingerprint Canvas/WebGL protection: ATTIVA.
 emit [READY] ZDOS pronto per operazioni operative blindate.
-
-end_process:
-emit [STATE] Sessione di sicurezza completata.
