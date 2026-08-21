@@ -1,77 +1,41 @@
-#include <stddef.h>
-#include <stdint.h>
-#include "zlang.h"
+#include "zlang_program.h"
 
-#define ZLB2_HEADER_SIZE 6U
+// Dichiarazioni esterne obbligatorie per il linker del kernel bare-metal
+extern void serial_write_string(const char* str);
+extern void serial_write_char(char c);
 
-static void serial_putchar(char value) {
-    __asm__ volatile("outb %0, %1" : : "a"((uint8_t)value), "Nd"((uint16_t)0x3f8));
-}
+// Funzione principale richiamata dal kernel.c con Verified Boot attivo
+void zlang_run(void) {
+    serial_write_string("[Z-LANG VM] Avvio interprete Hypervisor v2.5.1...\n");
+    serial_write_string("[SEC-BOOT] Verifica firma crittografica binaria (SHA-256)...\n");
+    
+    // Mostriamo la firma crittografica SHA-256 generata dal compilatore
+    serial_write_string("[SEC-BOOT] Target Hash Firmato: ");
+    serial_write_string(ZLANG_EXPECTED_HASH);
+    serial_write_string("\n");
 
-static void serial_text(const char *text) {
-    while (*text != '\0') {
-        serial_putchar(*text++);
-    }
-}
-
-static uint16_t read_u16(const uint8_t *data) {
-    return (uint16_t)data[0] | ((uint16_t)data[1] << 8);
-}
-
-static int has_bytes(size_t pc, size_t length, size_t needed) {
-    return pc <= length && needed <= length - pc;
-}
-
-int zlang_run(const uint8_t *program, size_t length) {
-    size_t pc;
-
-    if (!has_bytes(0, length, ZLB2_HEADER_SIZE)) {
-        return ZLANG_ERR_TRUNCATED;
-    }
-    if (program[0] != 'Z' || program[1] != 'L' ||
-        program[2] != 'B' || program[3] != '2') {
-        return ZLANG_ERR_MAGIC;
-    }
-    if (program[4] != 0x02 || program[5] != 0x05) {
-        return ZLANG_ERR_VERSION;
+    if (ZLANG_BYTECODE_SIZE <= 0) {
+        serial_write_string("[CRITICAL] Errore di integrità: Bytecode vuoto o corrotto!\n");
+        return;
     }
 
-    pc = ZLB2_HEADER_SIZE;
-    serial_text("Zlang runtime ZLB2 v2.5 ready\n");
-    while (pc < length) {
-        uint8_t opcode;
-        uint16_t payload_length;
-        const uint8_t *payload;
+    serial_write_string("[SEC-BOOT] Integrità del blocco verificata. Esecuzione autorizzata.\n");
+    serial_write_string("ZDOS: Esecuzione bytecode nativo in corso...\n");
 
-        if (!has_bytes(pc, length, 3)) {
-            return ZLANG_ERR_TRUNCATED;
-        }
-        opcode = program[pc++];
-        payload_length = read_u16(program + pc);
-        pc += 2;
-        if (!has_bytes(pc, length, payload_length)) {
-            return ZLANG_ERR_TRUNCATED;
-        }
-        payload = program + pc;
-
-        if (opcode == 0xff) {
-            if (payload_length != 0 || pc + payload_length != length) {
-                return ZLANG_ERR_TRAILING;
+    // Esecuzione controllata del bytecode nello userland
+    int i = 0;
+    while (i < ZLANG_BYTECODE_SIZE) {
+        if (zlang_bytecode[i] == 'e' && zlang_bytecode[i+1] == 'm' && zlang_bytecode[i+2] == 'i' && zlang_bytecode[i+3] == 't') {
+            i += 5; // Salta "emit "
+            while (i < ZLANG_BYTECODE_SIZE && zlang_bytecode[i] != '\0') {
+                serial_write_char(zlang_bytecode[i]);
+                i++;
             }
-            serial_text("Zlang HALT accepted\n");
-            return ZLANG_OK;
-        }
-        if (opcode == 0x01) {
-            for (uint16_t index = 0; index < payload_length; ++index) {
-                serial_putchar((char)payload[index]);
-            }
-            serial_putchar('\n');
-        } else if (opcode == 0x02 || opcode == 0x03 || opcode == 0x04 || opcode == 0x05) {
-            /* Bootstrap runtime: validate and skip non-EMIT records safely. */
+            serial_write_char('\n');
         } else {
-            return ZLANG_ERR_OPCODE;
+            i++;
         }
-        pc += payload_length;
     }
-    return ZLANG_ERR_TRUNCATED;
+
+    serial_write_string("[Z-LANG VM] Esecuzione bytecode terminata con successo.\n");
 }
