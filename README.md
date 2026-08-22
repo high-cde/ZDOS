@@ -101,6 +101,16 @@ Il portale web non simula più uno stato operativo: l’endpoint PHP restituisce
 
 L’estetica condivisa può essere applicata con un solo comando: `./scripts/apply-zdos-theme.sh`. Il tema fonde ciano e viola per Zlang, blu per il core ZDOS, verde per gli stati verificati e ambra per le capacità sperimentali. Il comando è idempotente: può essere rieseguito senza duplicare CSS o alterare la logica delle interfacce.
 
+## 🔁 Orchestrazione dell’ecosistema
+
+Per sincronizzare e verificare i tre repository in un’unica esecuzione, usare:
+
+```sh
+./scripts/sync-ecosystem.sh
+```
+
+L’orchestratore aggiorna soltanto branch fast-forward, rifiuta working tree locali non puliti, esegue test Zlang, gate ZLB2, build/boot bare-metal, build/boot della distro, Evidence Chain e controlli del portale SEC. Non usa reset distruttivi e si arresta al primo errore reale.
+
 ## ⛓️ ZDOS Evidence Chain
 
 ZDOS include una prima Evidence Chain non monetaria: un ledger append-only JSONL con hash concatenati, ordine degli eventi, verifica dei limiti e attestazioni di build/boot. Non usa token, saldi o mining e non salva dati personali o segreti. La prova locale completa si avvia con un solo comando:
