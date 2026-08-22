@@ -1,0 +1,19 @@
+{
+  "id": "policy://release/production-v1",
+  "version": 1,
+  "purpose": "verify ZDOS and Zlang release provenance",
+  "required_event_types": ["build.attestation", "boot.attestation"],
+  "required_fields": [
+    "subject",
+    "source_commit",
+    "builder",
+    "toolchain",
+    "result"
+  ],
+  "accepted_results": ["verified", "rejected", "revoked"],
+  "personal_data": "forbidden",
+  "secrets": "forbidden",
+  "currency_or_token_transfer": "forbidden",
+  "evidence_storage": "off-chain",
+  "minimum_verifiers": 2
+}

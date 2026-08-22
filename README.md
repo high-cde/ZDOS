@@ -101,6 +101,16 @@ Il portale web non simula più uno stato operativo: l’endpoint PHP restituisce
 
 L’estetica condivisa può essere applicata con un solo comando: `./scripts/apply-zdos-theme.sh`. Il tema fonde ciano e viola per Zlang, blu per il core ZDOS, verde per gli stati verificati e ambra per le capacità sperimentali. Il comando è idempotente: può essere rieseguito senza duplicare CSS o alterare la logica delle interfacce.
 
+## ⛓️ ZDOS Evidence Chain
+
+ZDOS include una prima Evidence Chain non monetaria: un ledger append-only JSONL con hash concatenati, ordine degli eventi, verifica dei limiti e attestazioni di build/boot. Non usa token, saldi o mining e non salva dati personali o segreti. La prova locale completa si avvia con un solo comando:
+
+```sh
+./scripts/bootstrap-evidence-chain.sh
+```
+
+Il contratto operativo è documentato in [`evidence/README.md`](evidence/README.md), la policy di release in [`evidence/policy.release.json`](evidence/policy.release.json) e il verificatore in [`evidence/ledger.py`](evidence/ledger.py). La versione corrente dimostra integrità e ordine locale; consenso BFT multi-nodo, PKI multi-organizzazione e storage delle prove fuori catena restano attività successive.
+
 ## 🛡️ Confini e sicurezza
 
 ZDOS non deve essere presentato come una distro general-purpose completa finché non dispone di package manager, installer, aggiornamenti firmati, gestione utenti completa, filesystem persistente verificato, rete configurabile e test hardware. La base attuale è una milestone reale e avviabile, ma alcune componenti restano sperimentali.
