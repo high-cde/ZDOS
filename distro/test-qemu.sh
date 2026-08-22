@@ -9,7 +9,7 @@ fi
 LOG=$(mktemp)
 trap 'rm -f "$LOG"' EXIT
 set +e
-timeout 30s qemu-system-x86_64 -cdrom "$ISO" -serial stdio -display none -no-reboot -monitor none >"$LOG" 2>&1
+timeout 30s qemu-system-x86_64 -cdrom "$ISO" -serial "file:$LOG" -display none -no-reboot -monitor none >/dev/null 2>&1
 set -e
 if grep -Fq 'ZDOS_READY' "$LOG"; then
   echo 'ZDOS_QEMU_TEST_PASSED'
