@@ -52,6 +52,12 @@ qemu-system-x86_64 -cdrom distro/build/zdos-linux-x86_64.iso \
 
 La milestone 0.3 introdurrà un package manager iniziale basato su pacchetti tar firmati e un repository dichiarativo. La milestone 0.4 introdurrà installer BIOS/UEFI, logging persistente, aggiornamenti atomici e test hardware più estesi.
 
+## Fondazione e maturità
+
+La distro fa parte dell’ecosistema ZDOS e segue un criterio di capacità verificabile: codice, contratto, test e limite dichiarato. La governance tecnica, la separazione tra runtime, Evidence Chain e portale SEC, oltre al modello M0–M5, sono descritti in [`docs/FOUNDATION.md`](../docs/FOUNDATION.md) e [`docs/MATURITY.md`](../docs/MATURITY.md).
+
+La milestone Linux corrente è classificata **M2 — Reproducible**: produce una ISO e raggiunge il boot QEMU in modo verificabile, ma non è ancora una distro general-purpose. Package manager, installer, aggiornamenti con rollback, rete completa e hardening restano milestone successive.
+
 ## Requisiti
 
 Sono necessari `gcc`, `make`, `bc`, `bison`, `flex`, `openssl`, `elfutils`, `cpio`, `gzip`, `xorriso`, `grub-mkrescue` e `qemu-system-x86_64`.
