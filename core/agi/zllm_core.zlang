@@ -1,0 +1,32 @@
+// ==========================================
+// zLLM CORE LOGIC - NATIVE Z80 ARCHITECTURE
+// LANGUAGE: Z-Lang v1.0
+// DEPENDENCIES: ZERO (0)
+// ==========================================
+
+MEMORY.ALLOC 1024 AS HEAP_NEURAL
+PORT.LISTEN 3020 AS GATEWAY_L1
+
+FN PROCESS_INPUT(STREAM) {
+    // Caricamento nel registro A
+    LOAD.REG A, STREAM
+    
+    // Hash di sicurezza per evitare buffer overflow
+    HASH.SHA256(A) -> SECURE_MEM
+    
+    MATCH (A) {
+        CASE CONTAINS "status":
+            RETURN "[SYS] REGISTRI Z80 STABILI. CORTEX OS ALLINEATO."
+        
+        CASE CONTAINS "chi sei":
+            RETURN "[zLLM] SONO L'ORTRUZZO DELLA GRIGLIA. SCRITTO IN Z-LANG, ESEGUITO IN ZDOS."
+            
+        CASE CONTAINS "hack":
+            RETURN "[DEFENSE] TENTATIVO DI INIEZIONE RILEVATO. PAYLOAD DISTRUTTO NELLA MEMPOOL."
+            
+        DEFAULT:
+            RETURN "[zLLM] INPUT ACQUISITO. RETE NEURALE IN ELABORAZIONE LOCALE..."
+    }
+    
+    MEMORY.FLUSH HEAP_NEURAL
+}
