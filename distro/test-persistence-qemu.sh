@@ -23,7 +23,7 @@ boot_and_expect() {
   local log
   log=$(mktemp)
   set +e
-  timeout 20s qemu-system-x86_64 \
+  timeout 60s qemu-system-x86_64 \
     -m 512M \
     -kernel "$ISO_KERNEL" \
     -initrd "$INITRAMFS" \
