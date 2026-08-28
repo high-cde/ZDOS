@@ -38,40 +38,43 @@ if [ -n "$modprobe_bin" ]; then
     mdev -s 2>>/run/mdev.log || true
   fi
 fi
+blkid_bin=$(command -v blkid 2>/dev/null || true)
 persistence_device=
-for candidate in /dev/vda1 /dev/vda /dev/sda1 /dev/sda /dev/hda1 /dev/hda; do
-  if [ -b "$candidate" ]; then
-    persistence_device="$candidate"
-    break
-  fi
-done
-if [ -z "$persistence_device" ]; then
-  printf 'ZDOS_PERSISTENCE_NO_BLOCK_DEVICE\n'
-elif [ -z "$data_uuid" ]; then
+if [ -z "$data_uuid" ]; then
   printf 'ZDOS_PERSISTENCE_NO_UUID\n'
+elif [ -z "$blkid_bin" ]; then
+  printf 'ZDOS_PERSISTENCE_NO_BLKID\n'
 else
-  blkid_bin=$(command -v blkid 2>/dev/null || true)
-  if [ -z "$blkid_bin" ]; then
-    printf 'ZDOS_PERSISTENCE_NO_BLKID\n'
-  elif [ -b "$persistence_device" ]; then
-    actual_uuid=$("$blkid_bin" -s UUID -o value "$persistence_device" 2>/run/persistence-blkid.log || true)
-  if [ "$actual_uuid" = "$data_uuid" ]; then
-    if mount "$persistence_device" /mnt/data 2>/run/persistence.log; then
-      persistence_state=enabled
-      if [ "$persistence_test" = write ]; then
-        printf 'ZDOS persistent-storage-v1 marker\n' > /mnt/data/.zdos-persistence-marker
-        sync
-        printf 'ZDOS_PERSISTENCE_WRITE_OK\n'
-      elif [ "$persistence_test" = read ]; then
-        if [ "$(cat /mnt/data/.zdos-persistence-marker 2>/dev/null)" = 'ZDOS persistent-storage-v1 marker' ]; then
-          printf 'ZDOS_PERSISTENCE_READ_OK\n'
-        else
-          printf 'ZDOS_PERSISTENCE_READ_FAILED\n'
+  attempt=0
+  while [ "$attempt" -lt 50 ] && [ -z "$persistence_device" ]; do
+    for candidate in /dev/vda1 /dev/vda /dev/sda1 /dev/sda /dev/hda1 /dev/hda; do
+      if [ -b "$candidate" ]; then
+        actual_uuid=$("$blkid_bin" -s UUID -o value "$candidate" 2>/run/persistence-blkid.log || true)
+        if [ "$actual_uuid" = "$data_uuid" ]; then
+          persistence_device="$candidate"
+          break
         fi
       fi
+    done
+    if [ -z "$persistence_device" ]; then
+      sleep 0.1
+      attempt=$((attempt + 1))
     fi
-    else
-      printf 'ZDOS_PERSISTENCE_UUID_MISMATCH\n'
+  done
+  if [ -z "$persistence_device" ]; then
+    printf 'ZDOS_PERSISTENCE_UUID_MISMATCH\n'
+  elif mount "$persistence_device" /mnt/data 2>/run/persistence.log; then
+    persistence_state=enabled
+    if [ "$persistence_test" = write ]; then
+      printf 'ZDOS persistent-storage-v1 marker\n' > /mnt/data/.zdos-persistence-marker
+      sync
+      printf 'ZDOS_PERSISTENCE_WRITE_OK\n'
+    elif [ "$persistence_test" = read ]; then
+      if [ "$(cat /mnt/data/.zdos-persistence-marker 2>/dev/null)" = 'ZDOS persistent-storage-v1 marker' ]; then
+        printf 'ZDOS_PERSISTENCE_READ_OK\n'
+      else
+        printf 'ZDOS_PERSISTENCE_READ_FAILED\n'
+      fi
     fi
   else
     printf 'ZDOS_PERSISTENCE_MOUNT_FAILED\n'
