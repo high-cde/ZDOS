@@ -34,8 +34,19 @@ BUSYBOX="$BUILD/busybox-${BUSYBOX_VERSION}"
 if [ ! -f "$BUSYBOX/.zdos-configured" ]; then
   make -C "$BUSYBOX" distclean
   make -C "$BUSYBOX" defconfig
-  sed -i 's/^# CONFIG_STATIC is not set/CONFIG_STATIC=y/' "$BUSYBOX/.config"
-  sed -i 's/^CONFIG_STATIC=.*/CONFIG_STATIC=y/' "$BUSYBOX/.config"
+  set_bool() {
+    local option="$1"
+    if grep -q "^# $option is not set" "$BUSYBOX/.config"; then
+      sed -i "s/^# $option is not set/$option=y/" "$BUSYBOX/.config"
+    elif grep -q "^$option=" "$BUSYBOX/.config"; then
+      sed -i "s/^$option=.*/$option=y/" "$BUSYBOX/.config"
+    else
+      printf '%s=y\n' "$option" >> "$BUSYBOX/.config"
+    fi
+  }
+  set_bool CONFIG_STATIC
+  set_bool CONFIG_BLKID
+  set_bool CONFIG_FEATURE_VOLUMEID_EXT
   make -C "$BUSYBOX" oldconfig </dev/null
   touch "$BUSYBOX/.zdos-configured"
 fi
