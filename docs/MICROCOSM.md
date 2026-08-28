@@ -30,9 +30,9 @@ Il catalogo [`microcosm/catalog.json`](../microcosm/catalog.json) è l'unica map
 |---|---|---:|---|
 | Distro Linux, bare metal, QEMU ed Evidence Chain | Questo repository | **VERIFIED** | Build, boot e attestazione locale sono versionati in ZDOS. |
 | Persistenza ext4 | Questo repository | **VERIFIED** | Due boot QEMU, clean shutdown, evento attestato e ledger valido. |
-| Zlang e ZLB2 | Repository primario adiacente | **PREPARED** | L'integrazione diventa verificata solo con checkout e test della fonte primaria. |
+| Zlang e ZLB2 | Repository primario adiacente | **VERIFIED** | Checkout pulito e allineato; storage bridge e suite unittest della fonte primaria superati localmente. |
 | zdos-organism | Repository primario adiacente | **EXPERIMENTAL** | Richiede le verifiche Rust dichiarate nel catalogo. |
-| ZDOS-SEC-PORTAL | Repository primario adiacente | **EXPERIMENTAL** | Richiede API locale, autenticazione, validazione input e ledger valido. |
+| ZDOS-SEC-PORTAL | Repository primario adiacente | **VERIFIED** | API read-only, health, rifiuto mutazioni, ledger e controlli UI superati localmente; deployment pubblico escluso. |
 | Z-CYBERCORE | Repository primario adiacente | **EXPERIMENTAL** | Resta limitato a compilazione e simulazioni difensive locali. |
 
 ## Prova principale: persistenza attestata
@@ -86,7 +86,7 @@ workspace/
 └── Z-CYBERCORE/          # opzionale: fonte primaria
 ```
 
-Quando manca un componente esterno, `inspect` lo segnala come assente e il relativo collegamento resta **PREPARED** o **EXPERIMENTAL**. Le prove locali di ZDOS non vengono per questo gonfiate né invalidate.
+Quando manca un componente esterno, `inspect` lo segnala come assente e il relativo collegamento resta **PREPARED** o **EXPERIMENTAL**. In questa verifica Zlang e SEC Portal sono presenti, puliti, allineati e promossi a **VERIFIED** nel rispettivo perimetro locale; le prove locali di ZDOS non vengono per questo gonfiate né invalidate.
 
 ## Criterio di promozione
 

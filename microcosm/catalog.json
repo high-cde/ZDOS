@@ -28,8 +28,8 @@
       "remote": "https://github.com/high-cde/Zlang.git",
       "local_path": "Zlang",
       "authority": "external-primary",
-      "status": "PREPARED",
-      "verified_scope": "L'integrazione locale richiede un checkout adiacente e i test della fonte primaria.",
+      "status": "VERIFIED",
+      "verified_scope": "Checkout adiacente pulito e allineato a origin/main; storage bridge e suite unittest della fonte primaria superati localmente.",
       "checks": [
         "python3 tests/test_storage_read_v1.py",
         "python3 -m unittest discover -s tests -p test_*.py"
@@ -58,8 +58,8 @@
       "remote": "https://github.com/high-cde/ZDOS-SEC-PORTAL.git",
       "local_path": "ZDOS-SEC-PORTAL",
       "authority": "external-primary",
-      "status": "EXPERIMENTAL",
-      "verified_scope": "Flusso HTTP/UI locale; nessun deployment pubblico viene dichiarato verificato.",
+      "status": "VERIFIED",
+      "verified_scope": "Checkout adiacente pulito e allineato a origin/main; API read-only, health, rifiuto delle mutazioni, ledger vuoto e controlli UI superati localmente. Nessun deployment pubblico viene dichiarato verificato.",
       "checks": [
         "health endpoint",
         "authentication test",
