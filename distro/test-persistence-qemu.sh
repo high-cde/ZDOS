@@ -28,7 +28,7 @@ boot_and_expect() {
     -kernel "$ISO_KERNEL" \
     -initrd "$INITRAMFS" \
     -append "console=ttyS0,115200n8 init=/init zdos.data_uuid=$DATA_UUID zdos.persistence_test=$mode" \
-    -drive "file=$DATA_IMAGE,format=raw,if=virtio" \
+    -drive "file=$DATA_IMAGE,format=raw,if=ide" \
     -serial "file:$log" -display none -no-reboot -monitor none >/dev/null 2>&1
   local status=$?
   set -e

@@ -26,10 +26,13 @@ get_cmdline_value() {
 data_uuid=$(get_cmdline_value zdos.data_uuid || true)
 persistence_test=$(get_cmdline_value zdos.persistence_test || true)
 persistence_state=live-only
-persistence_device=/dev/vda1
-if [ ! -b "$persistence_device" ] && [ -b /dev/vda ]; then
-  persistence_device=/dev/vda
-fi
+persistence_device=
+for candidate in /dev/vda1 /dev/vda /dev/sda1 /dev/sda /dev/hda1 /dev/hda; do
+  if [ -b "$candidate" ]; then
+    persistence_device="$candidate"
+    break
+  fi
+done
 if [ -b "$persistence_device" ] && [ -n "$data_uuid" ] && [ -x /sbin/blkid ]; then
   actual_uuid=$(/sbin/blkid -s UUID -o value "$persistence_device" 2>/run/persistence-blkid.log || true)
   if [ "$actual_uuid" = "$data_uuid" ]; then
