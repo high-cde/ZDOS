@@ -1,0 +1,55 @@
+name: Release ZDOS x86_64
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish bootable ISO
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ZDOS
+        uses: actions/checkout@v4
+
+      - name: Checkout canonical Zlang compiler
+        uses: actions/checkout@v4
+        with:
+          repository: high-cde/Zlang
+          path: Zlang
+
+      - name: Install build toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gcc binutils make grub-pc-bin xorriso mtools qemu-system-x86 python3
+
+      - name: Build and verify ISO
+        env:
+          ZLANGC: ${{ github.workspace }}/Zlang/tools/zlangc.py
+        run: |
+          make -C os/x86_64 clean all verify
+          sh os/x86_64/tools/verify_qemu.sh
+
+      - name: Create checksum and manifest
+        run: |
+          cd os/x86_64/build
+          sha256sum zdos-x86_64.iso > zdos-x86_64.iso.sha256
+          printf 'release=%s\nformat=ISO 9660 / GRUB Multiboot2\narchitecture=x86_64\n' "$GITHUB_REF_NAME" > zdos-x86_64.manifest
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            os/x86_64/build/zdos-x86_64.iso \
+            os/x86_64/build/zdos-x86_64.iso.sha256 \
+            os/x86_64/build/zdos-x86_64.manifest \
+            --repo "$GITHUB_REPOSITORY" \
+            --generate-notes \
+            --title "ZDOS $GITHUB_REF_NAME — x86_64 bootable ISO" \
+            --notes "ISO x86_64 bootabile verificata con GRUB Multiboot2 e QEMU. Il profilo è bare-metal sperimentale: console seriale e runtime ZLB2 incorporato; non include filesystem, rete, processi utente o installer." \
+            --verify-tag

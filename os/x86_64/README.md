@@ -67,4 +67,15 @@ Righe vuote e commenti con `#` sono ignorati. Ogni altra sintassi viene rifiutat
 
 ## Limiti espliciti
 
-Questo è un **prototipo di OS avviabile**, non un sistema operativo generale. Non include ancora processo utente, scheduling, filesystem, driver, rete, multitasking, isolamento di memoria, caricamento ELF, package manager o syscall pubbliche. Il programma Zlang è incorporato nel kernel per dimostrare una catena nativa verificabile; un loader di programmi esterni è un passo futuro, non una funzionalità già disponibile.
+Questo è un **prototipo di distribuzione bare-metal avviabile**, non un sistema operativo generale. Non include ancora processo utente, scheduling, filesystem, driver, rete, multitasking, isolamento di memoria, caricamento ELF, package manager o syscall pubbliche. Il programma Zlang è incorporato nel kernel per dimostrare una catena nativa verificabile; un loader di programmi esterni è un passo futuro, non una funzionalità già disponibile.
+
+## Release pubblica
+
+I tag `v*` attivano il workflow `release-x86_64.yml`. Il workflow ricostruisce l’ISO da zero, verifica il formato Multiboot2, esegue il boot end-to-end in QEMU e pubblica ISO, checksum SHA-256 e manifest nella release GitHub. Per uso locale, il checksum può essere generato con:
+
+```sh
+cd build
+sha256sum zdos-x86_64.iso > zdos-x86_64.iso.sha256
+```
+
+L’immagine è adatta a QEMU e a prove hardware x86_64 compatibili con GRUB/Multiboot2. Non contiene un installer, non modifica dischi e non esegue azioni di rete o telemetria.
