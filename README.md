@@ -160,3 +160,14 @@ Questo progetto è distribuito secondo la licenza indicata in [`LICENSE`](LICENS
 **ZDOS · Zlang · ZDOS-SEC** · _Build what you can prove._ ✨
 
 ![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:10b981,42:2563eb,100:7c3aed&height=120&section=footer)
+
+## Governance e manutenzione
+
+| Risorsa | Scopo |
+|---|---|
+| [Wiki](https://github.com/high-cde/ZDOS/wiki) | Architettura, operazioni, roadmap e release. |
+| [Changelog](CHANGELOG.md) | Modifiche rilevanti e baseline di rilascio. |
+| [Contribuire](CONTRIBUTING.md) | Flusso di lavoro e verifiche per i contributi. |
+| [Sicurezza](SECURITY.md) | Segnalazione responsabile e limiti operativi. |
+| [Supporto](SUPPORT.md) | Canali e informazioni per le richieste. |
+| [Codice di condotta](CODE_OF_CONDUCT.md) | Standard di collaborazione nella comunità. |
