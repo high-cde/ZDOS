@@ -17,12 +17,21 @@ ZDOS_KERNEL_URL="${ZDOS_KERNEL_URL:-https://deb.debian.org/debian/dists/bookworm
 ZDOS_MODULES_DIR="${ZDOS_MODULES_DIR:-/lib/modules/$(uname -r)}"
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "missing required command: $1" >&2; exit 1; }; }
-for tool in curl make gcc cpio gzip xorriso grub-mkrescue; do need "$tool"; done
+for tool in curl make gcc cpio gzip file xorriso grub-mkrescue; do need "$tool"; done
 mkdir -p "$SOURCES" "$BUILD"
 
 if [ ! -s "$ZDOS_KERNEL" ]; then
   echo "Downloading bootstrap Linux kernel"
   curl --fail --location --retry 3 --output "$ZDOS_KERNEL" "$ZDOS_KERNEL_URL"
+fi
+KERNEL_RELEASE=$(file "$ZDOS_KERNEL" | sed -n 's/.*version \([^ ]*\).*/\1/p')
+if [ -n "$KERNEL_RELEASE" ] && [ -d "$ZDOS_MODULES_DIR" ]; then
+  MODULES_RELEASE=$(basename "$ZDOS_MODULES_DIR")
+  if [ "$KERNEL_RELEASE" != "$MODULES_RELEASE" ]; then
+    echo "kernel/modules mismatch: kernel=$KERNEL_RELEASE modules=$MODULES_RELEASE" >&2
+    echo "set ZDOS_MODULES_DIR to modules matching ZDOS_KERNEL" >&2
+    exit 1
+  fi
 fi
 
 fetch() {
