@@ -1,42 +1,53 @@
-![ZDOS — Unified Ecosystem](https://capsule-render.vercel.app/api?type=waving&color=0:09090b,35:312e81,68:2563eb,100:10b981&height=230&section=header&text=ZDOS&fontSize=78&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=Unified%20Operating%20System%20%2B%20Zlang%20Ecosystem&descAlignY=61&descSize=20)
+# ZDOS
 
-# ZDOS · ecosistema operativo, runtime e strumenti
+**Sistema operativo sperimentale, runtime e toolchain per sistemi x86_64.**
 
 [![Validate ZDOS x86_64](https://github.com/high-cde/ZDOS/actions/workflows/validate-x86_64.yml/badge.svg)](https://github.com/high-cde/ZDOS/actions/workflows/validate-x86_64.yml)
 [![Linux distro](https://img.shields.io/badge/distro-ZDOS%20Linux%200.2-10b981?style=for-the-badge&logo=linux&logoColor=white)](distro/)
 [![Bare metal](https://img.shields.io/badge/OS-bare--metal%20x86__64-2563eb?style=for-the-badge&logo=linux&logoColor=white)](os/x86_64/)
-[![Runtime](https://img.shields.io/badge/runtime-ZLB2%20v2.5-7c3aed?style=for-the-badge&logo=rust&logoColor=white)](https://github.com/high-cde/Zlang)
-[![Portal](https://img.shields.io/badge/portal-ZDOS--SEC-ef4444?style=for-the-badge&logo=socketdotio&logoColor=white)](https://github.com/high-cde/ZDOS-SEC-PORTAL)
+[![Zlang runtime](https://img.shields.io/badge/runtime-ZLB2%20v2.5-7c3aed?style=for-the-badge&logo=rust&logoColor=white)](https://github.com/high-cde/Zlang)
 [![License](https://img.shields.io/badge/license-MIT-64748b?style=for-the-badge)](LICENSE)
 
-> **ZDOS è un ecosistema in costruzione:** una distribuzione Linux minimale, un prototipo bare-metal x86_64, il runtime linguistico Zlang, strumenti di sviluppo, servizi di rete e un portale operativo. Ogni capacità viene dichiarata soltanto quando esistono codice, test e una prova osservabile.
+> ZDOS è un ecosistema in costruzione che riunisce una distribuzione Linux minimale, un prototipo bare-metal x86_64, il runtime del linguaggio Zlang e gli strumenti necessari per svilupparli e verificarli. Una capacità viene considerata disponibile solo quando esistono implementazione, test e una prova riproducibile.
 
-## 🧭 Mappa dell’ecosistema
+## Panoramica
+
+ZDOS mantiene due percorsi tecnici distinti ma coordinati:
+
+| Percorso | Scopo | Stato attuale |
+|---|---|---|
+| **ZDOS Linux** | Distribuzione live minimale basata su kernel Linux, BusyBox e initramfs | ISO x86_64 avviabile e verificata in QEMU |
+| **ZDOS bare metal** | Kernel freestanding x86_64 con bootstrap Multiboot2 | Prototipo avviabile con runtime Zlang incorporato |
+| **Integrazione Zlang** | Esecuzione di bytecode secondo il contratto ZLB2 v2.5 | Catena compilatore–kernel verificata in CI e QEMU |
+
+Il repository [Zlang](https://github.com/high-cde/Zlang) contiene il compilatore e la specifica del bytecode. ZDOS fornisce il target bare-metal e il runtime che lo valida ed esegue.
+
+## Architettura dell’ecosistema
 
 ```mermaid
 flowchart LR
-    A[📝 Zlang source] --> B[⚙️ Zlang compiler]
-    B --> C[🧩 ZLB2 v2.5 bytecode]
-    C --> D[🧠 ZDOS bare metal]
-    D --> E[💿 GRUB ISO]
-    E --> F[🖥️ QEMU + CI]
-    G[🐧 ZDOS Linux] --> H[📦 BusyBox + initramfs]
-    H --> I[🌐 DHCP + persistence]
-    J[🛰️ ZDOS-SEC-PORTAL] --> K[🔌 Socket.IO + APIs]
-    D -. runtime .-> J
-    G -. future services .-> J
+    A[Programma Zlang] --> B[Compilatore Zlang]
+    B --> C[Bytecode ZLB2 v2.5]
+    C --> D[Runtime ZDOS]
+    D --> E[Kernel bare metal x86_64]
+    E --> F[ISO GRUB]
+    F --> G[QEMU e CI]
+    H[ZDOS Linux] --> I[Kernel Linux + BusyBox]
+    I --> J[Initramfs e servizi minimali]
 ```
 
-## ✅ Cosa è verificato oggi
+## Stato verificato
 
-| Percorso | Stato | Prova |
-|---|---|---|
-| 🐧 **ZDOS Linux** | ISO live x86_64 con kernel Linux bootstrap, BusyBox, initramfs, account base, DHCP opzionale e persistenza `/dev/vda1` | `distro/build.sh` + boot QEMU con `ZDOS_READY` |
-| 🧠 **ZDOS bare-metal** | Kernel freestanding x86_64, GRUB Multiboot2 e runtime Zlang incorporato | GitHub Actions + `os/x86_64/tools/verify_qemu.sh` |
-| ⚙️ **Zlang** | Compilatore ZLB2 v2.5 e contratto bytecode verificato | [Repository Zlang](https://github.com/high-cde/Zlang) |
-| 🛰️ **SEC Portal** | HUD web, feed sociale, ledger locale e stream Socket.IO | [Repository ZDOS-SEC-PORTAL](https://github.com/high-cde/ZDOS-SEC-PORTAL) |
+| Componente | Evidenza riproducibile |
+|---|---|
+| **ZDOS Linux** | `distro/build.sh`, test QEMU e marker `ZDOS_READY` |
+| **ZDOS bare metal** | GitHub Actions e `os/x86_64/tools/verify_qemu.sh` |
+| **Runtime Zlang** | Contratto ZLB2 v2.5, validazione dei record e gestione di `HALT` |
+| **Pipeline di build** | Workflow CI separati per kernel, ISO Linux e integrazione web |
 
-## 🚀 Avvio rapido
+Queste evidenze descrivono un **prototipo reale e avviabile**, non una distribuzione general-purpose completa.
+
+## Avvio rapido
 
 ### ZDOS Linux
 
@@ -47,7 +58,7 @@ cd ZDOS
 ./distro/test-qemu.sh
 ```
 
-La build produce `distro/build/zdos-linux-x86_64.iso`. Per avviare manualmente la console:
+La build produce `distro/build/zdos-linux-x86_64.iso`. Per avviare manualmente la console seriale:
 
 ```sh
 qemu-system-x86_64 \
@@ -55,15 +66,17 @@ qemu-system-x86_64 \
   -serial stdio -display none
 ```
 
-La milestone Linux include l’utente `zdos`, il tentativo DHCP su `eth0` e il mount opzionale di `/dev/vda1` su `/mnt/data`. La procedura completa è descritta in [`distro/README.md`](distro/README.md).
+La milestone Linux include l’utente `zdos`, il tentativo DHCP su `eth0` e il mount opzionale di `/dev/vda1` su `/mnt/data`. I dettagli sono disponibili in [`distro/README.md`](distro/README.md).
 
-### Prototipo ZDOS x86_64 + Zlang
+### ZDOS bare metal con Zlang
 
-Per la catena bare-metal, clonare Zlang accanto a ZDOS:
+Clona i repository in directory affiancate, quindi esegui la verifica del target x86_64:
 
 ```sh
-git clone https://github.com/high-cde/Zlang.git ../Zlang
-cd os/x86_64
+git clone https://github.com/high-cde/ZDOS.git
+
+git clone https://github.com/high-cde/Zlang.git
+cd ZDOS/os/x86_64
 make clean
 make verify
 sh tools/verify_qemu.sh
@@ -78,96 +91,71 @@ ZDOS: native Zlang program executed
 ZDOS: Zlang halted cleanly
 ```
 
-## 📂 Struttura del repository
+## Struttura del repository
 
-| Area | Responsabilità | Documentazione |
+| Percorso | Responsabilità | Documentazione |
 |---|---|---|
-| `distro/` | Build della distro Linux, root filesystem, initramfs e test QEMU | [`distro/README.md`](distro/README.md) |
-| `os/x86_64/` | Kernel bare-metal sperimentale e runtime ZLB2 v2.5 | [`os/x86_64/README.md`](os/x86_64/README.md) |
+| `distro/` | Build della distribuzione Linux, root filesystem, initramfs e test QEMU | [`distro/README.md`](distro/README.md) |
+| `os/x86_64/` | Kernel bare-metal sperimentale e integrazione ZLB2 | [`os/x86_64/README.md`](os/x86_64/README.md) |
 | `core/` | Cortex, AAAK, memoria e componenti di ricerca | [`docs/docs/overview.md`](docs/docs/overview.md) |
 | `network/` | Nodi e servizi distribuiti | [`docs/docs/nodes.md`](docs/docs/nodes.md) |
-| `interface/` | CLI, web dashboard e cloud interface | [`interface/web/README.md`](interface/web/README.md) |
-| `os/ghostnet/` | Ricerca e componenti del sottosistema Ghostnet | [`os/ghostnet/README.md`](os/ghostnet/README.md) |
-| `dev/zen/` | Toolchain e automazione per lo sviluppo | [`dev/zen/README.md`](dev/zen/README.md) |
+| `interface/` | CLI, dashboard web e interfacce cloud | [`interface/web/README.md`](interface/web/README.md) |
+| `dev/zen/` | Toolchain e automazione dello sviluppo | [`dev/zen/README.md`](dev/zen/README.md) |
 | `docs/` | Architettura, operazioni, roadmap e contratti | [`docs/README.md`](docs/README.md) |
 
-## 🆕 Novità implementate
+## Contratto ZLB2 e integrazione
 
-La pipeline bare-metal ora usa un runtime **ZLB2 v2.5** coerente con l’header generato dal compilatore: magic e versione vengono validate, ogni record viene controllato nei propri limiti, gli opcode sconosciuti vengono rifiutati e `HALT` deve chiudere esattamente il buffer. Il bootstrap esegue realmente `EMIT`; gli altri record v2.5 vengono validati e restano esplicitamente in roadmap finché non saranno collegate capability sicure.
+La pipeline bare-metal utilizza il contratto **ZLB2 v2.5** tra compilatore e runtime. Magic e versione vengono validate; ogni record è controllato nei propri limiti; gli opcode sconosciuti vengono rifiutati; `HALT` deve chiudere esattamente il buffer. Il bootstrap esegue attualmente `EMIT`; le altre capacità restano esplicitamente in roadmap finché non sono collegate a capability sicure e testate.
 
-La build `os/x86_64/update_and_build.sh` è ora parametrica e non interattiva, mentre `scripts/setup_all.sh` controlla le dipendenze e indica gli entrypoint senza dichiarare servizi non avviati. La CI verifica separatamente il boot QEMU bare-metal, la build ISO e il contratto web PHP. La distro Linux continua a essere verificata con `ZDOS_READY` in QEMU.
+Il riferimento tecnico è il [profilo ZLB2 v2.5](https://github.com/high-cde/Zlang/blob/main/docs/zdos-x86_64-profile.md). Per la procedura completa di integrazione, consultare la documentazione del target [`os/x86_64/`](os/x86_64/).
 
-Il portale web non simula più uno stato operativo: l’endpoint PHP restituisce `LOCAL_STATUS_ONLY` quando Tor non è raggiungibile, espone solo un probe TCP configurabile e dichiara esplicitamente che la risposta non certifica anonimato, cifratura o sicurezza. I controlli dei moduli nella UI sono presentati come laboratorio locale; l’esecuzione remota non viene dichiarata implementata.
+## Verifica e automazione
 
-L’estetica condivisa può essere applicata con un solo comando: `./scripts/apply-zdos-theme.sh`. Il tema fonde ciano e viola per Zlang, blu per il core ZDOS, verde per gli stati verificati e ambra per le capacità sperimentali. Il comando è idempotente: può essere rieseguito senza duplicare CSS o alterare la logica delle interfacce.
-
-## 🔁 Orchestrazione dell’ecosistema
-
-Per sincronizzare e verificare i tre repository in un’unica esecuzione, usare:
+Per sincronizzare e verificare i componenti dell’ecosistema in un’unica esecuzione:
 
 ```sh
 ./scripts/sync-ecosystem.sh
 ```
 
-L’orchestratore aggiorna soltanto branch fast-forward, rifiuta working tree locali non puliti, esegue test Zlang, gate ZLB2, build/boot bare-metal, build/boot della distro, Evidence Chain e controlli del portale SEC. Non usa reset distruttivi e si arresta al primo errore reale.
+Lo script aggiorna esclusivamente branch fast-forward, rifiuta working tree locali non puliti ed esegue i gate disponibili per Zlang, ZLB2, bare metal, distribuzione Linux, Evidence Chain e portale SEC. Non esegue reset distruttivi e si arresta al primo errore reale.
 
-## ⛓️ ZDOS Evidence Chain
+La [Evidence Chain](evidence/README.md) è un ledger locale append-only JSONL con hash concatenati, ordine degli eventi e attestazioni di build e boot. Non utilizza token, saldi o mining e non salva dati personali o segreti. Consenso BFT multi-nodo, PKI multi-organizzazione e storage esterno delle prove non sono ancora implementati.
 
-ZDOS include una prima Evidence Chain non monetaria: un ledger append-only JSONL con hash concatenati, ordine degli eventi, verifica dei limiti e attestazioni di build/boot. Non usa token, saldi o mining e non salva dati personali o segreti. La prova locale completa si avvia con un solo comando:
+## Limiti e sicurezza
 
-```sh
-./scripts/bootstrap-evidence-chain.sh
-```
+ZDOS non deve essere presentato come una distribuzione general-purpose completa. Restano da implementare o verificare, tra gli altri, package manager, installer, aggiornamenti firmati, gestione utenti completa, filesystem persistente, rete configurabile e una matrice hardware reale.
 
-Il contratto operativo è documentato in [`evidence/README.md`](evidence/README.md), la policy di release in [`evidence/policy.release.json`](evidence/policy.release.json) e il verificatore in [`evidence/ledger.py`](evidence/ledger.py). La versione corrente dimostra integrità e ordine locale; consenso BFT multi-nodo, PKI multi-organizzazione e storage delle prove fuori catena restano attività successive.
+Il portale SEC contiene endpoint orientati alla build e, nel codice corrente, una password di sviluppo hard-coded. **Non esporlo su Internet** senza autenticazione reale, secret tramite environment, rate limiting, validazione degli URL, sandbox del compilatore e audit degli eventi. Per i dettagli, consultare la documentazione del [portale ZDOS-SEC](https://github.com/high-cde/ZDOS-SEC-PORTAL).
 
-## 🛡️ Confini e sicurezza
+## Documentazione
 
-ZDOS non deve essere presentato come una distro general-purpose completa finché non dispone di package manager, installer, aggiornamenti firmati, gestione utenti completa, filesystem persistente verificato, rete configurabile e test hardware. La base attuale è una milestone reale e avviabile, ma alcune componenti restano sperimentali.
-
-Il portale SEC contiene endpoint che avviano processi di build e, nel codice attuale, una password di sviluppo hard-coded. **Non esporre il portale su Internet senza autenticazione reale, secret tramite environment, rate limiting, validazione degli URL, sandbox del compilatore e audit degli eventi.** Vedere la documentazione del [portale SEC](https://github.com/high-cde/ZDOS-SEC-PORTAL) prima di un deployment.
-
-## 📚 Documentazione essenziale
-
-| Documento | Scopo |
+| Risorsa | Scopo |
 |---|---|
-| [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md) | Mappa dei repository e contratti tra i componenti |
+| [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md) | Mappa dei repository e contratti tra componenti |
 | [`docs/OPERATIONS.md`](docs/OPERATIONS.md) | Build, boot, CI, troubleshooting e release |
-| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Architettura generale del monorepo |
-| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Workflow di contributo |
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Architettura generale del repository |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | Workflow per i contributi |
 | [`SECURITY.md`](SECURITY.md) | Segnalazioni e principi di sicurezza |
-| [Profilo ZLB2 v2.5](https://github.com/high-cde/Zlang/blob/main/docs/zdos-x86_64-profile.md) | Contratto tra compilatore Zlang e runtime ZDOS |
-| [ZDOS-SEC-PORTAL](https://github.com/high-cde/ZDOS-SEC-PORTAL) | Portale HUD e API operative |
+| [`CHANGELOG.md`](CHANGELOG.md) | Modifiche rilevanti e baseline di rilascio |
 
-## 🤝 Contribuire
+## Contribuire
 
-Prima di proporre una nuova capacità, descrivere il contratto, il limite, l’errore atteso, il test positivo e almeno un test negativo. Le modifiche devono mantenere il linguaggio visuale dell’ecosistema: sezioni leggibili, badge coerenti, diagrammi quando chiariscono l’architettura e limiti dichiarati senza ambiguità.
+Prima di proporre una nuova capacità, descrivi il contratto, i limiti, l’errore atteso, il test positivo e almeno un test negativo. Mantieni le modifiche circoscritte, aggiorna la documentazione quando cambia il comportamento e verifica i link prima di aprire una pull request.
 
 ```sh
 git checkout -b docs/nome-della-modifica
-# modifica, verifica link e test locali
+# modifica e verifica
 git diff --check
-git commit -m "docs: descrivi la nuova capacità"
+git commit -m "docs: descrivi la modifica"
 git push origin docs/nome-della-modifica
 ```
 
-## 📜 Licenza
+Consulta [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md) e [`CODE_OF_CONDUCT.md`](CODE_OF_CONDUCT.md) prima di contribuire.
+
+## Licenza
 
 Questo progetto è distribuito secondo la licenza indicata in [`LICENSE`](LICENSE).
 
 ---
 
-**ZDOS · Zlang · ZDOS-SEC** · _Build what you can prove._ ✨
-
-![Footer](https://capsule-render.vercel.app/api?type=waving&color=0:10b981,42:2563eb,100:7c3aed&height=120&section=footer)
-
-## Governance e manutenzione
-
-| Risorsa | Scopo |
-|---|---|
-| [Documentazione di progetto](docs/wiki/Home.md) | Architettura, operazioni, roadmap e release, versionate insieme al codice. |
-| [Changelog](CHANGELOG.md) | Modifiche rilevanti e baseline di rilascio. |
-| [Contribuire](CONTRIBUTING.md) | Flusso di lavoro e verifiche per i contributi. |
-| [Sicurezza](SECURITY.md) | Segnalazione responsabile e limiti operativi. |
-| [Supporto](SUPPORT.md) | Canali e informazioni per le richieste. |
-| [Codice di condotta](CODE_OF_CONDUCT.md) | Standard di collaborazione nella comunità. |
+**ZDOS · Zlang** — *Build what you can prove.*
