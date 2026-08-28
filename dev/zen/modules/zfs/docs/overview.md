@@ -1,2 +1,0 @@
-# zfs
-Documentazione generata automaticamente.

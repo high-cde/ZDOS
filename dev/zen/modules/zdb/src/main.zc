@@ -1,3 +1,0 @@
-db = {}
-fn set(k, v) { db[k] = v }
-fn get(k) { return db[k] }

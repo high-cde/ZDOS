@@ -1,2 +1,0 @@
-# zdb
-Documentazione generata automaticamente.

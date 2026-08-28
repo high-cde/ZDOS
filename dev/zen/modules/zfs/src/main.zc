@@ -1,3 +1,0 @@
-fs = {}
-fn write(path, data) { fs[path] = data }
-fn read(path) { return fs[path] }

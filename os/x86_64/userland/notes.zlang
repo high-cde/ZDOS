@@ -1,13 +1,8 @@
-# ==========================================
-# ZDOS-SEC // xCLOUD Secure Notes v1.0
-# Motore ALU v2.5.1 - Parrot Black Box Edition
-# ==========================================
+# Prova locale di output e memoria Zlang/ZLB2.
+# Non apre connessioni e non attesta audit o servizi esterni.
 
-emit [PARROT-BOX] Inizializzazione Blocco Note protetto...
+emit [LOCAL] Avvio prova notes...
 let note_id = 1
 let security_level = 3
 let buffer_status = 1
-
-emit [NOTE #1] "Audit di sicurezza xCLOUD completato con successo."
-emit [NOTE #2] "Connessione crittografata con la Z-Chain stabilita."
-emit [SUCCESS] Note di sessione caricate nella Virtual RAM.
+emit [LOCAL] Record testuale compilato nel bytecode ZLB2.

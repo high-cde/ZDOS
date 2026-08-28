@@ -1,2 +1,0 @@
-# zos
-Documentazione generata automaticamente.

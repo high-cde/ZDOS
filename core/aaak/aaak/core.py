@@ -1,4 +1,5 @@
 import hashlib
+
 import numpy as np
 
 # -------------------------
@@ -16,7 +17,8 @@ def tokenize(text: str):
 
 
 # -------------------------
-# EMBEDDING SEMANTICO (fake embedding v2)
+# VETTORE DETERMINISTICO BASATO SU HASH
+# Non è un modello semantico né un embedding addestrato.
 # -------------------------
 def embedding(tokens):
     vectors = []
