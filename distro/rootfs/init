@@ -26,6 +26,11 @@ get_cmdline_value() {
 data_uuid=$(get_cmdline_value zdos.data_uuid || true)
 persistence_test=$(get_cmdline_value zdos.persistence_test || true)
 persistence_state=live-only
+if [ -x /sbin/modprobe ]; then
+  for module in virtio virtio_ring virtio_pci virtio_blk ata_generic ata_piix libata sd_mod; do
+    /sbin/modprobe "$module" 2>/run/persistence-modprobe.log || true
+  done
+fi
 persistence_device=
 for candidate in /dev/vda1 /dev/vda /dev/sda1 /dev/sda /dev/hda1 /dev/hda; do
   if [ -b "$candidate" ]; then

@@ -14,6 +14,7 @@ BUSYBOX_URL="https://busybox.net/downloads/busybox-${BUSYBOX_VERSION}.tar.bz2"
 # built Linux bzImage using ZDOS_KERNEL for a fully source-reproducible release.
 ZDOS_KERNEL="${ZDOS_KERNEL:-$BUILD/vmlinuz}"
 ZDOS_KERNEL_URL="${ZDOS_KERNEL_URL:-https://deb.debian.org/debian/dists/bookworm/main/installer-amd64/current/images/netboot/debian-installer/amd64/linux}"
+ZDOS_MODULES_DIR="${ZDOS_MODULES_DIR:-/lib/modules/$(uname -r)}"
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "missing required command: $1" >&2; exit 1; }; }
 for tool in curl make gcc cpio gzip xorriso grub-mkrescue; do need "$tool"; done
@@ -54,6 +55,13 @@ make -C "$BUSYBOX" -j"$JOBS"
 rm -rf "$ROOTFS"
 mkdir -p "$ROOTFS"
 make -C "$BUSYBOX" CONFIG_PREFIX="$ROOTFS" install
+if [ -d "$ZDOS_MODULES_DIR" ]; then
+  mkdir -p "$ROOTFS/lib/modules"
+  cp -a "$ZDOS_MODULES_DIR" "$ROOTFS/lib/modules/"
+  if command -v depmod >/dev/null 2>&1; then
+    depmod -b "$ROOTFS" "$(basename "$ZDOS_MODULES_DIR")" 2>/dev/null || true
+  fi
+fi
 mkdir -p "$ROOTFS/etc" "$ROOTFS/dev" "$ROOTFS/proc" "$ROOTFS/sys" "$ROOTFS/run" "$ROOTFS/tmp" "$ROOTFS/root"
 cp "$DISTRO/rootfs/init" "$ROOTFS/init"
 cp "$DISTRO/rootfs/etc/inittab" "$ROOTFS/etc/inittab"
