@@ -41,7 +41,7 @@ fetch() {
 fetch "$BUSYBOX_URL" "$BUSYBOX_TARBALL"
 if [ ! -d "$BUILD/busybox-${BUSYBOX_VERSION}" ]; then tar -xf "$BUSYBOX_TARBALL" -C "$BUILD"; fi
 BUSYBOX="$BUILD/busybox-${BUSYBOX_VERSION}"
-if [ ! -f "$BUSYBOX/.zdos-configured" ] || ! grep -q '^CONFIG_BLKID=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_FEATURE_VOLUMEID_EXT=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_MODPROBE_SMALL=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_MDEV=y' "$BUSYBOX/.config"; then
+if [ ! -f "$BUSYBOX/.zdos-configured" ] || ! grep -q '^CONFIG_BLKID=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_FEATURE_VOLUMEID_EXT=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_MODPROBE_SMALL=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_MDEV=y' "$BUSYBOX/.config" || grep -q '^CONFIG_TC=y' "$BUSYBOX/.config"; then
   make -C "$BUSYBOX" distclean
   make -C "$BUSYBOX" defconfig
   set_bool() {
@@ -54,11 +54,21 @@ if [ ! -f "$BUSYBOX/.zdos-configured" ] || ! grep -q '^CONFIG_BLKID=y' "$BUSYBOX
       printf '%s=y\n' "$option" >> "$BUSYBOX/.config"
     fi
   }
+  set_unbool() {
+    local option="$1"
+    if grep -q "^$option=" "$BUSYBOX/.config"; then
+      sed -i "s/^$option=.*/# $option is not set/" "$BUSYBOX/.config"
+    elif ! grep -q "^# $option is not set" "$BUSYBOX/.config"; then
+      printf '# %s is not set\n' "$option" >> "$BUSYBOX/.config"
+    fi
+  }
   set_bool CONFIG_STATIC
   set_bool CONFIG_BLKID
   set_bool CONFIG_FEATURE_VOLUMEID_EXT
   set_bool CONFIG_MODPROBE_SMALL
   set_bool CONFIG_MDEV
+  # tc depends on host kernel traffic-control headers and is not needed by ZDOS.
+  set_unbool CONFIG_TC
   make -C "$BUSYBOX" oldconfig </dev/null
   touch "$BUSYBOX/.zdos-configured"
 fi

@@ -88,4 +88,17 @@ printf 'Network: '; ip -brief address 2>/dev/null || printf 'not configured\n'
 printf 'Persistence: '; printf '%s\n' "$persistence_state"
 printf 'ZDOS_READY\n'
 
+# Automated persistence tests terminate only this ZDOS guest after flushing
+# and unmounting the data filesystem. This never powers off the VPS host.
+if [ -n "$persistence_test" ] && [ -n "$persistence_device" ]; then
+  sync
+  umount /mnt/data 2>/run/persistence-umount.log || true
+  sync
+  if command -v poweroff >/dev/null 2>&1; then
+    exec poweroff -f
+  elif command -v halt >/dev/null 2>&1; then
+    exec halt -f
+  fi
+fi
+
 exec /bin/sh
