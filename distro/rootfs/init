@@ -3,6 +3,9 @@
 mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
+if command -v mdev >/dev/null 2>&1; then
+  mdev -s 2>/run/mdev.log || true
+fi
 mount -t tmpfs tmpfs /run
 
 hostname zdos

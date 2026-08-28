@@ -32,7 +32,7 @@ fetch() {
 fetch "$BUSYBOX_URL" "$BUSYBOX_TARBALL"
 if [ ! -d "$BUILD/busybox-${BUSYBOX_VERSION}" ]; then tar -xf "$BUSYBOX_TARBALL" -C "$BUILD"; fi
 BUSYBOX="$BUILD/busybox-${BUSYBOX_VERSION}"
-if [ ! -f "$BUSYBOX/.zdos-configured" ] || ! grep -q '^CONFIG_BLKID=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_FEATURE_VOLUMEID_EXT=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_MODPROBE_SMALL=y' "$BUSYBOX/.config"; then
+if [ ! -f "$BUSYBOX/.zdos-configured" ] || ! grep -q '^CONFIG_BLKID=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_FEATURE_VOLUMEID_EXT=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_MODPROBE_SMALL=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_MDEV=y' "$BUSYBOX/.config"; then
   make -C "$BUSYBOX" distclean
   make -C "$BUSYBOX" defconfig
   set_bool() {
@@ -49,6 +49,7 @@ if [ ! -f "$BUSYBOX/.zdos-configured" ] || ! grep -q '^CONFIG_BLKID=y' "$BUSYBOX
   set_bool CONFIG_BLKID
   set_bool CONFIG_FEATURE_VOLUMEID_EXT
   set_bool CONFIG_MODPROBE_SMALL
+  set_bool CONFIG_MDEV
   make -C "$BUSYBOX" oldconfig </dev/null
   touch "$BUSYBOX/.zdos-configured"
 fi
