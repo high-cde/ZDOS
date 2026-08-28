@@ -49,7 +49,8 @@ else
   while [ "$attempt" -lt 50 ] && [ -z "$persistence_device" ]; do
     for candidate in /dev/vda1 /dev/vda /dev/sda1 /dev/sda /dev/hda1 /dev/hda; do
       if [ -b "$candidate" ]; then
-        actual_uuid=$("$blkid_bin" -s UUID -o value "$candidate" 2>/run/persistence-blkid.log || true)
+        blkid_output=$("$blkid_bin" "$candidate" 2>/run/persistence-blkid.log || true)
+        actual_uuid=$(printf '%s\n' "$blkid_output" | sed -n 's/.*UUID="\([^"]*\)".*/\1/p')
         if [ "$actual_uuid" = "$data_uuid" ]; then
           persistence_device="$candidate"
           break
