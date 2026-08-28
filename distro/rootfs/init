@@ -31,7 +31,7 @@ persistence_test=$(get_cmdline_value zdos.persistence_test || true)
 persistence_state=live-only
 modprobe_bin=$(command -v modprobe 2>/dev/null || true)
 if [ -n "$modprobe_bin" ]; then
-  for module in virtio virtio_ring virtio_pci virtio_blk ata_generic ata_piix libata sd_mod; do
+  for module in virtio virtio_ring virtio_pci virtio_blk ata_generic ata_piix libata sd_mod mbcache jbd2 ext4; do
     "$modprobe_bin" "$module" 2>/run/persistence-modprobe.log || true
   done
   if command -v mdev >/dev/null 2>&1; then
