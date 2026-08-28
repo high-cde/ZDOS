@@ -21,6 +21,7 @@
 - [Persistent Storage v1](#persistent-storage-v1)
 - [Zlang e runtime ZLB2](#zlang-e-runtime-zlb2)
 - [Evidence Chain](#evidence-chain)
+- [Micro-mondo connesso](#micro-mondo-connesso)
 - [Avvio rapido](#avvio-rapido)
 - [Struttura del repository](#struttura-del-repository)
 - [Verifica e riproducibilità](#verifica-e-riproducibilità)
@@ -237,6 +238,21 @@ LEDGER=/var/lib/zdos-node/evidence.jsonl \
 L’evento `filesystem.persistence.attestation` registra UUID, tipo filesystem, mount point, hash dell’immagine QEMU, hash del marker, numero di boot, commit ZDOS e kernel. Non registra il contenuto del filesystem né dati privati.
 
 Per la specifica operativa, consultare [`evidence/README.md`](evidence/README.md).
+
+## Micro-mondo connesso
+
+Il repository include un **micro-mondo connesso** che incorpora il modello di coordinamento di ZDOS Lab senza trasformare copie locali in fonti autorevoli. Il catalogo [`microcosm/catalog.json`](microcosm/catalog.json) dichiara componenti, repository primari, ruolo, stato e controlli; il contratto [`microcosm/contract.json`](microcosm/contract.json) rende espliciti i gate di promozione, i limiti e il divieto di sincronizzazioni distruttive.
+
+| Comando | Funzione | Effetto sui repository |
+|---|---|---|
+| `./microcosm/zdos-microctl inspect` | Fotografa checkout, commit e stati dichiarati | Sola lettura |
+| `./microcosm/zdos-microctl manifest` | Produce un report con hash di catalogo e contratto | Scrive solo un artefatto locale ignorato da Git |
+| `./microcosm/zdos-microctl sync --check` | Controlla le precondizioni di allineamento | Sola lettura |
+| `./microcosm/zdos-microctl sync --apply` | Aggiorna checkout puliti con fast-forward soltanto | Nessun reset o force-push |
+| `./microcosm/zdos-microctl gate` | Valida entrypoint, policy, catalogo e contratto | Sola lettura |
+| `./microcosm/zdos-microctl attest-persistence` | Esegue due boot QEMU e registra l'attestazione | Genera build e ledger locali |
+
+Il collegamento già **VERIFIED** è `persistent-storage-evidence-v1`: due boot QEMU, marker di scrittura e lettura, clean shutdown, quindi evento `filesystem.persistence.attestation` in una Evidence Chain verificata. Zlang, zdos-organism, ZDOS-SEC-PORTAL e Z-CYBERCORE restano fonti primarie esterne, con stati `PREPARED` o `EXPERIMENTAL` finché non sono disponibili i rispettivi checkout e controlli. La specifica completa è in [`docs/MICROCOSM.md`](docs/MICROCOSM.md).
 
 ## Avvio rapido
 

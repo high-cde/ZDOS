@@ -1,0 +1,125 @@
+{
+  "schema": "zdos-microcosm/v1",
+  "name": "ZDOS Connected Microcosm",
+  "description": "Un perimetro locale e source-first che collega ZDOS, Zlang, Evidence Chain e superfici operative senza trasformare i mirror in fonti primarie.",
+  "owner": "high-cde",
+  "policy": "default-deny",
+  "source_of_truth": "official-repositories",
+  "components": [
+    {
+      "id": "zdos",
+      "name": "ZDOS",
+      "role": "kernel sperimentale, distro Linux, test QEMU, orchestrazione ed Evidence Chain",
+      "remote": "https://github.com/high-cde/ZDOS.git",
+      "local_path": ".",
+      "authority": "primary",
+      "status": "VERIFIED",
+      "verified_scope": "ISO Linux x86_64, persistenza ext4 a due boot QEMU, boot bare-metal QEMU e ledger locale append-only",
+      "checks": [
+        "distro/test-persistence-qemu.sh",
+        "scripts/attest-persistence-evidence.sh",
+        "evidence/ledger.py --ledger <ledger> verify"
+      ]
+    },
+    {
+      "id": "zlang",
+      "name": "Zlang",
+      "role": "compilatore, runtime, VM e contratto bytecode ZLB2",
+      "remote": "https://github.com/high-cde/Zlang.git",
+      "local_path": "Zlang",
+      "authority": "external-primary",
+      "status": "PREPARED",
+      "verified_scope": "L'integrazione locale richiede un checkout adiacente e i test della fonte primaria.",
+      "checks": [
+        "python3 tests/test_storage_read_v1.py",
+        "python3 -m unittest discover -s tests -p test_*.py"
+      ]
+    },
+    {
+      "id": "zdos-organism",
+      "name": "zdos-organism",
+      "role": "runtime locale dell'organismo e ponte di esecuzione Zlang/ZVM",
+      "remote": "https://github.com/high-cde/zdos-organism.git",
+      "local_path": "zdos-organism",
+      "authority": "external-primary",
+      "status": "EXPERIMENTAL",
+      "verified_scope": "La presenza locale e la verifica del workspace Rust sono necessarie prima di qualunque promozione.",
+      "checks": [
+        "cargo fmt --check",
+        "cargo clippy -- -D warnings",
+        "cargo test",
+        "cargo run -- --once"
+      ]
+    },
+    {
+      "id": "zdos-sec-portal",
+      "name": "ZDOS-SEC-PORTAL",
+      "role": "HUD operativo, API locale, policy e spazio di lavoro delle evidenze",
+      "remote": "https://github.com/high-cde/ZDOS-SEC-PORTAL.git",
+      "local_path": "ZDOS-SEC-PORTAL",
+      "authority": "external-primary",
+      "status": "EXPERIMENTAL",
+      "verified_scope": "Flusso HTTP/UI locale; nessun deployment pubblico viene dichiarato verificato.",
+      "checks": [
+        "health endpoint",
+        "authentication test",
+        "input validation test",
+        "ledger verification"
+      ]
+    },
+    {
+      "id": "z-cybercore",
+      "name": "Z-CYBERCORE",
+      "role": "componente dimostrativo di sicurezza difensiva e simulata",
+      "remote": "https://github.com/high-cde/Z-CYBERCORE.git",
+      "local_path": "Z-CYBERCORE",
+      "authority": "external-primary",
+      "status": "EXPERIMENTAL",
+      "verified_scope": "Compilazione Rust e simulazioni locali; non è un componente offensivo operativo.",
+      "checks": [
+        "cargo build --locked",
+        "cargo test"
+      ]
+    }
+  ],
+  "flows": [
+    {
+      "id": "persistent-storage-evidence-v1",
+      "from": "zdos-linux",
+      "through": [
+        "distro/test-persistence-qemu.sh",
+        "scripts/attest-persistence-evidence.sh",
+        "evidence/ledger.py"
+      ],
+      "to": "filesystem.persistence.attestation",
+      "status": "VERIFIED",
+      "proof": {
+        "execution": "qemu-two-boot-proof",
+        "required_markers": [
+          "ZDOS_PERSISTENCE_WRITE_OK",
+          "ZDOS_PERSISTENCE_READ_OK",
+          "ZDOS_PERSISTENCE_CLEAN_SHUTDOWN_OK",
+          "ZDOS_PERSISTENCE_QEMU_TEST_PASSED"
+        ],
+        "ledger_event": "filesystem.persistence.attestation",
+        "privacy": "Il ledger conserva solo metadati, hash, commit e configurazione; il contenuto del filesystem e i segreti sono esclusi."
+      }
+    }
+  ],
+  "targets": {
+    "x86_64": "VERIFIED",
+    "aarch64": "PREPARED",
+    "riscv64": "PREPARED",
+    "i686": "NOT_VERIFIED",
+    "armv7": "NOT_VERIFIED",
+    "mips64": "NOT_VERIFIED"
+  },
+  "sync": {
+    "mode": "fast-forward-only",
+    "allow_force_push": false,
+    "allow_destructive_reset": false,
+    "require_clean_worktree": true,
+    "require_remote": true,
+    "require_authentication": true
+  }
+}

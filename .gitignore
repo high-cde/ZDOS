@@ -51,3 +51,6 @@ yarn-error.log
 .DS_Store
 .Trashes
 Thumbs.db
+
+# Generated connected-microcosm state
+/artifacts/microcosm/*.json

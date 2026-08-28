@@ -1,0 +1,51 @@
+{
+  "schema": "zdos-microcosm-contract/v1",
+  "policy": "default-deny",
+  "status_vocabulary": {
+    "VERIFIED": "Implementazione, contratto, prova osservabile e procedura riproducibile sono disponibili.",
+    "PREPARED": "Contratto e percorso sono predisposti, ma la prova completa non è disponibile nel checkout corrente.",
+    "EXPERIMENTAL": "Il componente può essere esplorato localmente, ma non è promosso come capacità di produzione.",
+    "NOT_VERIFIED": "Manca una prova richiesta; questo è il valore obbligatorio in caso di incertezza."
+  },
+  "invariants": [
+    "Il catalogo identifica le fonti primarie e non promuove copie locali o mirror a source of truth.",
+    "inspect e manifest leggono il workspace e non eseguono fetch, merge, push, reset o modifiche ai componenti.",
+    "sync --check non modifica alcun repository.",
+    "sync --apply è consentito soltanto con albero pulito, remote origin configurato e fast-forward possibile; reset distruttivi e force-push sono vietati.",
+    "Un artefatto non può essere dichiarato VERIFIED soltanto perché è presente; deve possedere hash, origine, comando di prova e risultato osservabile.",
+    "L'evento filesystem.persistence.attestation è ammesso solo dopo due boot QEMU, marker di scrittura e lettura, clean shutdown ed Evidence Chain valida.",
+    "Il ledger non può includere password, chiavi, token, dati personali o contenuto del filesystem persistente.",
+    "Le capacità non supportate restano separate dalla verifica: il bridge storage.read-v1 non implica un filesystem nativo bare-metal."
+  ],
+  "gates": [
+    {
+      "id": "catalog-integrity",
+      "kind": "local",
+      "required": true,
+      "command": "python3 -m unittest microcosm/test_microcosm.py",
+      "evidence": "Il catalogo e il contratto sono JSON validi, ogni componente ha origine, stato, ruolo e percorso locale dichiarato."
+    },
+    {
+      "id": "zdos-entrypoints",
+      "kind": "local",
+      "required": true,
+      "command": "./microcosm/zdos-microctl gate",
+      "evidence": "Gli entrypoint ZDOS, la policy release e gli script del micro-mondo sono presenti e sintatticamente validi."
+    },
+    {
+      "id": "persistence-proof",
+      "kind": "optional-runtime",
+      "required_for_status": "VERIFIED",
+      "command": "./microcosm/zdos-microctl attest-persistence",
+      "evidence": "Un ledger verificato contiene l'evento filesystem.persistence.attestation dopo il test QEMU a due boot."
+    },
+    {
+      "id": "external-component-checks",
+      "kind": "optional-workspace",
+      "required_for_status": "VERIFIED",
+      "command": "./microcosm/zdos-microctl inspect",
+      "evidence": "I checkout esterni risultano presenti; i loro controlli rimangono eseguiti e attestati nelle fonti primarie."
+    }
+  ],
+  "release_rule": "Una release del micro-mondo può essere promossa a VERIFIED soltanto se catalog-integrity e zdos-entrypoints sono verdi e se persistence-proof è stato eseguito nello stesso contesto di build. La mancanza di un checkout esterno riduce la copertura di integrazione a PREPARED, non blocca le prove locali di ZDOS."
+}

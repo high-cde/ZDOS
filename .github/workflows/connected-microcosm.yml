@@ -1,0 +1,26 @@
+name: Validate ZDOS connected microcosm
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  microcosm-contract:
+    name: Validate catalog, contract and local gate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ZDOS
+        uses: actions/checkout@v4
+
+      - name: Run connected-microcosm tests
+        run: python3 -m unittest microcosm/test_microcosm.py
+
+      - name: Inspect declared components without synchronization
+        run: ./microcosm/zdos-microctl inspect
+
+      - name: Validate local entrypoints and release policy
+        run: ./microcosm/zdos-microctl gate

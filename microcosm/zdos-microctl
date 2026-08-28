@@ -1,0 +1,295 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+IFS=$'\n\t'
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+CATALOG="$ROOT/microcosm/catalog.json"
+CONTRACT="$ROOT/microcosm/contract.json"
+WORKSPACE_ROOT="${ZDOS_MICROCOSM_WORKSPACE:-$(cd "$ROOT/.." && pwd)}"
+ARTIFACT_ROOT="${ZDOS_MICROCOSM_ARTIFACTS:-$ROOT/artifacts/microcosm}"
+
+need_cmd() {
+  command -v "$1" >/dev/null 2>&1 || {
+    printf '[ZDOS-MICROCOSM][ERROR] comando richiesto assente: %s\n' "$1" >&2
+    exit 1
+  }
+}
+
+validate_contract() {
+  need_cmd python3
+  python3 - "$CATALOG" "$CONTRACT" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+catalog_path = Path(sys.argv[1])
+contract_path = Path(sys.argv[2])
+allowed = {"VERIFIED", "PREPARED", "EXPERIMENTAL", "NOT_VERIFIED"}
+
+try:
+    catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+    contract = json.loads(contract_path.read_text(encoding="utf-8"))
+except (OSError, json.JSONDecodeError) as exc:
+    raise SystemExit(f"catalogo o contratto non leggibile: {exc}")
+
+if catalog.get("schema") != "zdos-microcosm/v1":
+    raise SystemExit("schema catalogo non supportato")
+if contract.get("schema") != "zdos-microcosm-contract/v1":
+    raise SystemExit("schema contratto non supportato")
+if catalog.get("policy") != "default-deny" or contract.get("policy") != "default-deny":
+    raise SystemExit("la policy deve essere default-deny")
+components = catalog.get("components")
+if not isinstance(components, list) or not components:
+    raise SystemExit("components deve essere una lista non vuota")
+ids = set()
+for component in components:
+    if not isinstance(component, dict):
+        raise SystemExit("componente non oggetto")
+    missing = {"id", "name", "role", "remote", "local_path", "authority", "status", "verified_scope", "checks"} - component.keys()
+    if missing:
+        raise SystemExit(f"componente incompleto: {', '.join(sorted(missing))}")
+    if component["id"] in ids:
+        raise SystemExit(f"id componente duplicato: {component['id']}")
+    ids.add(component["id"])
+    if component["status"] not in allowed:
+        raise SystemExit(f"stato non valido per {component['id']}: {component['status']}")
+    if not str(component["remote"]).startswith("https://github.com/"):
+        raise SystemExit(f"remote non ammesso per {component['id']}")
+    if not isinstance(component["checks"], list) or not component["checks"]:
+        raise SystemExit(f"checks non valido per {component['id']}")
+flows = catalog.get("flows")
+if not isinstance(flows, list) or not flows:
+    raise SystemExit("flows deve essere una lista non vuota")
+for flow in flows:
+    if flow.get("status") not in allowed or not flow.get("proof"):
+        raise SystemExit(f"flow incompleto o con stato non valido: {flow.get('id', 'sconosciuto')}")
+if not isinstance(contract.get("invariants"), list) or not contract["invariants"]:
+    raise SystemExit("invarianti mancanti")
+if not isinstance(contract.get("gates"), list) or not contract["gates"]:
+    raise SystemExit("gate mancanti")
+print("[ZDOS-MICROCOSM] catalogo e contratto validi")
+PY
+}
+
+inspect() {
+  validate_contract
+  need_cmd python3
+  python3 - "$CATALOG" "$ROOT" "$WORKSPACE_ROOT" <<'PY'
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+catalog = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+root = Path(sys.argv[2]).resolve()
+workspace = Path(sys.argv[3]).resolve()
+print("ZDOS Connected Microcosm inspection")
+print(f"schema: {catalog['schema']}")
+print(f"policy: {catalog['policy']}")
+for component in catalog["components"]:
+    local_path = Path(component["local_path"])
+    path = (root / local_path).resolve() if str(local_path) == "." else (workspace / local_path).resolve()
+    present = path.is_dir()
+    is_git = False
+    commit = "unknown"
+    dirty = "unknown"
+    if present:
+        probe = subprocess.run(["git", "-C", str(path), "rev-parse", "--is-inside-work-tree"], text=True, capture_output=True)
+        is_git = probe.returncode == 0 and probe.stdout.strip() == "true"
+        if is_git:
+            commit_probe = subprocess.run(["git", "-C", str(path), "rev-parse", "--short", "HEAD"], text=True, capture_output=True)
+            if commit_probe.returncode == 0:
+                commit = commit_probe.stdout.strip()
+            dirty_probe = subprocess.run(["git", "-C", str(path), "status", "--porcelain"], text=True, capture_output=True)
+            if dirty_probe.returncode == 0:
+                dirty = "true" if dirty_probe.stdout.strip() else "false"
+    print(f"{component['id']}: status={component['status']} present={str(present).lower()} git={str(is_git).lower()} dirty={dirty} commit={commit} path={path}")
+for target, status in catalog["targets"].items():
+    print(f"target {target}: {status}")
+PY
+}
+
+manifest() {
+  validate_contract
+  need_cmd python3
+  mkdir -p "$ARTIFACT_ROOT"
+  python3 - "$CATALOG" "$CONTRACT" "$ROOT" "$WORKSPACE_ROOT" "$ARTIFACT_ROOT/microcosm-state.json" <<'PY'
+import hashlib
+import json
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+catalog_path, contract_path, root_arg, workspace_arg, output_arg = map(Path, sys.argv[1:])
+catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+contract = json.loads(contract_path.read_text(encoding="utf-8"))
+root = root_arg.resolve()
+workspace = workspace_arg.resolve()
+components = []
+for component in catalog["components"]:
+    local_path = Path(component["local_path"])
+    path = (root / local_path).resolve() if str(local_path) == "." else (workspace / local_path).resolve()
+    entry = {**component, "resolved_path": str(path), "present": path.is_dir(), "commit": "unknown", "dirty": None}
+    if path.is_dir():
+        commit = subprocess.run(["git", "-C", str(path), "rev-parse", "HEAD"], text=True, capture_output=True)
+        if commit.returncode == 0:
+            entry["commit"] = commit.stdout.strip()
+            dirty = subprocess.run(["git", "-C", str(path), "status", "--porcelain"], text=True, capture_output=True)
+            if dirty.returncode == 0:
+                entry["dirty"] = bool(dirty.stdout.strip())
+    components.append(entry)
+source_hashes = {
+    "catalog_sha256": hashlib.sha256(catalog_path.read_bytes()).hexdigest(),
+    "contract_sha256": hashlib.sha256(contract_path.read_bytes()).hexdigest(),
+}
+state = {
+    "schema": "zdos-microcosm-state/v1",
+    "generated_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    "policy": catalog["policy"],
+    "source_hashes": source_hashes,
+    "components": components,
+    "flows": catalog["flows"],
+    "targets": catalog["targets"],
+}
+canonical = json.dumps(state, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+state["state_sha256"] = hashlib.sha256(canonical).hexdigest()
+output_arg.write_text(json.dumps(state, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+print(json.dumps({"output": str(output_arg), "components": len(components), "state_sha256": state["state_sha256"]}, ensure_ascii=False, indent=2))
+PY
+}
+
+sync() {
+  local mode="${1:-check}"
+  [[ "$mode" == "check" || "$mode" == "apply" ]] || {
+    printf 'uso: %s sync [--check|--apply]\n' "$0" >&2
+    exit 2
+  }
+  validate_contract
+  need_cmd git
+  need_cmd python3
+  python3 - "$CATALOG" "$ROOT" "$WORKSPACE_ROOT" "$mode" <<'PY'
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+catalog = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+root = Path(sys.argv[2]).resolve()
+workspace = Path(sys.argv[3]).resolve()
+mode = sys.argv[4]
+blocked = False
+for component in catalog["components"]:
+    local_path = Path(component["local_path"])
+    path = (root / local_path).resolve() if str(local_path) == "." else (workspace / local_path).resolve()
+    print(f"[ZDOS-MICROCOSM] {mode}: {component['id']} -> {component['remote']}")
+    if not path.is_dir():
+        print("  status=missing; action=aggiungere esternamente il checkout della fonte primaria")
+        blocked = True
+        continue
+    git_probe = subprocess.run(["git", "-C", str(path), "rev-parse", "--is-inside-work-tree"], text=True, capture_output=True)
+    if git_probe.returncode != 0:
+        print("  status=blocked; reason=not-a-git-worktree")
+        blocked = True
+        continue
+    dirty = subprocess.check_output(["git", "-C", str(path), "status", "--porcelain"], text=True).strip()
+    origin = subprocess.run(["git", "-C", str(path), "remote", "get-url", "origin"], text=True, capture_output=True)
+    if dirty:
+        print("  status=blocked; reason=working-tree-not-clean")
+        blocked = True
+        continue
+    if origin.returncode != 0:
+        print("  status=blocked; reason=origin-missing")
+        blocked = True
+        continue
+    print(f"  origin={origin.stdout.strip()}")
+    if mode == "apply":
+        fetch = subprocess.run(["git", "-C", str(path), "fetch", "--prune", "origin"], text=True)
+        if fetch.returncode != 0:
+            blocked = True
+            continue
+        branch = subprocess.check_output(["git", "-C", str(path), "branch", "--show-current"], text=True).strip() or "main"
+        upstream = f"origin/{branch}"
+        if subprocess.run(["git", "-C", str(path), "merge-base", "--is-ancestor", "HEAD", upstream]).returncode == 0:
+            merge = subprocess.run(["git", "-C", str(path), "merge", "--ff-only", upstream], text=True)
+            if merge.returncode == 0:
+                print(f"  status=updated; mode=fast-forward-only; branch={branch}")
+            else:
+                blocked = True
+        elif subprocess.run(["git", "-C", str(path), "merge-base", "--is-ancestor", upstream, "HEAD"]).returncode == 0:
+            print(f"  status=local-ahead; branch={branch}")
+        else:
+            print(f"  status=blocked; reason=diverged-history; branch={branch}")
+            blocked = True
+print("[ZDOS-MICROCOSM] sync bloccata da controlli di sicurezza" if blocked else f"[ZDOS-MICROCOSM] sync {mode} completata")
+raise SystemExit(1 if blocked else 0)
+PY
+}
+
+gate() {
+  validate_contract
+  need_cmd bash
+  local required=(
+    "$ROOT/distro/build.sh"
+    "$ROOT/distro/test-qemu.sh"
+    "$ROOT/distro/test-persistence-qemu.sh"
+    "$ROOT/scripts/attest-persistence-evidence.sh"
+    "$ROOT/evidence/ledger.py"
+    "$ROOT/evidence/policy.release.json"
+    "$ROOT/os/x86_64/Makefile"
+  )
+  local path
+  for path in "${required[@]}"; do
+    [[ -f "$path" ]] || {
+      printf '[ZDOS-MICROCOSM][ERROR] entrypoint richiesto assente: %s\n' "$path" >&2
+      return 1
+    }
+  done
+  bash -n \
+    "$ROOT/distro/build.sh" \
+    "$ROOT/distro/test-qemu.sh" \
+    "$ROOT/distro/test-persistence-qemu.sh" \
+    "$ROOT/scripts/attest-persistence-evidence.sh" \
+    "$ROOT/microcosm/zdos-microctl" \
+    "$ROOT/os/x86_64/update_and_build.sh"
+  python3 - "$ROOT/evidence/policy.release.json" <<'PY'
+import json
+import sys
+from pathlib import Path
+policy = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+if not isinstance(policy, dict) or not policy:
+    raise SystemExit("release policy vuota o non valida")
+print("[ZDOS-MICROCOSM] policy release valida")
+PY
+  printf '[ZDOS-MICROCOSM] gate superato: catalogo, contratto, entrypoint ZDOS e policy sono coerenti\n'
+}
+
+attest_persistence() {
+  validate_contract
+  local ledger="${LEDGER:-$ROOT/evidence/ledger.jsonl}"
+  LEDGER="$ledger" "$ROOT/scripts/attest-persistence-evidence.sh"
+  python3 "$ROOT/evidence/ledger.py" --ledger "$ledger" verify
+  printf '[ZDOS-MICROCOSM] prova di persistenza attestata ledger=%s\n' "$ledger"
+}
+
+usage() {
+  cat <<'EOF'
+Uso: ./microcosm/zdos-microctl {inspect|manifest|sync [--check|--apply]|gate|attest-persistence}
+
+inspect             elenca componenti e checkout senza modificarli
+manifest            produce un report con hash in artifacts/microcosm/
+sync --check        controlla precondizioni senza mutare repository
+sync --apply        esegue solo fetch e merge fast-forward su checkout puliti
+gate                convalida contratto, policy ed entrypoint locali
+attest-persistence  esegue la prova QEMU a due boot e registra l'attestazione
+EOF
+}
+
+case "${1:-}" in
+  inspect) inspect ;;
+  manifest) manifest ;;
+  sync) sync "${2#--}" ;;
+  gate) gate ;;
+  attest-persistence) attest_persistence ;;
+  *) usage >&2; exit 2 ;;
+esac
