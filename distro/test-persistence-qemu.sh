@@ -24,7 +24,7 @@ boot_and_expect() {
   log=$(mktemp)
   set +e
   timeout 20s qemu-system-x86_64 \
-    -m 256M \
+    -m 512M \
     -kernel "$ISO_KERNEL" \
     -initrd "$INITRAMFS" \
     -append "console=ttyS0,115200n8 init=/init zdos.data_uuid=$DATA_UUID zdos.persistence_test=$mode" \
