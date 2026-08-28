@@ -53,3 +53,27 @@ ZLANG_ROOT=../Zlang ./scripts/evolve-zlang-evidence.sh
 Lo script ricompila il programma di boot, verifica il kernel Multiboot2, esegue il controllo seriale in QEMU e registra un evento `zlang.zdos.evolution` solo se tutte le prove precedenti hanno successo. L’evento include gli hash SHA-256 del sorgente, del bytecode, dell’header generato e del log di boot, oltre ai commit dei repository Zlang e ZDOS.
 
 Il ledger resta append-only: se il file esiste viene verificato prima dell’aggiunta; se è corrotto, l’operazione viene rifiutata. Il comando non apre porte di rete, non salva segreti e non dichiara consenso distribuito o esecuzione remota.
+
+## Attestazione persistent-storage-v1
+
+Lo script [`scripts/attest-persistence-evidence.sh`](../scripts/attest-persistence-evidence.sh) collega il test QEMU a due boot alla Evidence Chain. Esegue prima `distro/test-persistence-qemu.sh`; l’evento viene scritto soltanto se sono presenti entrambi i marker `ZDOS_PERSISTENCE_WRITE_OK` e `ZDOS_PERSISTENCE_READ_OK`.
+
+```sh
+ZLANG_ROOT=../Zlang \
+ZDOS_KERNEL=/boot/vmlinuz-$(uname -r) \
+ZDOS_MODULES_DIR=/lib/modules/$(uname -r) \
+LEDGER=/var/lib/zdos-node/evidence.jsonl \
+./scripts/attest-persistence-evidence.sh
+```
+
+L’evento applicativo usa `filesystem.persistence.attestation` e registra esclusivamente metadati verificabili: tipo filesystem, UUID, mount point, hash dell’immagine QEMU, hash del marker, numero di boot, commit ZDOS e versione del kernel. Il contenuto del filesystem, i dati degli utenti, le password e i segreti sono esclusi intenzionalmente.
+
+La verifica finale è:
+
+```sh
+python3 evidence/ledger.py \
+  --ledger /var/lib/zdos-node/evidence.jsonl \
+  verify
+```
+
+L’attestazione dimostra la persistenza nel test QEMU locale; non certifica ancora installazione su hardware reale, durabilità contro ogni tipo di spegnimento improvviso o consenso multi-nodo.

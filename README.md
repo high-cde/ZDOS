@@ -197,6 +197,18 @@ Per verificare un ledger:
 python3 evidence/ledger.py --ledger /path/to/evidence.jsonl verify
 ```
 
+Per attestare il test di persistenza dopo due boot riusciti:
+
+```sh
+ZLANG_ROOT=../Zlang \
+ZDOS_KERNEL=/boot/vmlinuz-$(uname -r) \
+ZDOS_MODULES_DIR=/lib/modules/$(uname -r) \
+LEDGER=/var/lib/zdos-node/evidence.jsonl \
+./scripts/attest-persistence-evidence.sh
+```
+
+L’evento `filesystem.persistence.attestation` registra UUID, tipo filesystem, mount point, hash dell’immagine QEMU, hash del marker, numero di boot, commit ZDOS e kernel. Non registra il contenuto del filesystem né dati privati.
+
 Per la specifica operativa, consultare [`evidence/README.md`](evidence/README.md).
 
 ## Avvio rapido
