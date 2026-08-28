@@ -26,9 +26,10 @@ get_cmdline_value() {
 data_uuid=$(get_cmdline_value zdos.data_uuid || true)
 persistence_test=$(get_cmdline_value zdos.persistence_test || true)
 persistence_state=live-only
-if [ -x /sbin/modprobe ]; then
+modprobe_bin=$(command -v modprobe 2>/dev/null || true)
+if [ -n "$modprobe_bin" ]; then
   for module in virtio virtio_ring virtio_pci virtio_blk ata_generic ata_piix libata sd_mod; do
-    /sbin/modprobe "$module" 2>/run/persistence-modprobe.log || true
+    "$modprobe_bin" "$module" 2>/run/persistence-modprobe.log || true
   done
 fi
 persistence_device=
@@ -42,10 +43,12 @@ if [ -z "$persistence_device" ]; then
   printf 'ZDOS_PERSISTENCE_NO_BLOCK_DEVICE\n'
 elif [ -z "$data_uuid" ]; then
   printf 'ZDOS_PERSISTENCE_NO_UUID\n'
-elif [ ! -x /sbin/blkid ]; then
-  printf 'ZDOS_PERSISTENCE_NO_BLKID\n'
-elif [ -b "$persistence_device" ]; then
-  actual_uuid=$(/sbin/blkid -s UUID -o value "$persistence_device" 2>/run/persistence-blkid.log || true)
+else
+  blkid_bin=$(command -v blkid 2>/dev/null || true)
+  if [ -z "$blkid_bin" ]; then
+    printf 'ZDOS_PERSISTENCE_NO_BLKID\n'
+  elif [ -b "$persistence_device" ]; then
+    actual_uuid=$("$blkid_bin" -s UUID -o value "$persistence_device" 2>/run/persistence-blkid.log || true)
   if [ "$actual_uuid" = "$data_uuid" ]; then
     if mount "$persistence_device" /mnt/data 2>/run/persistence.log; then
       persistence_state=enabled
@@ -61,11 +64,12 @@ elif [ -b "$persistence_device" ]; then
         fi
       fi
     fi
+    else
+      printf 'ZDOS_PERSISTENCE_UUID_MISMATCH\n'
+    fi
   else
-    printf 'ZDOS_PERSISTENCE_UUID_MISMATCH\n'
+    printf 'ZDOS_PERSISTENCE_MOUNT_FAILED\n'
   fi
-else
-  printf 'ZDOS_PERSISTENCE_MOUNT_FAILED\n'
 fi
 
 printf '\nZDOS Linux 0.2\n'
