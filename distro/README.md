@@ -17,7 +17,7 @@ La prima immagine deve fornire:
 | Boot | GRUB BIOS con kernel e initramfs |
 | Test | Boot automatico in QEMU e controllo del marker `ZDOS_READY` |
 
-Questa è una distro reale minimale, non ancora una distro general-purpose. Le milestone successive aggiungeranno rete, persistenza su disco, gestione pacchetti, installer, aggiornamenti firmati e immagini UEFI.
+Questa è una distro reale minimale, non ancora una distro general-purpose. Le milestone successive aggiungeranno gestione pacchetti, installer, aggiornamenti firmati e immagini UEFI.
 
 ## Build
 
@@ -41,14 +41,23 @@ Il test termina quando rileva `ZDOS_READY` sulla console seriale oppure restitui
 
 La milestone 0.2 aggiunge una base userspace più reale. Sono presenti gli account `root` e `zdos`, i gruppi di sistema, il tentativo automatico DHCP su `eth0` tramite BusyBox `udhcpc` e il mount opzionale di `/dev/vda1` su `/mnt/data`. L'immagine live continua ad avviarsi anche quando non è disponibile una scheda di rete o un disco persistente.
 
-Per provare la persistenza in QEMU è possibile aggiungere un disco vuoto:
+## Persistent storage v1
+
+La prima capacità persistente verificabile usa un volume ext4 dedicato, identificato da UUID e montato su `/mnt/data`. Il boot resta in modalità live-only se il volume è assente, se `blkid` non è disponibile o se l’UUID non corrisponde. Il sistema non formatta automaticamente il volume e non sovrascrive dati esistenti.
+
+Il test riproducibile crea un disco QEMU, lo formatta con un UUID noto, esegue un primo boot che scrive un marker, quindi esegue un secondo boot che verifica la rilettura del marker:
 
 ```sh
-qemu-img create -f raw distro/build/zdos-data.img 128M
-qemu-system-x86_64 -cdrom distro/build/zdos-linux-x86_64.iso \
-  -drive file=distro/build/zdos-data.img,format=raw,if=virtio \
-  -serial stdio -display none
+./distro/test-persistence-qemu.sh
 ```
+
+Il risultato atteso è:
+
+```text
+ZDOS_PERSISTENCE_QEMU_TEST_PASSED uuid=11111111-2222-4333-8444-555555555555
+```
+
+Il contratto di boot utilizza `zdos.data_uuid=<UUID>` e, per il test, `zdos.persistence_test=write|read`. La capacità è limitata alla distro Linux in QEMU: non è ancora un filesystem nativo del kernel bare-metal e non espone accesso storage a Zlang.
 
 La milestone 0.3 introdurrà un package manager iniziale basato su pacchetti tar firmati e un repository dichiarativo. La milestone 0.4 introdurrà installer BIOS/UEFI, logging persistente, aggiornamenti atomici e test hardware più estesi.
 
@@ -60,4 +69,4 @@ La milestone Linux corrente è classificata **M2 — Reproducible**: produce una
 
 ## Requisiti
 
-Sono necessari `gcc`, `make`, `bc`, `bison`, `flex`, `openssl`, `elfutils`, `cpio`, `gzip`, `xorriso`, `grub-mkrescue` e `qemu-system-x86_64`.
+Sono necessari `gcc`, `make`, `bc`, `bison`, `flex`, `openssl`, `elfutils`, `cpio`, `gzip`, `xorriso`, `mtools`, `grub-mkrescue`, `qemu-img`, `mkfs.ext4` e `qemu-system-x86_64`.
