@@ -191,6 +191,33 @@ ZLANG_ROOT=../Zlang ./scripts/evolve-zlang-evidence.sh
 
 La pipeline registra un evento `zlang.zdos.evolution` soltanto dopo il superamento dei gate. L’evento può contenere hash di sorgente, bytecode, header generato, log seriale e commit dei repository, ma non il contenuto privato del sistema.
 
+### Storage read-v1 in Zlang by ZDOS
+
+La capability `storage.read-v1` porta la persistenza verificata di ZDOS Linux nel percorso Zlang tramite un bridge read-only confinato. Un programma può dichiarare:
+
+```zlang
+storage.read ".zdos-persistence-marker"
+```
+
+Il bridge viene eseguito soltanto con un namespace esplicito, per esempio:
+
+```sh
+python3 ../Zlang/tools/zlang_storage_read.py program.zlang \
+  --root /mnt/data \
+  --max-bytes 4096
+```
+
+Il contratto consente soltanto path relativi, rifiuta `..`, path assoluti, NUL byte e accesso a `/dev`, applica una quota di lettura e non espone operazioni di scrittura. L’esito include path relativo, dimensione e hash del contenuto, senza stampare o registrare automaticamente dati privati nella Evidence Chain.
+
+Il compilatore Zlang emette l’opcode ZLB2 `0x06 — STORAGE_READ`. Il runtime bare-metal ZDOS lo riconosce e lo valida, ma dichiara esplicitamente che l’esecuzione richiede il bridge Linux fino all’implementazione di un filesystem nativo nel kernel freestanding. Questa distinzione è intenzionale: la capability Linux è reale e testata; il filesystem bare-metal resta una milestone futura.
+
+Per verificare la capability nel repository Zlang:
+
+```sh
+cd ../Zlang
+python3 tests/test_storage_read_v1.py
+```
+
 Per verificare un ledger:
 
 ```sh
@@ -331,7 +358,7 @@ ZDOS Linux è una base di distro e non deve essere presentata come un sistema op
 - rete general-purpose e configurazione hardware automatica;
 - supporto certificato a Wi-Fi, audio, grafica, touchpad, NVMe e sospensione;
 - filesystem nativo nel kernel bare metal;
-- accesso storage controllato dai programmi Zlang;
+- accesso storage controllato dai programmi Zlang nel runtime bare-metal; il bridge Linux `storage.read-v1` read-only è disponibile separatamente e confinato;
 - matrice hardware per laptop reali.
 
 Il supporto ext4 verificato in QEMU è una milestone concreta, ma non equivale a compatibilità universale con hardware fisico.
