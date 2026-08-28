@@ -34,6 +34,9 @@ if [ -n "$modprobe_bin" ]; then
   for module in virtio virtio_ring virtio_pci virtio_blk ata_generic ata_piix libata sd_mod; do
     "$modprobe_bin" "$module" 2>/run/persistence-modprobe.log || true
   done
+  if command -v mdev >/dev/null 2>&1; then
+    mdev -s 2>>/run/mdev.log || true
+  fi
 fi
 persistence_device=
 for candidate in /dev/vda1 /dev/vda /dev/sda1 /dev/sda /dev/hda1 /dev/hda; do
