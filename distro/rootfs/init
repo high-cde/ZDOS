@@ -33,7 +33,13 @@ for candidate in /dev/vda1 /dev/vda /dev/sda1 /dev/sda /dev/hda1 /dev/hda; do
     break
   fi
 done
-if [ -b "$persistence_device" ] && [ -n "$data_uuid" ] && [ -x /sbin/blkid ]; then
+if [ -z "$persistence_device" ]; then
+  printf 'ZDOS_PERSISTENCE_NO_BLOCK_DEVICE\n'
+elif [ -z "$data_uuid" ]; then
+  printf 'ZDOS_PERSISTENCE_NO_UUID\n'
+elif [ ! -x /sbin/blkid ]; then
+  printf 'ZDOS_PERSISTENCE_NO_BLKID\n'
+elif [ -b "$persistence_device" ]; then
   actual_uuid=$(/sbin/blkid -s UUID -o value "$persistence_device" 2>/run/persistence-blkid.log || true)
   if [ "$actual_uuid" = "$data_uuid" ]; then
     if mount "$persistence_device" /mnt/data 2>/run/persistence.log; then
@@ -53,6 +59,8 @@ if [ -b "$persistence_device" ] && [ -n "$data_uuid" ] && [ -x /sbin/blkid ]; th
   else
     printf 'ZDOS_PERSISTENCE_UUID_MISMATCH\n'
   fi
+else
+  printf 'ZDOS_PERSISTENCE_MOUNT_FAILED\n'
 fi
 
 printf '\nZDOS Linux 0.2\n'
