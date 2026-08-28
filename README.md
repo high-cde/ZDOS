@@ -165,7 +165,7 @@ Questo progetto è distribuito secondo la licenza indicata in [`LICENSE`](LICENS
 
 | Risorsa | Scopo |
 |---|---|
-| [Wiki](https://github.com/high-cde/ZDOS/wiki) | Architettura, operazioni, roadmap e release. |
+| [Documentazione di progetto](docs/wiki/Home.md) | Architettura, operazioni, roadmap e release, versionate insieme al codice. |
 | [Changelog](CHANGELOG.md) | Modifiche rilevanti e baseline di rilascio. |
 | [Contribuire](CONTRIBUTING.md) | Flusso di lavoro e verifiche per i contributi. |
 | [Sicurezza](SECURITY.md) | Segnalazione responsabile e limiti operativi. |
