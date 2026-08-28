@@ -6,6 +6,7 @@ Tutte le modifiche rilevanti sono annotate in questo file secondo i principi di 
 
 ### Aggiunto
 
+- Pipeline evolutiva Zlang–ZDOS–Evidence Chain con prove di compilazione, boot QEMU e hash degli artefatti.
 - Struttura standard per collaborazione, supporto, segnalazioni e revisione delle modifiche.
 - Collegamenti alla documentazione Wiki e alla governance del repository.
 

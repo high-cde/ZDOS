@@ -121,6 +121,8 @@ Lo script aggiorna esclusivamente branch fast-forward, rifiuta working tree loca
 
 La [Evidence Chain](evidence/README.md) è un ledger locale append-only JSONL con hash concatenati, ordine degli eventi e attestazioni di build e boot. Non utilizza token, saldi o mining e non salva dati personali o segreti. Consenso BFT multi-nodo, PKI multi-organizzazione e storage esterno delle prove non sono ancora implementati.
 
+La prima integrazione evolutiva tra i tre livelli è disponibile in [`scripts/evolve-zlang-evidence.sh`](scripts/evolve-zlang-evidence.sh). Con `ZLANG_ROOT=../Zlang ./scripts/evolve-zlang-evidence.sh` la pipeline compila il programma Zlang, genera bytecode ZLB2 e header C, verifica il kernel ZDOS, prova il boot in QEMU e registra un evento `zlang.zdos.evolution` nel ledger. L’evento conserva gli hash del sorgente e degli artefatti, i commit di entrambi i repository e l’hash del log seriale. L’attestazione viene aggiunta soltanto dopo il superamento di tutti i gate.
+
 ## Limiti e sicurezza
 
 ZDOS non deve essere presentato come una distribuzione general-purpose completa. Restano da implementare o verificare, tra gli altri, package manager, installer, aggiornamenti firmati, gestione utenti completa, filesystem persistente, rete configurabile e una matrice hardware reale.

@@ -35,3 +35,21 @@ Il ledger garantisce ordine e rilevazione della manomissione locale. Non garanti
 **ZDOS** ospita il ledger e il verificatore. **Zlang** è il livello previsto per contratti deterministici che validano eventi e transizioni. **ZDOS-SEC** può emettere policy, gestire revoche e inviare soltanto attestazioni firmate al ledger; segreti, password e dati sensibili restano fuori catena.
 
 La prima applicazione è la provenienza delle release: commit → compilazione → test → boot QEMU → attestazione → verifica prima dell’installazione.
+
+## Magia evolutiva Zlang–ZDOS
+
+L’orchestratore [`scripts/evolve-zlang-evidence.sh`](../scripts/evolve-zlang-evidence.sh) realizza la prima catena end-to-end verificabile dell’ecosistema:
+
+```text
+sorgente Zlang → bytecode ZLB2 → header C → kernel ZDOS → boot QEMU → Evidence Chain
+```
+
+Eseguirlo dalla radice del repository:
+
+```sh
+ZLANG_ROOT=../Zlang ./scripts/evolve-zlang-evidence.sh
+```
+
+Lo script ricompila il programma di boot, verifica il kernel Multiboot2, esegue il controllo seriale in QEMU e registra un evento `zlang.zdos.evolution` solo se tutte le prove precedenti hanno successo. L’evento include gli hash SHA-256 del sorgente, del bytecode, dell’header generato e del log di boot, oltre ai commit dei repository Zlang e ZDOS.
+
+Il ledger resta append-only: se il file esiste viene verificato prima dell’aggiunta; se è corrotto, l’operazione viene rifiutata. Il comando non apre porte di rete, non salva segreti e non dichiara consenso distribuito o esecuzione remota.
