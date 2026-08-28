@@ -26,10 +26,14 @@ get_cmdline_value() {
 data_uuid=$(get_cmdline_value zdos.data_uuid || true)
 persistence_test=$(get_cmdline_value zdos.persistence_test || true)
 persistence_state=live-only
-if [ -b /dev/vda1 ] && [ -n "$data_uuid" ] && [ -x /sbin/blkid ]; then
-  actual_uuid=$(/sbin/blkid -s UUID -o value /dev/vda1 2>/run/persistence-blkid.log || true)
+persistence_device=/dev/vda1
+if [ ! -b "$persistence_device" ] && [ -b /dev/vda ]; then
+  persistence_device=/dev/vda
+fi
+if [ -b "$persistence_device" ] && [ -n "$data_uuid" ] && [ -x /sbin/blkid ]; then
+  actual_uuid=$(/sbin/blkid -s UUID -o value "$persistence_device" 2>/run/persistence-blkid.log || true)
   if [ "$actual_uuid" = "$data_uuid" ]; then
-    if mount /dev/vda1 /mnt/data 2>/run/persistence.log; then
+    if mount "$persistence_device" /mnt/data 2>/run/persistence.log; then
       persistence_state=enabled
       if [ "$persistence_test" = write ]; then
         printf 'ZDOS persistent-storage-v1 marker\n' > /mnt/data/.zdos-persistence-marker

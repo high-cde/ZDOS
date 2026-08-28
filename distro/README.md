@@ -43,7 +43,7 @@ La milestone 0.2 aggiunge una base userspace più reale. Sono presenti gli accou
 
 ## Persistent storage v1
 
-La prima capacità persistente verificabile usa un volume ext4 dedicato, identificato da UUID e montato su `/mnt/data`. Il boot resta in modalità live-only se il volume è assente, se `blkid` non è disponibile o se l’UUID non corrisponde. Il sistema non formatta automaticamente il volume e non sovrascrive dati esistenti.
+La prima capacità persistente verificabile usa un volume ext4 dedicato, identificato da UUID e montato su `/mnt/data`. Su un disco partizionato viene usata `/dev/vda1`; nelle immagini QEMU del test può essere usato direttamente `/dev/vda` quando non esiste una tabella partizioni. Il boot resta in modalità live-only se il volume è assente, se `blkid` non è disponibile o se l’UUID non corrisponde. Il sistema non formatta automaticamente il volume e non sovrascrive dati esistenti.
 
 Il test riproducibile crea un disco QEMU, lo formatta con un UUID noto, esegue un primo boot che scrive un marker, quindi esegue un secondo boot che verifica la rilettura del marker:
 
