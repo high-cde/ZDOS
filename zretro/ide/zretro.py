@@ -10,6 +10,8 @@ import shutil
 import sys
 from pathlib import Path
 
+from hub import prepare_manifest
+
 TARGETS = {
     "c64": {"name": "Commodore 64", "cpu": "6502", "artifact": ".prg", "backend": "cc65/ca65"},
     "atari8": {"name": "Atari 8-bit", "cpu": "6502", "artifact": ".xex", "backend": "cc65/ca65"},
@@ -145,6 +147,15 @@ def console(root: Path) -> int:
                     print(f"{key:<8} {target['name']} CPU={target['cpu']} artifact={target['artifact']}")
             elif command == "a":
                 print("ZRETRO ASSETS: palette, sprite, scene, sound")
+            elif command == "p" and argument:
+                source = Path(argument)
+                build_manifest = source.parent / "build" / "manifest.json"
+                if not build_manifest.is_file():
+                    compile_project(source.parent, source)
+                output = prepare_manifest(source.parent, build_manifest)
+                print(f"ZRETRO_HUB_READY url=https://zdos-hub.it/ manifest={output}")
+            elif command == "p":
+                print("ZRETRO_ERROR p richiede il percorso di un file .zretro")
             elif command == "n" and argument:
                 init_project(root, argument)
             elif command == "b" and argument:
