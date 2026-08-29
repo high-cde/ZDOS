@@ -9,7 +9,7 @@ DATA_IMAGE="$BUILD/zdos-persistent-data.img"
 DATA_UUID="11111111-2222-4333-8444-555555555555"
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "missing required command: $1" >&2; exit 1; }; }
-for tool in qemu-img mkfs.ext4 qemu-system-x86_64 timeout file e2fsck; do need "$tool"; done
+for tool in qemu-img mkfs.ext4 qemu-system-x86_64 timeout file e2fsck debugfs; do need "$tool"; done
 
 "$ROOT/distro/build.sh" >/tmp/zdos-persistence-build.log
 mkdir -p "$BUILD"
@@ -27,8 +27,9 @@ boot_and_expect() {
     -m 512M \
     -kernel "$ISO_KERNEL" \
     -initrd "$INITRAMFS" \
-    -append "console=ttyS0,115200n8 init=/init zdos.data_uuid=$DATA_UUID zdos.persistence_test=$mode" \
-    -drive "file=$DATA_IMAGE,format=raw,if=ide" \
+    -append "console=ttyS0,115200n8 init=/init zdos.data_uuid=$DATA_UUID zdos.persistence_test=$mode zdos.organism=on" \
+    -drive "file=$DATA_IMAGE,format=raw,if=none,id=zdosdata" \
+    -device virtio-blk-pci,drive=zdosdata \
     -serial "file:$log" -display none -no-reboot -monitor none >/dev/null 2>&1
   local status=$?
   set -e
@@ -44,6 +45,11 @@ boot_and_expect() {
 
 boot_and_expect write ZDOS_PERSISTENCE_WRITE_OK
 boot_and_expect read ZDOS_PERSISTENCE_READ_OK
+
+if ! debugfs -R 'cat /.zdos/organism/status.json' "$DATA_IMAGE" 2>/dev/null | grep -Fq '"state": "STANDBY"'; then
+  echo 'ZDOS_ORGANISM_PERSISTENCE_STATE_FAILED' >&2
+  exit 1
+fi
 
 FSCK_LOG=$(mktemp)
 set +e

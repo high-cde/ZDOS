@@ -11,37 +11,6 @@ mount -t tmpfs tmpfs /run
 hostname zdos
 mkdir -p /home/zdos /mnt/data
 
-# Resident organism hook: opt-in only, never implicit. The minimal ISO may not
-# package Python or the organism runtime; in that case boot remains usable and
-# the request is reported as HALT rather than being silently accepted.
-organism_request=
-for argument in $(cat /proc/cmdline 2>/dev/null || true); do
-  case "$argument" in
-    zdos.organism=*) organism_request="${argument#*=}"; break ;;
-  esac
-done
-organism_state=disabled
-if [ "$organism_request" = on ]; then
-  organism_conf=/etc/zdos/organism.conf
-  [ -r "$organism_conf" ] && . "$organism_conf"
-  [ -n "${ZDOS_ZLANG_ROOT:-}" ] && export ZDOS_ZLANG_ROOT
-  organism_state=HALT
-  if [ -x /usr/bin/python3 ] && [ -f "${ZDOS_ORGANISM_RUNTIME:-}" ] && [ -f "${ZDOS_ORGANISM_PROGRAM:-}" ]; then
-    mkdir -p "${ZDOS_ORGANISM_STATE_DIR:-/var/lib/zdos/organism}"
-    if /usr/bin/python3 "$ZDOS_ORGANISM_RUNTIME" --once \
-      --state-dir "${ZDOS_ORGANISM_STATE_DIR:-/var/lib/zdos/organism}" \
-      --program "$ZDOS_ORGANISM_PROGRAM" >/run/zdos-organism.log 2>&1; then
-      organism_state=started
-    else
-      organism_state=HALT
-      printf 'ZDOS_ORGANISM_HALTED reason=tick-failed\n'
-      [ -s /run/zdos-organism.log ] && cat /run/zdos-organism.log
-    fi
-  else
-    printf 'ZDOS_ORGANISM_HALTED reason=runtime-not-packaged\n'
-  fi
-fi
-
 # Configure the first Ethernet interface when BusyBox provides udhcpc.
 if [ -x /bin/udhcpc ] && [ -e /sys/class/net/eth0 ]; then
   /bin/udhcpc -i eth0 -n -q -t 3 >/run/udhcpc.log 2>&1 || true
@@ -68,6 +37,26 @@ if [ -n "$modprobe_bin" ]; then
   if command -v mdev >/dev/null 2>&1; then
     mdev -s 2>>/run/mdev.log || true
   fi
+fi
+# Minimal images may not contain modules.dep. Load storage modules directly,
+# in dependency order, so virtio-blk and ext4 are available before probing.
+if command -v insmod >/dev/null 2>&1; then
+  module_root=/lib/modules/$(uname -r)/kernel
+  for module_path in \
+    "$module_root/drivers/virtio/virtio_pci_modern_dev.ko" \
+    "$module_root/drivers/virtio/virtio_pci_legacy_dev.ko" \
+    "$module_root/drivers/virtio/virtio_pci.ko" \
+    "$module_root/drivers/virtio/virtio_ring.ko" \
+    "$module_root/drivers/block/virtio_blk.ko" \
+    "$module_root/lib/crc16.ko" \
+    "$module_root/crypto/crc32c_generic.ko" \
+    "$module_root/lib/libcrc32c.ko" \
+    "$module_root/fs/mbcache.ko" \
+    "$module_root/fs/jbd2/jbd2.ko" \
+    "$module_root/fs/ext4/ext4.ko"; do
+    [ -f "$module_path" ] && insmod "$module_path" 2>>/run/persistence-modprobe.log || true
+  done
+  command -v mdev >/dev/null 2>&1 && mdev -s 2>>/run/mdev.log || true
 fi
 blkid_bin=$(command -v blkid 2>/dev/null || true)
 persistence_device=
@@ -110,6 +99,41 @@ else
     fi
   else
     printf 'ZDOS_PERSISTENCE_MOUNT_FAILED\n'
+  fi
+fi
+
+# Resident organism hook runs after storage selection. If persistence is enabled,
+# state and evidence live on the data volume; otherwise they remain live-only.
+organism_request=
+for argument in $cmdline; do
+  case "$argument" in
+    zdos.organism=*) organism_request="${argument#*=}"; break ;;
+  esac
+done
+organism_state=disabled
+if [ "$organism_request" = on ]; then
+  organism_conf=/etc/zdos/organism.conf
+  [ -r "$organism_conf" ] && . "$organism_conf"
+  [ -n "${ZDOS_ZLANG_ROOT:-}" ] && export ZDOS_ZLANG_ROOT
+  if [ "$persistence_state" = enabled ]; then
+    organism_state_dir=/mnt/data/.zdos/organism
+  else
+    organism_state_dir="${ZDOS_ORGANISM_STATE_DIR:-/var/lib/zdos/organism}"
+  fi
+  organism_state=HALT
+  if [ -x /usr/bin/python3 ] && [ -f "${ZDOS_ORGANISM_RUNTIME:-}" ] && [ -f "${ZDOS_ORGANISM_PROGRAM:-}" ]; then
+    mkdir -p "$organism_state_dir"
+    if /usr/bin/python3 "$ZDOS_ORGANISM_RUNTIME" --once \
+      --state-dir "$organism_state_dir" \
+      --program "$ZDOS_ORGANISM_PROGRAM" >/run/zdos-organism.log 2>&1; then
+      organism_state=started
+    else
+      organism_state=HALT
+      printf 'ZDOS_ORGANISM_HALTED reason=tick-failed\n'
+      [ -s /run/zdos-organism.log ] && cat /run/zdos-organism.log
+    fi
+  else
+    printf 'ZDOS_ORGANISM_HALTED reason=runtime-not-packaged\n'
   fi
 fi
 
