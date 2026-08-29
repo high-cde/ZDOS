@@ -303,6 +303,8 @@ La War Room deve osservare `status.json` ed eventi firmati tramite un adapter au
 
 ## ZRetro IDE
 
+La guida coordinata [ZDOS–Zlang–ZRetro](docs/ZLANG_ZRETRO_INTEGRATION.md) definisce i confini tra linguaggio, runtime, IDE e pagina pubblica Retro Computing.
+
 **ZRetro** è la prima IDE retro nativa di ZDOS, con prompt `x@zdos /zretro`, DSL dichiarativa ZRetro e collegamento al runtime Zlang by ZDOS. Il primo progetto è [`Meteor Patrol`](zretro/projects/meteor-patrol/main.zretro), predisposto per Commodore 64, Atari 8-bit e Amiga.
 
 ```sh
