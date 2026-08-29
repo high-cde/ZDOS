@@ -1,7 +1,7 @@
 {
   "schema": "zdos-command-library/v1",
   "language": "Zlang",
-  "prompt": "Z> ",
+  "prompt": "x@zdos / ",
   "commands": {
     "h": {
       "name": "help",

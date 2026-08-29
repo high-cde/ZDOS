@@ -28,7 +28,11 @@ def safe_object(value: str) -> str:
 
 
 def run(identity_dir: Path, zroot: Path, command: str) -> int:
-    parts = shlex.split(command)
+    try:
+        parts = shlex.split(command)
+    except ValueError as exc:
+        print(f"input non valido: {exc}; usa h per i comandi ZDOS", file=sys.stderr)
+        return 2
     if not parts:
         return 0
     key, *args = parts
@@ -88,7 +92,7 @@ def main() -> int:
     print("ZDOS NATIVE CONSOLE | ZLANG CONNECTED | usa h per aiuto")
     while True:
         try:
-            command = input("Z> ")
+            command = input("x@zdos / ")
         except (EOFError, KeyboardInterrupt):
             print()
             return 0

@@ -1,6 +1,6 @@
 # ZDOS Native Command Library
 
-La console ZDOS usa comandi brevi, adatti alla modalità testuale e all'interfaccia retro-computing. La brevità è una scorciatoia di ingresso, non una riduzione dei controlli: ogni comando passa ancora dalle policy ZDOS e dal bridge Zlang quando accede ai dati.
+La console ZDOS usa comandi brevi, adatti alla modalità testuale e all'interfaccia retro-computing. Il prompt standard è `x@zdos /`, per dare subito l'impressione di trovarsi dentro il sistema operativo e non in una shell Linux esterna. La brevità è una scorciatoia di ingresso, non una riduzione dei controlli: ogni comando passa ancora dalle policy ZDOS e dal bridge Zlang quando accede ai dati.
 
 ## Vocabolario
 
@@ -36,13 +36,13 @@ python3 commands/zdoscmd.py \
 
 ```text
 ZDOS NATIVE CONSOLE | ZLANG CONNECTED | usa h per aiuto
-Z> s
+x@zdos / s
 ZDOS=READY ZLANG=CONNECTED ROLE=administrator NAMESPACE=...
-Z> z
+x@zdos / z
 OBJ  marker
-Z> r marker
+x@zdos / r marker
 ZDOS native data
-Z> q
+x@zdos / q
 ```
 
 Il comando `r` non legge direttamente il filesystem con privilegi generici. Crea una breve istruzione Zlang `storage.read`, la passa al bridge e lascia al bridge la verifica di identità, ruolo, firma, namespace, path relativo e quota. Il modello è quindi:

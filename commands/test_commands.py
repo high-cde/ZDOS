@@ -60,6 +60,13 @@ class CommandLibraryTests(unittest.TestCase):
         self.assertIn("zlang command data", read_result.stdout)
         self.assertIn("ZLANG_STORAGE_READ_OK", read_result.stderr)
 
+    def test_prompt_and_invalid_input_are_native(self) -> None:
+        source = (CONSOLE).read_text(encoding="utf-8")
+        self.assertIn('input("x@zdos / ")', source)
+        invalid = self.console("r 'unterminated")
+        self.assertEqual(invalid.returncode, 2)
+        self.assertIn("input non valido", invalid.stderr)
+
     def test_short_commands_do_not_bypass_path_policy(self) -> None:
         denied = self.console("r ../outside")
         self.assertNotEqual(denied.returncode, 0)
