@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Run connected-microcosm tests
-        run: python3 -m unittest microcosm/test_microcosm.py
+        run: python3 -m unittest microcosm/test_microcosm.py identity/test_identity.py commands/test_commands.py
 
       - name: Inspect declared components without synchronization
         run: ./microcosm/zdos-microctl inspect

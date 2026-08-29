@@ -1,0 +1,53 @@
+{
+  "schema": "zdos-command-library/v1",
+  "language": "Zlang",
+  "prompt": "Z> ",
+  "commands": {
+    "h": {
+      "name": "help",
+      "usage": "h",
+      "description": "mostra i comandi disponibili",
+      "safety": "read-only"
+    },
+    "i": {
+      "name": "identity",
+      "usage": "i",
+      "description": "verifica identità e grant di ruolo",
+      "safety": "read-only"
+    },
+    "s": {
+      "name": "status",
+      "usage": "s",
+      "description": "mostra stato ZDOS, Zlang e namespace",
+      "safety": "read-only"
+    },
+    "z": {
+      "name": "zspace",
+      "usage": "z",
+      "description": "elenca oggetti del namespace ZSpace",
+      "safety": "read-only"
+    },
+    "r": {
+      "name": "read",
+      "usage": "r <oggetto>",
+      "description": "legge un oggetto tramite storage.read-v1 di Zlang",
+      "safety": "read-only",
+      "zlang": "storage.read"
+    },
+    "q": {
+      "name": "quit",
+      "usage": "q",
+      "description": "chiude la console",
+      "safety": "local"
+    }
+  },
+  "forbidden": [
+    "rm",
+    "mv",
+    "cp",
+    "format",
+    "exec",
+    "network",
+    "shell"
+  ]
+}

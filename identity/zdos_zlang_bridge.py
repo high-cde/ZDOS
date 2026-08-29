@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import argparse
+import base64
+import hashlib
 import json
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ALLOWED = {
@@ -42,9 +45,25 @@ def main() -> int:
         raise PermissionError(f"ruolo {role!r} non autorizzato per {capability}")
 
     subject = profile.get("identity")
-    grant = profile.get("role_grant", {}).get("payload", {})
+    grant_data = profile.get("role_grant", {})
+    grant = grant_data.get("payload", {})
     if grant.get("subject") != subject or grant.get("role") != role:
         raise PermissionError("role grant non corrisponde all'identità")
+    public_key = identity_dir / profile["public_key"]
+    expected = "did:zdos:" + hashlib.sha256(public_key.read_bytes()).hexdigest()
+    if expected != subject or grant_data.get("algorithm") != "Ed25519":
+        raise PermissionError("fingerprint o algoritmo identità non valido")
+    with tempfile.TemporaryDirectory() as temp:
+        payload = Path(temp) / "grant.json"
+        signature = Path(temp) / "grant.sig"
+        payload.write_bytes(json.dumps(grant, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8"))
+        signature.write_bytes(base64.b64decode(grant_data["signature_base64"]))
+        verified = subprocess.run(
+            ["openssl", "pkeyutl", "-verify", "-pubin", "-inkey", str(public_key), "-rawin", "-in", str(payload), "-sigfile", str(signature)],
+            text=True, capture_output=True, check=False,
+        )
+        if verified.returncode != 0:
+            raise PermissionError("firma del role grant non valida")
 
     tool = Path(__file__).resolve().parents[2] / "Zlang" / "tools" / "zlang_storage_read.py"
     if not tool.is_file():
