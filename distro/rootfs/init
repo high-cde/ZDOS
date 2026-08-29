@@ -11,6 +11,31 @@ mount -t tmpfs tmpfs /run
 hostname zdos
 mkdir -p /home/zdos /mnt/data
 
+# Resident organism hook: opt-in only, never implicit. The minimal ISO may not
+# package Python or the organism runtime; in that case boot remains usable and
+# the request is reported as HALT rather than being silently accepted.
+organism_request=
+for argument in $(cat /proc/cmdline 2>/dev/null || true); do
+  case "$argument" in
+    zdos.organism=*) organism_request="${argument#*=}"; break ;;
+  esac
+done
+organism_state=disabled
+if [ "$organism_request" = on ]; then
+  organism_conf=/etc/zdos/organism.conf
+  [ -r "$organism_conf" ] && . "$organism_conf"
+  organism_state=HALT
+  if [ -x /usr/bin/python3 ] && [ -f "${ZDOS_ORGANISM_RUNTIME:-}" ] && [ -f "${ZDOS_ORGANISM_PROGRAM:-}" ]; then
+    mkdir -p "${ZDOS_ORGANISM_STATE_DIR:-/var/lib/zdos/organism}"
+    /usr/bin/python3 "$ZDOS_ORGANISM_RUNTIME" --once \
+      --state-dir "${ZDOS_ORGANISM_STATE_DIR:-/var/lib/zdos/organism}" \
+      --program "$ZDOS_ORGANISM_PROGRAM" >/run/zdos-organism.log 2>&1 || true
+    organism_state=started
+  else
+    printf 'ZDOS_ORGANISM_HALTED reason=runtime-not-packaged\n'
+  fi
+fi
+
 # Configure the first Ethernet interface when BusyBox provides udhcpc.
 if [ -x /bin/udhcpc ] && [ -e /sys/class/net/eth0 ]; then
   /bin/udhcpc -i eth0 -n -q -t 3 >/run/udhcpc.log 2>&1 || true
@@ -86,6 +111,7 @@ printf '\nZDOS Linux 0.2\n'
 printf 'Kernel: '; uname -r
 printf 'Network: '; ip -brief address 2>/dev/null || printf 'not configured\n'
 printf 'Persistence: '; printf '%s\n' "$persistence_state"
+printf 'Organism: '; printf '%s\n' "$organism_state"
 printf 'ZDOS_READY\n'
 
 # Automated persistence tests terminate only this ZDOS guest after flushing

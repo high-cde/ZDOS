@@ -27,6 +27,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gcc binutils make grub-pc-bin xorriso mtools qemu-system-x86 python3 php-cli curl
 
+      - name: Validate resident organism boot hook
+        run: bash distro/test-organism-boot.sh
+
       - name: Compile and verify Multiboot2 kernel
         env:
           ZLANGC: ${{ github.workspace }}/Zlang/tools/zlangc.py

@@ -83,12 +83,13 @@ if [ -d "$ZDOS_MODULES_DIR" ]; then
     depmod -b "$ROOTFS" "$(basename "$ZDOS_MODULES_DIR")" 2>/dev/null || true
   fi
 fi
-mkdir -p "$ROOTFS/etc" "$ROOTFS/dev" "$ROOTFS/proc" "$ROOTFS/sys" "$ROOTFS/run" "$ROOTFS/tmp" "$ROOTFS/root"
+mkdir -p "$ROOTFS/etc" "$ROOTFS/etc/zdos" "$ROOTFS/dev" "$ROOTFS/proc" "$ROOTFS/sys" "$ROOTFS/run" "$ROOTFS/tmp" "$ROOTFS/root"
 cp "$DISTRO/rootfs/init" "$ROOTFS/init"
 cp "$DISTRO/rootfs/etc/inittab" "$ROOTFS/etc/inittab"
 cp "$DISTRO/rootfs/etc/motd" "$ROOTFS/etc/motd"
 cp "$DISTRO/rootfs/etc/passwd" "$ROOTFS/etc/passwd"
 cp "$DISTRO/rootfs/etc/group" "$ROOTFS/etc/group"
+cp "$DISTRO/rootfs/etc/zdos/organism.conf" "$ROOTFS/etc/zdos/organism.conf"
 chmod 0755 "$ROOTFS/init"
 ln -sf /proc/mounts "$ROOTFS/etc/mtab"
 rm -f "$BUILD/initramfs.cpio.gz"
