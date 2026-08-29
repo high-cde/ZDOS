@@ -54,7 +54,14 @@
       "required": true,
       "command": "python3 -m unittest identity/test_identity.py",
       "evidence": "Bootstrap, grant Ed25519, recovery, capability storage.read-v1 e confine del namespace sono verificati senza IP."
+    },
+    {
+      "id": "resident-organism-runtime",
+      "kind": "local",
+      "required": true,
+      "command": "python3 -m unittest services/test_organismd.py",
+      "evidence": "Un tick Zlang bounded produce stato ed eventi persistenti; programmi vietati portano il servizio in HALT senza compilazione."
     }
   ],
-  "release_rule": "Una release del micro-mondo può essere promossa a VERIFIED soltanto se catalog-integrity e zdos-entrypoints sono verdi e se persistence-proof è stato eseguito nello stesso contesto di build. La mancanza di un checkout esterno riduce la copertura di integrazione a PREPARED, non blocca le prove locali di ZDOS."
+  "release_rule": "Una release del micro-mondo può essere promossa a VERIFIED soltanto se catalog-integrity e zdos-entrypoints sono verdi e se persistence-proof è stato eseguito nello stesso contesto di build. Il resident-organism resta EXPERIMENTAL finché il supervisore non è impacchettato nell’ISO ZDOS e non esiste un kill switch verificato a livello di init. La mancanza di un checkout esterno riduce la copertura di integrazione a PREPARED, non blocca le prove locali di ZDOS."
 }

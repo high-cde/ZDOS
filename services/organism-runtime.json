@@ -1,0 +1,31 @@
+{
+  "schema": "zdos-organism-runtime/v1",
+  "process": "zdos-organismd",
+  "residency": "local-zdos-node",
+  "default_state": "STANDBY",
+  "cycle": {
+    "mode": "single-tick-or-daemon",
+    "interval_seconds": 5,
+    "max_output_bytes": 65536,
+    "zlang_program": "main.zlang"
+  },
+  "memory": {
+    "state_dir": "/var/lib/zdos/organism",
+    "status": "status.json",
+    "events": "events.jsonl",
+    "write_policy": "service-owned-only"
+  },
+  "guards": {
+    "policy": "default-deny",
+    "cybercore_mode": "fail-closed-adapter",
+    "allowed_operations": ["observe", "zlang.read", "evidence.append"],
+    "forbidden_operations": ["shell", "network", "exec", "write-node", "delete", "credential-access"],
+    "human_approval_required": ["node-change", "external-action", "policy-change"]
+  },
+  "observability": {
+    "status_file": "status.json",
+    "event_schema": "zdos-organism-event/v1",
+    "war_room_mode": "read-only-status-feed"
+  },
+  "promotion_rule": "The resident loop is not RUN unless identity, Zlang program, state directory and fail-closed guard are valid."
+}

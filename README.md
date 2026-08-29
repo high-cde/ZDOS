@@ -24,6 +24,7 @@
 - [Evidence Chain](#evidence-chain)
 - [Micro-mondo connesso](#micro-mondo-connesso)
 - [Identità ZDOS e ZSpace](#identità-zdos-e-zspace)
+- [Organism residente](#organism-residente)
 - [Avvio rapido](#avvio-rapido)
 - [Struttura del repository](#struttura-del-repository)
 - [Verifica e riproducibilità](#verifica-e-riproducibilità)
@@ -282,6 +283,22 @@ python3 identity/zdos_identity.py verify \
 ```
 
 Il collegamento operativo con Zlang passa dalla capability read-only `storage.read-v1` e dal bridge [`identity/zdos_zlang_bridge.py`](identity/zdos_zlang_bridge.py): identità ZDOS → ruolo firmato → capability → programma Zlang → namespace persistente autorizzato. Il file manager tradizionale non è introdotto; la direzione nativa è lo **ZSpace**, basato su oggetti tipizzati e policy, descritta in [`docs/IDENTITY_ZSPACE.md`](docs/IDENTITY_ZSPACE.md).
+
+## Organism residente
+
+`zdos-organism` è la base del processo autonomo residente. Il primo runtime integrato in ZDOS è deliberatamente bounded: esegue un tick Zlang, compila il programma in bytecode, registra stato ed eventi e passa sempre da una guardia `default-deny`. Non esegue shell arbitrarie, rete, modifiche al nodo, cancellazioni o accesso a credenziali.
+
+```sh
+ZDOS_ZLANG_ROOT=/srv/zdos/src/Zlang \
+python3 services/zdos-organismd.py \
+  --once \
+  --state-dir /var/lib/zdos/organism \
+  --program services/main.zlang
+```
+
+Per una VPS Linux completa è disponibile anche [`services/zdos-organismd.service`](services/zdos-organismd.service). L’unità è predisposta con `NoNewPrivileges`, filesystem protetto, directory di stato limitata e rete non richiesta. Il servizio è **EXPERIMENTAL** finché non viene impacchettato nell’ISO e collegato all’`init` con kill switch verificato.
+
+La War Room deve osservare `status.json` ed eventi firmati tramite un adapter autenticato read-only; non deve eseguire direttamente il processo né concedere capability dal browser.
 
 ## Avvio rapido
 

@@ -125,6 +125,28 @@
         ],
         "security": "Nessun IP; chiave privata cifrata; recovery solo digest; namespace read-only e path confinati."
       }
+    },
+    {
+      "id": "resident-organism-zlang-v1",
+      "from": "zdos-organism",
+      "through": [
+        "services/zdos-organismd.py",
+        "services/organism-runtime.json",
+        "services/main.zlang",
+        "services/zdos-organismd.service"
+      ],
+      "to": "zdos-resident-organism",
+      "status": "EXPERIMENTAL",
+      "proof": {
+        "execution": "bounded-zlang-tick-test",
+        "required_markers": [
+          "ZDOS_ORGANISM_TICK_OK",
+          "organism.guard.allowed",
+          "organism.tick.completed",
+          "organism.guard.denied"
+        ],
+        "security": "Ciclo validate-only, default-deny, nessuna shell, rete, modifica nodo o accesso credenziali."
+      }
     }
   ],
   "targets": {

@@ -1,0 +1,25 @@
+[Unit]
+Description=ZDOS Resident Organism Supervisor
+After=local-fs.target
+ConditionPathExists=/usr/local/lib/zdos/organism/main.zlang
+
+[Service]
+Type=simple
+User=zdos
+Group=zdos
+WorkingDirectory=/var/lib/zdos/organism
+Environment=ZDOS_ORGANISM_STATE_DIR=/var/lib/zdos/organism
+Environment=ZDOS_ORGANISM_PROGRAM=/usr/local/lib/zdos/organism/main.zlang
+Environment=ZDOS_ZLANG_ROOT=/usr/local/lib/zdos/Zlang
+ExecStart=/usr/bin/python3 /usr/local/lib/zdos/organism/zdos-organismd.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/zdos/organism
+RestrictAddressFamilies=AF_UNIX
+
+[Install]
+WantedBy=multi-user.target
