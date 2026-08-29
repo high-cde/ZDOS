@@ -10,13 +10,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SERVICE = ROOT / "services" / "zdos-organismd.py"
-ZLANG = ROOT.parent / "Zlang"
+ZLANG = Path(os.environ.get("ZDOS_ZLANG_ROOT", str(ROOT.parent / "Zlang"))).expanduser().resolve()
 
 
 class ResidentOrganismTests(unittest.TestCase):
     def run_service(self, state: Path, program: Path) -> subprocess.CompletedProcess[str]:
         env = os.environ.copy()
-        env["ZDOS_ZLANG_ROOT"] = str(ZLANG)
+        env.setdefault("ZDOS_ZLANG_ROOT", str(ZLANG))
         return subprocess.run(
             [sys.executable, str(SERVICE), "--once", "--state-dir", str(state), "--program", str(program)],
             text=True,
