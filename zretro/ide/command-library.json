@@ -1,0 +1,21 @@
+{
+  "schema": "zretro-command-library/v1",
+  "prompt": "x@zdos /zretro",
+  "commands": {
+    "h": "help",
+    "n <name>": "new project",
+    "e <file>": "edit ZRetro source",
+    "b <file>": "build target packages",
+    "r <file>": "run terminal preview",
+    "t": "list supported targets",
+    "a": "assets overview",
+    "p": "publish manifest to ZDOS Hub adapter",
+    "q": "quit"
+  },
+  "targets": {
+    "c64": {"cpu": "6502", "artifact": ".prg", "emulator": "VICE"},
+    "atari8": {"cpu": "6502", "artifact": ".xex", "emulator": "Altirra"},
+    "amiga": {"cpu": "68000", "artifact": ".adf", "emulator": "FS-UAE"}
+  },
+  "policy": "project-root-only; network-disabled-by-default; hub-publish-explicit"
+}

@@ -1,0 +1,14 @@
+# Meteor Patrol — first ZRetro game by ZDOS
+project Meteor Patrol
+target c64 atari8 amiga
+screen 40 22
+palette c64
+scene starfield
+text "METEOR PATROL // ZDOS 1985 MODE"
+player ship
+enemy drone
+sound pulse
+on tick
+on fire
+on collide
+end

@@ -52,7 +52,7 @@ jobs:
       - name: Run connected-microcosm tests
         env:
           ZDOS_ZLANG_ROOT: ${{ github.workspace }}/Zlang
-        run: python3 -m unittest microcosm/test_microcosm.py identity/test_identity.py commands/test_commands.py services/test_organismd.py
+        run: python3 -m unittest microcosm/test_microcosm.py identity/test_identity.py commands/test_commands.py services/test_organismd.py zretro/ide/test_zretro.py
 
       - name: Inspect declared components without synchronization
         env:

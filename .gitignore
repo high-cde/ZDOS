@@ -54,3 +54,7 @@ Thumbs.db
 
 # Generated connected-microcosm state
 /artifacts/microcosm/*.json
+
+# ZRetro generated target packages and IR
+/zretro/projects/*/build/*
+!/zretro/projects/*/build/.gitkeep

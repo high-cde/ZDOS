@@ -25,6 +25,7 @@
 - [Micro-mondo connesso](#micro-mondo-connesso)
 - [Identità ZDOS e ZSpace](#identità-zdos-e-zspace)
 - [Organism residente](#organism-residente)
+- [ZRetro IDE](#zretro-ide)
 - [Avvio rapido](#avvio-rapido)
 - [Struttura del repository](#struttura-del-repository)
 - [Verifica e riproducibilità](#verifica-e-riproducibilità)
@@ -299,6 +300,17 @@ python3 services/zdos-organismd.py \
 Per una VPS Linux completa è disponibile anche [`services/zdos-organismd.service`](services/zdos-organismd.service). L’unità è predisposta con `NoNewPrivileges`, filesystem protetto, directory di stato limitata e rete non richiesta. Il servizio è **EXPERIMENTAL** finché non viene impacchettato nell’ISO e collegato all’`init` con kill switch verificato.
 
 La War Room deve osservare `status.json` ed eventi firmati tramite un adapter autenticato read-only; non deve eseguire direttamente il processo né concedere capability dal browser.
+
+## ZRetro IDE
+
+**ZRetro** è la prima IDE retro nativa di ZDOS, con prompt `x@zdos /zretro`, DSL dichiarativa ZRetro e collegamento al runtime Zlang by ZDOS. Il primo progetto è [`Meteor Patrol`](zretro/projects/meteor-patrol/main.zretro), predisposto per Commodore 64, Atari 8-bit e Amiga.
+
+```sh
+python3 zretro/ide/zretro.py run zretro/projects/meteor-patrol/main.zretro
+python3 zretro/ide/zretro.py build zretro/projects/meteor-patrol/main.zretro
+```
+
+Il preview terminale è già operativo. La pipeline produce IR e manifest verificabili; i backend per binari nativi e emulatori vengono attivati soltanto quando cc65/ca65, vasm, VICE, Altirra o FS-UAE sono presenti nel nodo. La specifica è in [`docs/ZRETRO.md`](docs/ZRETRO.md).
 
 ## Avvio rapido
 
