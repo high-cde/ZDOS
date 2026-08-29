@@ -104,6 +104,27 @@
         "ledger_event": "filesystem.persistence.attestation",
         "privacy": "Il ledger conserva solo metadati, hash, commit e configurazione; il contenuto del filesystem e i segreti sono esclusi."
       }
+    },
+    {
+      "id": "identity-zlang-storage-read-v1",
+      "from": "zdos-identity",
+      "through": [
+        "identity/zdos_identity.py",
+        "identity/contract.json",
+        "identity/zdos_zlang_bridge.py"
+      ],
+      "to": "Zlang:storage.read-v1",
+      "status": "VERIFIED",
+      "proof": {
+        "execution": "signed-role-capability-bridge-test",
+        "required_markers": [
+          "ZDOS_IDENTITY_VERIFIED",
+          "ZDOS_RECOVERY_VERIFIED",
+          "ZDOS_ZLANG_CAPABILITY",
+          "ZLANG_STORAGE_READ_OK"
+        ],
+        "security": "Nessun IP; chiave privata cifrata; recovery solo digest; namespace read-only e path confinati."
+      }
     }
   ],
   "targets": {

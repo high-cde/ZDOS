@@ -236,6 +236,9 @@ gate() {
     "$ROOT/scripts/attest-persistence-evidence.sh"
     "$ROOT/evidence/ledger.py"
     "$ROOT/evidence/policy.release.json"
+    "$ROOT/identity/zdos_identity.py"
+    "$ROOT/identity/zdos_zlang_bridge.py"
+    "$ROOT/identity/contract.json"
     "$ROOT/os/x86_64/Makefile"
   )
   local path

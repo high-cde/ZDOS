@@ -22,6 +22,7 @@
 - [Zlang e runtime ZLB2](#zlang-e-runtime-zlb2)
 - [Evidence Chain](#evidence-chain)
 - [Micro-mondo connesso](#micro-mondo-connesso)
+- [Identità ZDOS e ZSpace](#identità-zdos-e-zspace)
 - [Avvio rapido](#avvio-rapido)
 - [Struttura del repository](#struttura-del-repository)
 - [Verifica e riproducibilità](#verifica-e-riproducibilità)
@@ -253,6 +254,21 @@ Il repository include un **micro-mondo connesso** che incorpora il modello di co
 | `./microcosm/zdos-microctl attest-persistence` | Esegue due boot QEMU e registra l'attestazione | Genera build e ledger locali |
 
 Il collegamento già **VERIFIED** è `persistent-storage-evidence-v1`: due boot QEMU, marker di scrittura e lettura, clean shutdown, quindi evento `filesystem.persistence.attestation` in una Evidence Chain verificata. Zlang e ZDOS-SEC-PORTAL sono fonti primarie esterne ora verificate nel rispettivo perimetro locale; zdos-organism e Z-CYBERCORE restano `EXPERIMENTAL` finché non sono disponibili tutte le verifiche dichiarate. La specifica completa è in [`docs/MICROCOSM.md`](docs/MICROCOSM.md).
+
+## Identità ZDOS e ZSpace
+
+ZDOS ora dispone del contratto per un’identità locale indipendente dalla rete: il nick è solo un nome leggibile, mentre l’identità stabile deriva dal fingerprint della chiave pubblica. Il bootstrap genera una chiave Ed25519 cifrata, un grant di ruolo firmato e un codice di recovery alfanumerico di 36 caratteri; l’IP non viene usato né memorizzato nel profilo identità.
+
+```sh
+export ZDOS_IDENTITY_PASSPHRASE='passphrase-locale'
+python3 identity/zdos_identity.py init \
+  --nick alice --role administrator \
+  --state-dir /var/lib/zdos/identity/alice
+python3 identity/zdos_identity.py verify \
+  --state-dir /var/lib/zdos/identity/alice
+```
+
+Il collegamento operativo con Zlang passa dalla capability read-only `storage.read-v1` e dal bridge [`identity/zdos_zlang_bridge.py`](identity/zdos_zlang_bridge.py): identità ZDOS → ruolo firmato → capability → programma Zlang → namespace persistente autorizzato. Il file manager tradizionale non è introdotto; la direzione nativa è lo **ZSpace**, basato su oggetti tipizzati e policy, descritta in [`docs/IDENTITY_ZSPACE.md`](docs/IDENTITY_ZSPACE.md).
 
 ## Avvio rapido
 

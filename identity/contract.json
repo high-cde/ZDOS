@@ -1,0 +1,31 @@
+{
+  "schema": "zdos-zlang-identity/v1",
+  "identity": {
+    "stable_id": "did:zdos:<sha256(public-key.pem)>",
+    "display_name": "nick",
+    "network_identity": "none",
+    "private_key": "Ed25519, cifrata a riposo",
+    "recovery": "36 caratteri alfanumerici, PBKDF2-HMAC-SHA256, digest only"
+  },
+  "roles": {
+    "standard": ["storage.read-v1"],
+    "operator": ["storage.read-v1", "evidence.append-v1"],
+    "administrator": ["storage.read-v1", "evidence.append-v1", "identity.manage-v1", "policy.manage-v1"]
+  },
+  "zlang_bridge": {
+    "capability": "storage.read-v1",
+    "effect": "allow",
+    "mode": "read-only",
+    "namespace": "explicit-root",
+    "path_policy": ["relative-only", "no-dot-dot", "no-nul", "inside-root"],
+    "max_bytes": 1048576,
+    "identity_binding": "capability.subject must equal identity.identity"
+  },
+  "forbidden": [
+    "derivare identità o chiavi dall'IP",
+    "salvare il recovery code in chiaro",
+    "concedere capability in base al nick",
+    "usare il bridge per scrivere o uscire dal namespace",
+    "trattare TXT, JPG, HTML o archivi come primitive del filesystem nativo"
+  ]
+}
