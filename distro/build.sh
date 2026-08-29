@@ -7,6 +7,8 @@ BUILD="${ZDOS_BUILD_DIR:-$DISTRO/build}"
 SOURCES="$BUILD/sources"
 ROOTFS="$BUILD/rootfs"
 JOBS="${JOBS:-$(nproc)}"
+ZDOS_BUNDLE_ORGANISM="${ZDOS_BUNDLE_ORGANISM:-1}"
+ZDOS_ZLANG_ROOT="${ZDOS_ZLANG_ROOT:-$ROOT/../Zlang}"
 BUSYBOX_VERSION="${BUSYBOX_VERSION:-1.36.1}"
 BUSYBOX_TARBALL="$SOURCES/busybox-${BUSYBOX_VERSION}.tar.bz2"
 BUSYBOX_URL="https://busybox.net/downloads/busybox-${BUSYBOX_VERSION}.tar.bz2"
@@ -90,6 +92,24 @@ cp "$DISTRO/rootfs/etc/motd" "$ROOTFS/etc/motd"
 cp "$DISTRO/rootfs/etc/passwd" "$ROOTFS/etc/passwd"
 cp "$DISTRO/rootfs/etc/group" "$ROOTFS/etc/group"
 cp "$DISTRO/rootfs/etc/zdos/organism.conf" "$ROOTFS/etc/zdos/organism.conf"
+
+if [ "$ZDOS_BUNDLE_ORGANISM" = 1 ]; then
+  need python3
+  test -f "$ZDOS_ZLANG_ROOT/tools/zlangc.py" || { echo "missing Zlang compiler: $ZDOS_ZLANG_ROOT/tools/zlangc.py" >&2; exit 1; }
+  PYTHON_BIN=$(readlink -f "$(command -v python3)")
+  PYTHON_STDLIB=$(python3 -c 'import sysconfig; print(sysconfig.get_path("stdlib"))')
+  mkdir -p "$ROOTFS/usr/bin" "$ROOTFS/usr/lib/zdos/Zlang/tools" "$ROOTFS/usr/share" "$ROOTFS/var/lib/zdos/organism"
+  cp -L "$PYTHON_BIN" "$ROOTFS/usr/bin/python3"
+  cp -a "$PYTHON_STDLIB" "$ROOTFS/usr/lib/"
+  cp "$ROOT/services/zdos-organismd.py" "$ROOTFS/usr/lib/zdos/zdos-organismd.py"
+  cp "$ROOT/services/main.zlang" "$ROOTFS/usr/share/zdos-main.zlang"
+  cp "$ZDOS_ZLANG_ROOT/tools/zlangc.py" "$ROOTFS/usr/lib/zdos/Zlang/tools/zlangc.py"
+  ldd "$PYTHON_BIN" | awk '{for (i = 1; i <= NF; i++) if ($i ~ /^\/.*\.so/) print $i}' | sort -u | while read -r library; do
+    [ -f "$library" ] || continue
+    mkdir -p "$ROOTFS$(dirname "$library")"
+    cp -L "$library" "$ROOTFS$library"
+  done
+fi
 chmod 0755 "$ROOTFS/init"
 ln -sf /proc/mounts "$ROOTFS/etc/mtab"
 rm -f "$BUILD/initramfs.cpio.gz"

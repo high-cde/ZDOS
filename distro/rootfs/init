@@ -24,6 +24,7 @@ organism_state=disabled
 if [ "$organism_request" = on ]; then
   organism_conf=/etc/zdos/organism.conf
   [ -r "$organism_conf" ] && . "$organism_conf"
+  [ -n "${ZDOS_ZLANG_ROOT:-}" ] && export ZDOS_ZLANG_ROOT
   organism_state=HALT
   if [ -x /usr/bin/python3 ] && [ -f "${ZDOS_ORGANISM_RUNTIME:-}" ] && [ -f "${ZDOS_ORGANISM_PROGRAM:-}" ]; then
     mkdir -p "${ZDOS_ORGANISM_STATE_DIR:-/var/lib/zdos/organism}"
@@ -33,7 +34,8 @@ if [ "$organism_request" = on ]; then
       organism_state=started
     else
       organism_state=HALT
-      printf 'ZDOS_ORGANISM_HALTED reason=tick-failed\\n'
+      printf 'ZDOS_ORGANISM_HALTED reason=tick-failed\n'
+      [ -s /run/zdos-organism.log ] && cat /run/zdos-organism.log
     fi
   else
     printf 'ZDOS_ORGANISM_HALTED reason=runtime-not-packaged\n'
