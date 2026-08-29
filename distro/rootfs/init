@@ -27,10 +27,14 @@ if [ "$organism_request" = on ]; then
   organism_state=HALT
   if [ -x /usr/bin/python3 ] && [ -f "${ZDOS_ORGANISM_RUNTIME:-}" ] && [ -f "${ZDOS_ORGANISM_PROGRAM:-}" ]; then
     mkdir -p "${ZDOS_ORGANISM_STATE_DIR:-/var/lib/zdos/organism}"
-    /usr/bin/python3 "$ZDOS_ORGANISM_RUNTIME" --once \
+    if /usr/bin/python3 "$ZDOS_ORGANISM_RUNTIME" --once \
       --state-dir "${ZDOS_ORGANISM_STATE_DIR:-/var/lib/zdos/organism}" \
-      --program "$ZDOS_ORGANISM_PROGRAM" >/run/zdos-organism.log 2>&1 || true
-    organism_state=started
+      --program "$ZDOS_ORGANISM_PROGRAM" >/run/zdos-organism.log 2>&1; then
+      organism_state=started
+    else
+      organism_state=HALT
+      printf 'ZDOS_ORGANISM_HALTED reason=tick-failed\\n'
+    fi
   else
     printf 'ZDOS_ORGANISM_HALTED reason=runtime-not-packaged\n'
   fi
