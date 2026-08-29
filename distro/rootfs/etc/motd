@@ -1,2 +1,10 @@
-ZDOS Linux 0.1
-Minimal Linux distribution for the ZDOS ecosystem.
+
+ ____  ____   ___  ____
+|__  ||  _ \ / _ \| ___|
+  / / | | | | | | |___ \
+ / /_ | |_| | |_| |___) |
+/____||____/ \___/|____/
+
+ZDOS Linux 0.2  ::  native console
+Connected Microcosm  ::  default-deny
+Type '?' for the native command surface.

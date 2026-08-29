@@ -157,4 +157,10 @@ if [ -n "$persistence_test" ] && [ -n "$persistence_device" ]; then
   fi
 fi
 
+# Native ZDOS console defaults; do not depend on login-shell profile loading.
+export ZDOS_CONSOLE=1
+export HOME=/home/zdos
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+cd /
+export PS1='x@zdos ${PWD} # '
 exec /bin/sh

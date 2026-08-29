@@ -91,6 +91,7 @@ cp "$DISTRO/rootfs/etc/inittab" "$ROOTFS/etc/inittab"
 cp "$DISTRO/rootfs/etc/motd" "$ROOTFS/etc/motd"
 cp "$DISTRO/rootfs/etc/passwd" "$ROOTFS/etc/passwd"
 cp "$DISTRO/rootfs/etc/group" "$ROOTFS/etc/group"
+cp "$DISTRO/rootfs/etc/profile" "$ROOTFS/etc/profile"
 cp "$DISTRO/rootfs/etc/zdos/organism.conf" "$ROOTFS/etc/zdos/organism.conf"
 
 if [ "$ZDOS_BUNDLE_ORGANISM" = 1 ]; then
