@@ -6,6 +6,7 @@ import argparse
 import base64
 import hashlib
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -65,7 +66,8 @@ def main() -> int:
         if verified.returncode != 0:
             raise PermissionError("firma del role grant non valida")
 
-    tool = Path(__file__).resolve().parents[2] / "Zlang" / "tools" / "zlang_storage_read.py"
+    zlang_root = Path(os.environ.get("ZDOS_ZLANG_ROOT", str(Path(__file__).resolve().parents[2] / "Zlang"))).expanduser().resolve()
+    tool = zlang_root / "tools" / "zlang_storage_read.py"
     if not tool.is_file():
         raise FileNotFoundError(f"tool Zlang non disponibile: {tool}")
     result = subprocess.run(

@@ -15,12 +15,56 @@ jobs:
     steps:
       - name: Checkout ZDOS
         uses: actions/checkout@v4
-
+      - name: Checkout canonical Zlang dependency
+        uses: actions/checkout@v4
+        with:
+          repository: high-cde/Zlang
+          ref: main
+          path: Zlang
+          fetch-depth: 1
+      - name: Checkout zdos-organism for workspace inspection
+        uses: actions/checkout@v4
+        with:
+          repository: high-cde/zdos-organism
+          ref: main
+          path: zdos-organism
+          filter: blob:none
+          sparse-checkout: README.md
+          fetch-depth: 1
+      - name: Checkout SEC Portal for workspace inspection
+        uses: actions/checkout@v4
+        with:
+          repository: high-cde/ZDOS-SEC-PORTAL
+          ref: main
+          path: ZDOS-SEC-PORTAL
+          filter: blob:none
+          sparse-checkout: README.md
+          fetch-depth: 1
+      - name: Checkout Cybercore for workspace inspection
+        uses: actions/checkout@v4
+        with:
+          repository: high-cde/Z-CYBERCORE
+          ref: main
+          path: Z-CYBERCORE
+          filter: blob:none
+          sparse-checkout: README.md
+          fetch-depth: 1
       - name: Run connected-microcosm tests
+        env:
+          ZDOS_ZLANG_ROOT: ${{ github.workspace }}/Zlang
         run: python3 -m unittest microcosm/test_microcosm.py identity/test_identity.py commands/test_commands.py
 
       - name: Inspect declared components without synchronization
+        env:
+          ZDOS_MICROCOSM_WORKSPACE: ${{ github.workspace }}
         run: ./microcosm/zdos-microctl inspect
+      - name: Assert external checkout presence and cleanliness
+        run: |
+          test -d Zlang && test -d zdos-organism && test -d ZDOS-SEC-PORTAL && test -d Z-CYBERCORE
+          test -z "$(git -C Zlang status --porcelain)"
+          test -z "$(git -C zdos-organism status --porcelain)"
+          test -z "$(git -C ZDOS-SEC-PORTAL status --porcelain)"
+          test -z "$(git -C Z-CYBERCORE status --porcelain)"
 
       - name: Validate local entrypoints and release policy
         run: ./microcosm/zdos-microctl gate

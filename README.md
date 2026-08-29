@@ -3,6 +3,7 @@
 **Sistema operativo sperimentale, runtime e toolchain verificabile per sistemi x86_64.**
 
 [![Validate ZDOS x86_64](https://github.com/high-cde/ZDOS/actions/workflows/validate-x86_64.yml/badge.svg)](https://github.com/high-cde/ZDOS/actions/workflows/validate-x86_64.yml)
+[![Connected Microcosm](https://github.com/high-cde/ZDOS/actions/workflows/connected-microcosm.yml/badge.svg)](https://github.com/high-cde/ZDOS/actions/workflows/connected-microcosm.yml)
 [![Linux distro](https://img.shields.io/badge/distro-ZDOS%20Linux%200.2-10b981?style=for-the-badge&logo=linux&logoColor=white)](distro/)
 [![Bare metal](https://img.shields.io/badge/OS-bare--metal%20x86__64-2563eb?style=for-the-badge&logo=linux&logoColor=white)](os/x86_64/)
 [![Zlang runtime](https://img.shields.io/badge/runtime-ZLB2%20v2.5-7c3aed?style=for-the-badge&logo=rust&logoColor=white)](https://github.com/high-cde/Zlang)
@@ -63,6 +64,18 @@ La maturità viene descritta per capacità, non soltanto per versione. Lo stato 
 | Supporto hardware laptop | Non ancora certificato | Test futuri |
 
 La milestone Linux corrente può essere descritta come **M2 — Reproducible**: la build produce un’immagine riproducibile, il boot è osservabile in QEMU e il test persistent-storage-v1 dimostra la sopravvivenza dei dati tra due boot indipendenti.
+
+## CI e verifiche automatiche
+
+Il profilo pubblico espone soltanto workflow con responsabilità distinte. `Validate ZDOS x86_64` compila e avvia il percorso bare-metal in QEMU e verifica il contratto web locale; `Validate ZDOS connected microcosm` verifica catalogo, identità, comandi brevi, bridge ZDOS–Zlang, componenti dichiarati e policy; `pages-build-deployment` pubblica la documentazione quando GitHub Pages la ricostruisce.
+
+| Workflow | Scopo | Dipendenze esterne |
+|---|---|---|
+| `validate-x86_64.yml` | Build, bytecode, boot QEMU e contratto web | Zlang checkout canonico |
+| `connected-microcosm.yml` | Test identity/commands/microcosm, inspect e gate | Zlang checkout canonico; gli altri checkout restano osservati dall’inspect |
+| `release-x86_64.yml` | Build e pubblicazione release | Toolchain Linux e permesso GitHub release |
+
+Il workflow del micro-mondo esegue i quattro checkout esterni in directory controllate del workspace. Zlang viene passato al bridge tramite `ZDOS_ZLANG_ROOT`, mentre `ZDOS_MICROCOSM_WORKSPACE` allinea l’ispezione al percorso del runner. In locale o sulla VPS il controller mantiene il fallback al workspace adiacente già previsto dal catalogo.
 
 ## Architettura
 
