@@ -487,6 +487,7 @@ Consulta [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md), [`C
 |---|---|
 | [`distro/README.md`](distro/README.md) | Build Linux e persistent-storage-v1 |
 | [`distro/PRODUCTION.md`](distro/PRODUCTION.md) | Gate, verifica artefatti e limiti di readiness operativa |
+| [`docs/PRODUCTION_CONFIGURATION_AUDIT.md`](docs/PRODUCTION_CONFIGURATION_AUDIT.md) | Audit dei file mancanti e roadmap di configurazione production-ready |
 | [`evidence/README.md`](evidence/README.md) | Contratto Evidence Chain |
 | [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md) | Mappa dei repository e dei contratti |
 | [`docs/OPERATIONS.md`](docs/OPERATIONS.md) | Build, boot, CI, troubleshooting e release |
