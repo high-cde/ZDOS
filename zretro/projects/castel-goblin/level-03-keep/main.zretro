@@ -1,0 +1,17 @@
+# Castel Goblin — Livello 03: La Torre del Re Ombra
+# Avventura originale ZRetro by ZDOS
+project Castel Goblin Shadow Keep
+target c64 atari8 amiga
+screen 40 22
+palette c64
+scene shadow_keep
+text "CASTEL GOBLIN // LEVEL 03 // SHADOW KEEP"
+player wanderer
+enemy goblin
+enemy bat
+enemy warden
+sound alarm
+on tick
+on fire
+on collide
+end

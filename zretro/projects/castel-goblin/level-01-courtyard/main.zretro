@@ -1,0 +1,15 @@
+# Castel Goblin — Livello 01: Il Cortile delle Lanterne
+# Avventura originale ZRetro by ZDOS
+project Castel Goblin Courtyard
+target c64 atari8 amiga
+screen 40 22
+palette c64
+scene lantern_courtyard
+text "CASTEL GOBLIN // LEVEL 01 // COURTYARD"
+player wanderer
+enemy goblin
+sound pulse
+on tick
+on fire
+on collide
+end

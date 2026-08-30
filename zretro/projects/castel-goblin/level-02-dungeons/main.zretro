@@ -1,0 +1,16 @@
+# Castel Goblin — Livello 02: Le Cripte del Muschio
+# Avventura originale ZRetro by ZDOS
+project Castel Goblin Dungeons
+target c64 atari8 amiga
+screen 40 22
+palette c64
+scene moss_dungeons
+text "CASTEL GOBLIN // LEVEL 02 // DUNGEONS"
+player wanderer
+enemy goblin
+enemy bat
+sound alarm
+on tick
+on fire
+on collide
+end
