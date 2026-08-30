@@ -1,0 +1,8 @@
+policy: "ZDOS Update Policy"
+channels:
+  - "stable"
+  - "preview"
+requirements:
+  minimum_version: "0.2.0"
+  signature_verification: strict
+offline_updates: supported
