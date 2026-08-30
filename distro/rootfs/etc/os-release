@@ -1,0 +1,6 @@
+NAME="ZDOS Linux"
+VERSION="0.2.0"
+ID=zdos
+PRETTY_NAME="ZDOS Linux (M2 Preview)"
+HOME_URL="https://high-cde.github.io/ZDOS"
+SUPPORT_URL="https://github.com/high-cde/ZDOS/issues"
