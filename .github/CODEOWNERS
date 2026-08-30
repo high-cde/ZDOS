@@ -1,0 +1,5 @@
+# ZDOS Code Owners
+*                   @alto-cde
+/os/                @alto-cde
+/distro/            @alto-cde
+/.github/workflows/ @alto-cde
