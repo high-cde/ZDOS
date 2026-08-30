@@ -14,10 +14,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout ZDOS
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
       - name: Checkout pinned Zlang dependency
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           repository: high-cde/Zlang
           ref: 74958a3452897694f022ebfc8e2097702f3ba73a # compatibile con storage.read-v1
@@ -25,7 +25,7 @@ jobs:
           fetch-depth: 1
 
       - name: Checkout zdos-organism for workspace inspection
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           repository: high-cde/zdos-organism
           ref: e70a465f7c7eb8655f08e4003bfa1eb47ef386f9
@@ -35,7 +35,7 @@ jobs:
           fetch-depth: 1
 
       - name: Checkout SEC Portal for workspace inspection
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           repository: high-cde/ZDOS-SEC-PORTAL
           ref: 47247dfd3eff79fbd0078b4187547dba37ac4818
@@ -45,7 +45,7 @@ jobs:
           fetch-depth: 1
 
       - name: Checkout Cybercore for workspace inspection
-        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           repository: high-cde/Z-CYBERCORE
           ref: e8637a4e59e454a0b8bc0f748d4ed0d9bd5de4a0
