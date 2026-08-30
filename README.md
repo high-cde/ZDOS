@@ -9,6 +9,8 @@
 [![Zlang runtime](https://img.shields.io/badge/runtime-ZLB2%20v2.5-7c3aed?style=for-the-badge&logo=rust&logoColor=white)](https://github.com/high-cde/Zlang)
 [![License](https://img.shields.io/badge/license-MIT-64748b?style=for-the-badge)](LICENSE)
 
+**Demo pubblica:** [high-cde.github.io/ZDOS](https://high-cde.github.io/ZDOS/) · **ISO e checksum:** generati dal workflow di release su tag
+
 > **Build what you can prove.**
 >
 > ZDOS è un ecosistema in costruzione che unisce una distribuzione Linux minimale, un prototipo bare-metal x86_64, il linguaggio Zlang, il runtime ZLB2 e una Evidence Chain locale. Una capacità viene considerata disponibile soltanto quando esistono implementazione, contratto, test e una prova riproducibile.
@@ -54,7 +56,8 @@ La maturità viene descritta per capacità, non soltanto per versione. Lo stato 
 
 | Capacità | Stato | Prova disponibile |
 |---|---|---|
-| Build della distro Linux | **Disponibile** | `distro/build.sh` |
+| Build della distro Linux | **Disponibile** | `distro/build.sh` con `distro/sources.lock` |
+| Gate completo build + QEMU | **Verificato** | `tools/zdos-selftest.sh --all` |
 | Boot Linux in QEMU | **Disponibile** | `distro/test-qemu.sh` |
 | Shell BusyBox e initramfs | **Disponibile** | Boot seriale con `ZDOS_READY` |
 | Volume persistente ext4 | **Verificato** | `distro/test-persistence-qemu.sh` a due boot |
@@ -99,7 +102,7 @@ I due percorsi condividono principi e strumenti, ma non devono essere confusi. *
 
 ## ZDOS Linux
 
-La distro Linux viene costruita da sorgenti versionate usando un kernel x86_64, BusyBox statico, un initramfs e una configurazione minimale. Il sistema avvia una shell seriale e una console virtuale; la rete può essere tentata tramite BusyBox `udhcpc`, ma non è una precondizione per l’avvio.
+La distro Linux viene costruita con un kernel Debian x86_64 bloccato tramite SHA-256, BusyBox statico, un initramfs e una configurazione minimale. Gli input sono dichiarati in [`distro/sources.lock`](distro/sources.lock). Il sistema avvia una shell seriale e una console virtuale come utente `zdos` non privilegiato; la rete può essere tentata tramite BusyBox `udhcpc`, ma non è una precondizione per l’avvio.
 
 La sequenza di boot è:
 
@@ -323,9 +326,11 @@ Il launcher operativo è [`tools/zdos-launcher.sh`](tools/zdos-launcher.sh), con
 La build richiede una toolchain Linux x86_64 e i seguenti comandi:
 
 ```text
-curl make gcc file cpio gzip xorriso grub-mkrescue mtools
-qemu-img qemu-system-x86_64 mkfs.ext4 timeout
+bzip2 curl make gcc cpio gzip file sha256sum xorriso grub-mkrescue mtools
+qemu-img qemu-system-x86_64 mkfs.ext4 e2fsck debugfs timeout
 ```
+
+La build scarica soltanto gli URL HTTPS presenti nel lockfile e interrompe il processo se l’hash atteso non coincide.
 
 Per il test bare metal sono inoltre necessari gli strumenti indicati in [`os/x86_64/README.md`](os/x86_64/README.md). Il test QEMU utilizza soltanto immagini virtuali locali e non modifica dischi fisici.
 
@@ -337,6 +342,12 @@ Dalla radice del repository:
 git clone https://github.com/high-cde/ZDOS.git
 cd ZDOS
 ./distro/build.sh
+```
+
+Per eseguire tutti i controlli locali in modalità rigorosa:
+
+```sh
+ZDOS_ZLANG_ROOT=../Zlang ./tools/zdos-selftest.sh --all
 ```
 
 La build produce:
@@ -354,7 +365,7 @@ qemu-system-x86_64 \
   -display none
 ```
 
-L’output deve includere `ZDOS_READY`. L’assenza di una rete o di un volume persistente non impedisce il boot: in quel caso il sistema mostra `live-only`.
+L’output deve includere `ZDOS_READY` e `ZDOS_CONSOLE_USER=zdos mode=unprivileged`. L’assenza di una rete o di un volume persistente non impedisce il boot: in quel caso il sistema mostra `live-only`. La recovery root è intenzionalmente esplicita e richiede `zdos.insecure_root_shell=1`; non va usata su sistemi esposti.
 
 ### Verificare la persistenza
 
