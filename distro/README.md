@@ -41,6 +41,10 @@ Il gate verifica il boot in console non privilegiata, due boot con persistenza e
 
 La milestone 0.2 aggiunge una base userspace più reale. Sono presenti gli account `root` e `zdos`, i gruppi di sistema, il tentativo automatico DHCP su `eth0` tramite BusyBox `udhcpc` e il mount opzionale di `/dev/vda1` su `/mnt/data`. L’account root è bloccato e la console live viene avviata come `zdos`; una shell root è consentita solo tramite l’opzione esplicita di recovery `zdos.insecure_root_shell=1`. L'immagine live continua ad avviarsi anche quando non è disponibile una scheda di rete o un disco persistente.
 
+### Configurazione P0 del rootfs
+
+Il rootfs versiona ora i contratti host essenziali: `etc/os-release` identifica l’immagine, `etc/fstab` definisce i pseudo-filesystem, `etc/hostname` e `etc/hosts` fissano l’identità locale, mentre `etc/shadow`, `etc/gshadow`, `etc/shells` e `etc/securetty` preparano il perimetro degli account. `etc/sysctl.d/99-zdos-hardening.conf`, `etc/modprobe.d/zdos.conf` e `etc/mdev.conf` dichiarano le baseline di hardening e device policy. Il test `./distro/test-production-config.sh` impedisce che questi file vengano rimossi o lasciati vuoti.
+
 ## Persistent storage v1
 
 La prima capacità persistente verificabile usa un volume ext4 dedicato, identificato da UUID e montato su `/mnt/data`. Su un disco partizionato viene usata `/dev/vda1`; nelle immagini QEMU del test può essere usato direttamente `/dev/vda` quando non esiste una tabella partizioni. Il boot resta in modalità live-only se il volume è assente, se `blkid` non è disponibile o se l’UUID non corrisponde. Il sistema non formatta automaticamente il volume e non sovrascrive dati esistenti.
@@ -59,7 +63,7 @@ ZDOS_PERSISTENCE_QEMU_TEST_PASSED uuid=11111111-2222-4333-8444-555555555555
 
 Il contratto di boot utilizza `zdos.data_uuid=<UUID>` e, per il test, `zdos.persistence_test=write|read`. La capacità è limitata alla distro Linux in QEMU: non è ancora un filesystem nativo del kernel bare-metal e non espone accesso storage a Zlang.
 
-La milestone 0.3 introdurrà un package manager iniziale basato su pacchetti tar firmati e un repository dichiarativo. La milestone 0.4 introdurrà installer BIOS/UEFI, logging persistente, aggiornamenti atomici e test hardware più estesi.
+La policy di release è dichiarata in [`release-policy.yaml`](release-policy.yaml); la firma crittografica richiede ancora una chiave privata gestita fuori dal repository, come documentato in [`keys/README.md`](keys/README.md). La milestone 0.3 introdurrà un package manager iniziale basato su pacchetti tar firmati e un repository dichiarativo. La milestone 0.4 introdurrà installer BIOS/UEFI, logging persistente, aggiornamenti atomici e test hardware più estesi.
 
 ## Fondazione e maturità
 

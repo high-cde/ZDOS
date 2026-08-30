@@ -1,0 +1,11 @@
+# Default owner for repository changes.
+* @high-cde
+
+# Changes in these areas require explicit maintainer review.
+/distro/ @high-cde
+/services/ @high-cde
+/.github/workflows/ @high-cde
+/config/ @high-cde
+/identity/ @high-cde
+/evidence/ @high-cde
+/interface/web/ @high-cde

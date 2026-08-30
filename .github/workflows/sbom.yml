@@ -1,0 +1,29 @@
+name: Generate ZDOS SBOM
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sbom:
+    name: Generate repository SBOM
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ZDOS
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 1
+
+      - name: Generate SPDX SBOM
+        uses: anchore/sbom-action@006b7ce8314066bdf1765b4500370d40fa6917a3 # v0.24.2
+        with:
+          path: .
+          format: spdx-json
+          output-file: zdos-sbom.spdx.json
+          artifact-name: zdos-sbom.spdx.json
+          upload-artifact: true

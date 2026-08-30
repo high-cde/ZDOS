@@ -1,0 +1,30 @@
+schema: zdos.backup-policy/v1
+environment: production
+enabled: false
+# Enable only after an approved backend and key-management procedure exist.
+backend: configured-out-of-band
+schedule: daily
+retention:
+  daily: 7
+  weekly: 4
+  monthly: 12
+recovery:
+  rpo: 24h
+  rto: 4h
+  restore_test_interval: 30d
+  require_clean_verification: true
+scope:
+  include:
+    - /var/lib/zdos/identity
+    - /var/lib/zdos/organism
+    - /var/lib/zdos-node/evidence.jsonl
+    - /etc/zdos
+  exclude:
+    - '*.tmp'
+    - '*.cache'
+    - '/run'
+security:
+  encryption: age-or-kms
+  key_source: external-secret-manager
+  never_store_key_in_repository: true
+  verify_before_restore: true

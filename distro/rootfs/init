@@ -1,15 +1,21 @@
 #!/bin/sh
 
-mount -t proc proc /proc
-mount -t sysfs sysfs /sys
-mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
-if command -v mdev >/dev/null 2>&1; then
-  mdev -s 2>/run/mdev.log || true
+if ! mount -a >/run/mount.log 2>&1; then
+  mount -t proc proc /proc
+  mount -t sysfs sysfs /sys
+  mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
+  mount -t tmpfs tmpfs /run
 fi
-mount -t tmpfs tmpfs /run
-
-hostname zdos
+if command -v mdev >/dev/null 2>&1; then
+  mdev -s 2 >/run/mdev.log || true
+fi
+if command -v hostname >/dev/null 2>&1; then
+  hostname -F /etc/hostname 2>/dev/null || hostname zdos
+fi
 mkdir -p /home/zdos /mnt/data
+if command -v sysctl >/dev/null 2>&1; then
+  sysctl -p /etc/sysctl.d/99-zdos-hardening.conf >/run/sysctl.log 2>&1 || true
+fi
 
 # Configure the first Ethernet interface when BusyBox provides udhcpc.
 if [ -x /bin/udhcpc ] && [ -e /sys/class/net/eth0 ]; then

@@ -1,0 +1,29 @@
+schema: zdos.logging/v1
+environment: production
+default_level: INFO
+format: json
+output:
+  kind: stderr
+  encoding: utf-8
+  flush: true
+  file: null
+retention:
+  max_bytes: 104857600
+  max_files: 5
+redaction:
+  fields:
+    - password
+    - token
+    - secret
+    - private_key
+    - passphrase
+  replacement: '[REDACTED]'
+correlation:
+  field: event_id
+  propagate: true
+privacy:
+  include_source_payload: false
+  include_personal_data: false
+network:
+  remote_sink_enabled: false
+  require_tls: true

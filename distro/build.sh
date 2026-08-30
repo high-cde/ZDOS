@@ -130,18 +130,30 @@ cp -a "$ZDOS_MODULES_DIR" "$ROOTFS/lib/modules/"
 if command -v depmod >/dev/null 2>&1; then
   depmod -b "$ROOTFS" "$KERNEL_RELEASE" 2>/dev/null || true
 fi
-mkdir -p "$ROOTFS/etc" "$ROOTFS/etc/zdos" "$ROOTFS/dev" "$ROOTFS/proc" "$ROOTFS/sys" "$ROOTFS/run" "$ROOTFS/tmp" "$ROOTFS/root" "$ROOTFS/home/zdos" "$ROOTFS/var/lib/zdos/organism"
+mkdir -p "$ROOTFS/etc" "$ROOTFS/etc/zdos" "$ROOTFS/etc/sysctl.d" "$ROOTFS/etc/modprobe.d" "$ROOTFS/dev" "$ROOTFS/proc" "$ROOTFS/sys" "$ROOTFS/run" "$ROOTFS/tmp" "$ROOTFS/root" "$ROOTFS/home/zdos" "$ROOTFS/var/lib/zdos/organism"
 cp "$DISTRO/rootfs/init" "$ROOTFS/init"
 cp "$DISTRO/rootfs/etc/inittab" "$ROOTFS/etc/inittab"
 cp "$DISTRO/rootfs/etc/motd" "$ROOTFS/etc/motd"
 cp "$DISTRO/rootfs/etc/passwd" "$ROOTFS/etc/passwd"
 cp "$DISTRO/rootfs/etc/group" "$ROOTFS/etc/group"
+cp "$DISTRO/rootfs/etc/shadow" "$ROOTFS/etc/shadow"
+cp "$DISTRO/rootfs/etc/gshadow" "$ROOTFS/etc/gshadow"
 cp "$DISTRO/rootfs/etc/profile" "$ROOTFS/etc/profile"
+cp "$DISTRO/rootfs/etc/shells" "$ROOTFS/etc/shells"
+cp "$DISTRO/rootfs/etc/securetty" "$ROOTFS/etc/securetty"
+cp "$DISTRO/rootfs/etc/os-release" "$ROOTFS/etc/os-release"
+cp "$DISTRO/rootfs/etc/fstab" "$ROOTFS/etc/fstab"
+cp "$DISTRO/rootfs/etc/hostname" "$ROOTFS/etc/hostname"
+cp "$DISTRO/rootfs/etc/hosts" "$ROOTFS/etc/hosts"
+cp "$DISTRO/rootfs/etc/resolv.conf" "$ROOTFS/etc/resolv.conf"
+cp "$DISTRO/rootfs/etc/mdev.conf" "$ROOTFS/etc/mdev.conf"
+cp "$DISTRO/rootfs/etc/sysctl.d/99-zdos-hardening.conf" "$ROOTFS/etc/sysctl.d/99-zdos-hardening.conf"
+cp "$DISTRO/rootfs/etc/modprobe.d/zdos.conf" "$ROOTFS/etc/modprobe.d/zdos.conf"
 cp "$DISTRO/rootfs/etc/zdos/organism.conf" "$ROOTFS/etc/zdos/organism.conf"
 chmod 0755 "$ROOTFS/init"
 chmod 0755 "$ROOTFS/home/zdos"
 chmod 0700 "$ROOTFS/var/lib/zdos/organism"
-chmod 0644 "$ROOTFS/etc/inittab" "$ROOTFS/etc/motd" "$ROOTFS/etc/passwd" "$ROOTFS/etc/group" "$ROOTFS/etc/profile" "$ROOTFS/etc/zdos/organism.conf"
+chmod 0644 "$ROOTFS/etc/inittab" "$ROOTFS/etc/motd" "$ROOTFS/etc/passwd" "$ROOTFS/etc/group" "$ROOTFS/etc/shadow" "$ROOTFS/etc/gshadow" "$ROOTFS/etc/profile" "$ROOTFS/etc/shells" "$ROOTFS/etc/securetty" "$ROOTFS/etc/os-release" "$ROOTFS/etc/fstab" "$ROOTFS/etc/hostname" "$ROOTFS/etc/hosts" "$ROOTFS/etc/resolv.conf" "$ROOTFS/etc/mdev.conf" "$ROOTFS/etc/sysctl.d/99-zdos-hardening.conf" "$ROOTFS/etc/modprobe.d/zdos.conf" "$ROOTFS/etc/zdos/organism.conf"
 
 if [ "$ZDOS_BUNDLE_ORGANISM" = 1 ]; then
   need python3
