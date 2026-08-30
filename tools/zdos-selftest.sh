@@ -5,6 +5,7 @@ ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 PYTHON_BIN="${PYTHON:-python3}"
 RUN_DISTRO=0
 RUN_QEMU=0
+STRICT=0
 FAILURES=0
 SKIPPED=0
 
@@ -18,11 +19,18 @@ Uso:
 Opzioni:
   --distro  costruisce e verifica l'ISO Linux ZDOS
   --qemu    esegue anche il test QEMU della distro
+  --strict  tratta ogni dipendenza mancante come FAIL invece di SKIP
 EOF
 }
 
 pass() { printf 'PASS  %s\n' "$1"; }
-skip() { SKIPPED=$((SKIPPED + 1)); printf 'SKIP  %s\n' "$1"; }
+skip() {
+  if [ "$STRICT" -eq 1 ]; then
+    fail "$1 (dipendenza mancante in modalità strict)"
+  else
+    SKIPPED=$((SKIPPED + 1)); printf 'SKIP  %s\n' "$1"
+  fi
+}
 fail() { FAILURES=$((FAILURES + 1)); printf 'FAIL  %s\n' "$1" >&2; }
 run_check() {
   local label="$1"
@@ -34,6 +42,7 @@ while [ "$#" -gt 0 ]; do
   case "$1" in
     --distro) RUN_DISTRO=1 ;;
     --qemu) RUN_QEMU=1 ;;
+    --strict) STRICT=1 ;;
     -h|--help) usage; exit 0 ;;
     *) printf 'Opzione non riconosciuta: %s\n' "$1" >&2; usage >&2; exit 2 ;;
   esac
