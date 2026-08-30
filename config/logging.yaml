@@ -1,0 +1,8 @@
+version: 1
+format: json
+default_level: info
+redact_fields:
+  - "password"
+  - "passphrase"
+  - "token"
+  - "secret"

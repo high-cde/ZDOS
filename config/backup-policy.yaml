@@ -1,0 +1,8 @@
+policy: "ZDOS Backup Policy"
+retention_days: 30
+targets:
+  - path: "/var/lib/zdos/identity"
+    type: "state"
+  - path: "/var/lib/zdos-node/evidence.jsonl"
+    type: "ledger"
+encryption_required: true
