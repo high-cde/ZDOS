@@ -1,0 +1,16 @@
+version: "1.0"
+policy:
+  name: "ZDOS Release Policy"
+  enforcement: "strict"
+  artifacts:
+    - type: "iso"
+      path: "distro/build/zdos-linux-x86_64.iso"
+      signature_required: true
+    - type: "ledger"
+      path: "evidence/evidence.jsonl"
+      signature_required: true
+  keys:
+    primary: "distro/keys/release-signing.pub"
+  approvals:
+    minimum_reviewers: 1
+    owners_required: true
