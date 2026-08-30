@@ -1,0 +1,11 @@
+name: Reproducibility Check
+on:
+  pull_request:
+    branches: [ main ]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build environment 1 and 2
+        run: echo "Build ripetuta per verifica degli hash (placeholder)"
