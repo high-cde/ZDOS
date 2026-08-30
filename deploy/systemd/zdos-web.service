@@ -1,0 +1,19 @@
+[Unit]
+Description=ZDOS Web Portal
+After=network.target
+
+[Service]
+Type=simple
+User=zdos-web
+WorkingDirectory=/srv/zdos/interface/web
+ExecStart=/usr/bin/node server/server.js
+Restart=on-failure
+EnvironmentFile=/etc/default/zdos-web
+# Sandbox options
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+
+[Install]
+WantedBy=multi-user.target

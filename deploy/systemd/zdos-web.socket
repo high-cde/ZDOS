@@ -1,0 +1,9 @@
+[Unit]
+Description=ZDOS Web Portal Socket
+
+[Socket]
+ListenStream=127.0.0.1:3000
+NoDelay=true
+
+[Install]
+WantedBy=sockets.target

@@ -1,0 +1,7 @@
+policy: "ZDOS Web Authentication Policy"
+mechanism: "jwt"
+mfa_required: true
+session_expiry: "1h"
+roles_supported:
+  - "readonly_observer"
+  - "administrator"
