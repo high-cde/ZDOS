@@ -1,0 +1,47 @@
+name: ZDOS security checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '23 3 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  secret-scan:
+    name: Scan repository for secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ZDOS
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc # v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  contract:
+    name: Verify production contracts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ZDOS
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - name: Validate shell and YAML contracts
+        run: |
+          bash -n distro/build.sh distro/rootfs/init distro/test-security-contract.sh tools/zdos-selftest.sh
+          test -s distro/sources.lock
+          test -s distro/release-policy.yaml
+          test -s config/logging.yaml
+          test -s config/backup-policy.yaml
+          test -s distro/rootfs/etc/os-release
+          test -s distro/rootfs/etc/fstab
+          test -s distro/rootfs/etc/sysctl.d/99-zdos-hardening.conf
+          test -s .github/CODEOWNERS
+          test -s .github/dependabot.yml
+          git diff --check

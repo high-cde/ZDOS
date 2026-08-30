@@ -1,0 +1,35 @@
+schema: zdos.release-policy/v1
+status: contract
+platform: x86_64
+channels:
+  preview:
+    source: github-release
+    require_signed_manifest: true
+    require_sha256: true
+    require_ci_success: true
+    require_qemu_boot: true
+    require_persistence_test: true
+  production:
+    source: signed-repository
+    require_signed_manifest: true
+    require_sbom: true
+    require_reproducible_build: true
+    require_rollback_plan: true
+artifacts:
+  - name: zdos-linux-x86_64.iso
+    profile: linux-initramfs
+  - name: zdos-baremetal-x86_64.iso
+    profile: multiboot2-zlb2
+verification:
+  hash_algorithm: sha256
+  public_key_source: github-environment:ZDOS_RELEASE_SIGNING_PUBLIC_KEY
+  manifest: RELEASE-MANIFEST.txt
+promotion:
+  protected_branch: main
+  required_workflows:
+    - Validate ZDOS
+    - Validate ZDOS connected microcosm
+  manual_approval_required: true
+secrets:
+  private_key: github-environment:ZDOS_RELEASE_SIGNING_KEY
+  never_commit: true

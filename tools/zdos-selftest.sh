@@ -69,12 +69,13 @@ printf 'ZDOS_SELFTEST_ZLANG_ROOT=%s\n' "$ZLANG_ROOT"
 
 run_check 'shell syntax' bash -n \
   distro/build.sh distro/prepare-persistence-modules.sh distro/rootfs/init \
-  distro/test-qemu.sh distro/test-organism-boot.sh distro/test-persistence-qemu.sh distro/test-security-contract.sh \
-  os/x86_64/update_and_build.sh os/x86_64/tools/verify_qemu.sh \
+  distro/test-qemu.sh distro/test-organism-boot.sh distro/test-persistence-qemu.sh distro/test-security-contract.sh distro/test-production-config.sh \
+  microcosm/zdos-microctl os/x86_64/tools/verify_qemu.sh distro/build.sh \
   tools/zdos-launcher.sh tools/zdos-selftest.sh
 run_check 'Python syntax' "$PYTHON_BIN" -m compileall -q commands evidence identity microcosm services zretro/ide
 run_check 'resident organism boot contract' bash distro/test-organism-boot.sh
 run_check 'distro security contract' bash distro/test-security-contract.sh
+run_check 'production configuration contract' bash distro/test-production-config.sh
 run_check 'ZRetro unit tests' "$PYTHON_BIN" -m unittest discover -s zretro/ide -p 'test_*.py'
 run_check 'ZRetro Castel Goblin manifests' bash -c '
   set -Eeuo pipefail

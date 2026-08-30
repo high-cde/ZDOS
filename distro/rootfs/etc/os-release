@@ -1,0 +1,12 @@
+NAME="ZDOS Linux"
+ID=zdos
+ID_LIKE=linux
+PRETTY_NAME="ZDOS Linux"
+VERSION_ID="0.2"
+VERSION="0.2"
+VERSION_CODENAME="preview"
+HOME_URL="https://github.com/high-cde/ZDOS"
+SUPPORT_URL="https://github.com/high-cde/ZDOS/issues"
+BUG_REPORT_URL="https://github.com/high-cde/ZDOS/issues"
+ZDOS_PROFILE="linux-x86_64"
+ZDOS_MATURITY="M2-reproducible"
