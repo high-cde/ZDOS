@@ -29,7 +29,7 @@ kernel: $(KERNEL)
 
 $(PROGRAM_HEADER): $(PROGRAM) $(ZLANGC)
 	@mkdir -p $(GENERATED_DIR) $(dir $(PROGRAM_BYTECODE))
-	$(PYTHON) $(ZLANGC) $(PROGRAM) --header $(PROGRAM_HEADER) --bytecode $(PROGRAM_BYTECODE)
+	$(PYTHON) $(ZLANGC) $(PROGRAM) --target zdos-x86_64 --header $(PROGRAM_HEADER) --bytecode $(PROGRAM_BYTECODE)
 
 $(BUILD)/boot/boot.o: boot/boot.S
 	@mkdir -p $(dir $@)

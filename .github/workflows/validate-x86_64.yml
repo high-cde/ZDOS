@@ -28,6 +28,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends gcc binutils make grub-pc-bin xorriso mtools qemu-system-x86 python3 php-cli curl
 
+      - name: Verify repository hygiene
+        run: bash scripts/check-repository-hygiene.sh
+
+      - name: Validate ZLB2 bootstrap contract
+        run: python3 -m unittest discover -s os/x86_64/tools -p 'test_*.py' -v
+
       - name: Validate resident organism boot hook
         run: bash distro/test-organism-boot.sh
 

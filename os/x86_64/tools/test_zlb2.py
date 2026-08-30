@@ -6,7 +6,8 @@ import re
 import sys
 from pathlib import Path
 
-KNOWN_OPCODES = {1, 2, 3, 4, 5, 0xFF}
+# Keep this allowlist identical to kernel/zlang.c for the bootstrap target.
+KNOWN_OPCODES = {0x01, 0xFF}
 
 
 def load_bytes(header: Path) -> bytes:

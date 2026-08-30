@@ -15,11 +15,6 @@ extern void serial_write_char(char c);
 #define ZLB2_RECORD_HEADER_SIZE 3u
 #define ZLB2_HALT 0xff
 #define ZLB2_EMIT 0x01
-#define ZLB2_LET 0x02
-#define ZLB2_IF 0x03
-#define ZLB2_LABEL 0x04
-#define ZLB2_WAIT 0x05
-#define ZLB2_STORAGE_READ 0x06
 
 static uint16_t read_u16_le(const uint8_t *p) {
     return (uint16_t)p[0] | ((uint16_t)p[1] << 8);
@@ -36,10 +31,8 @@ static int has_magic_and_version(const uint8_t *program, size_t length) {
 }
 
 static int known_opcode(uint8_t opcode) {
-    return opcode == ZLB2_EMIT || opcode == ZLB2_LET ||
-           opcode == ZLB2_IF || opcode == ZLB2_LABEL ||
-           opcode == ZLB2_WAIT || opcode == ZLB2_STORAGE_READ ||
-           opcode == ZLB2_HALT;
+    /* The bootstrap target accepts only opcodes with executable semantics. */
+    return opcode == ZLB2_EMIT || opcode == ZLB2_HALT;
 }
 
 static void emit_payload(const uint8_t *payload, uint16_t length) {
@@ -49,9 +42,9 @@ static void emit_payload(const uint8_t *payload, uint16_t length) {
     serial_write_char('\n');
 }
 
-/* Execute the compiler-generated ZLB2 buffer. Only EMIT has an observable
- * effect in this bootstrap; the remaining v2.5 records are validated and
- * skipped until their capability implementations are introduced. */
+/* Execute the compiler-generated ZLB2 buffer. This bootstrap target is
+ * intentionally restricted to EMIT and terminal HALT. Any future capability
+ * must be implemented and tested before it is accepted by known_opcode(). */
 void zlang_run(void) {
     const uint8_t *program = zlang_bytecode;
     const size_t length = sizeof(zlang_bytecode);
@@ -85,9 +78,6 @@ void zlang_run(void) {
         offset = payload_start + payload_length;
         if (opcode == ZLB2_EMIT) {
             emit_payload(program + payload_start, payload_length);
-        } else if (opcode == ZLB2_STORAGE_READ) {
-            serial_write_string("ZDOS: storage.read capability requires Linux bridge\n");
-            return;
         } else if (opcode == ZLB2_HALT) {
             if (payload_length != 0u || offset != length) {
                 serial_write_string("ZDOS: ZLB2 invalid HALT\n");
