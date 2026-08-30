@@ -1,0 +1,6 @@
+policy: "ZDOS Rollback Policy"
+mechanism: "A/B_slots"
+conditions:
+  - "boot_failure"
+  - "kernel_panic"
+boot_attempts_before_rollback: 3
