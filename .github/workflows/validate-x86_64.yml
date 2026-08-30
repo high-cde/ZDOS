@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           repository: high-cde/Zlang
-          ref: 74958a3452897694f022ebfc8e2097702f3ba73a # compatibile con storage.read-v1
+          ref: 65e5c41f9b28b349c9ba18cda26b4ea8d5125833 # compatibile con il target zdos-x86_64
           path: Zlang
 
       - name: Install build and emulation tools
