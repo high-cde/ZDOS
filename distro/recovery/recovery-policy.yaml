@@ -1,0 +1,6 @@
+policy: "ZDOS Recovery Policy"
+access: "explicit_authorization_required"
+support_media: "usb"
+features:
+  - "reset_to_factory"
+  - "export_diagnostic_bundle"
