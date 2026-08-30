@@ -20,13 +20,19 @@ jobs:
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           repository: high-cde/Zlang
-          ref: 74958a3452897694f022ebfc8e2097702f3ba73a # compatibile con storage.read-v1
+          ref: 65e5c41f9b28b349c9ba18cda26b4ea8d5125833 # compatibile con il target zdos-x86_64
           path: Zlang
 
       - name: Install build and emulation tools
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends gcc binutils make grub-pc-bin xorriso mtools qemu-system-x86 python3 php-cli curl
+
+      - name: Verify repository hygiene
+        run: bash scripts/check-repository-hygiene.sh
+
+      - name: Validate ZLB2 bootstrap contract
+        run: python3 -m unittest discover -s os/x86_64/tools -p 'test_*.py' -v
 
       - name: Validate resident organism boot hook
         run: bash distro/test-organism-boot.sh
@@ -60,6 +66,13 @@ jobs:
           ref: 74958a3452897694f022ebfc8e2097702f3ba73a # compatibile con storage.read-v1
           path: Zlang
 
+      - name: Checkout Zlang compiler for bare-metal target
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          repository: high-cde/Zlang
+          ref: 65e5c41f9b28b349c9ba18cda26b4ea8d5125833 # compatibile con il target zdos-x86_64
+          path: Zlang-x86
+
       - name: Install Linux distro build tools
         run: |
           sudo apt-get update
@@ -68,6 +81,7 @@ jobs:
       - name: Run strict Linux distro gate
         env:
           ZDOS_ZLANG_ROOT: ${{ github.workspace }}/Zlang
+          ZDOS_ZLANGC: ${{ github.workspace }}/Zlang-x86/tools/zlangc.py
         run: ./tools/zdos-selftest.sh --all
 
       - name: Upload Linux ISO and checksum

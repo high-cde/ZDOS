@@ -58,3 +58,12 @@ Thumbs.db
 # ZRetro generated target packages and IR
 /zretro/projects/*/build/*
 !/zretro/projects/*/build/.gitkeep
+
+# Reproducible build and release artifacts
+/target/
+/distro/build/
+/os/x86_64/build/
+/artifacts/release/
+*.iso
+*.img
+*.zlb

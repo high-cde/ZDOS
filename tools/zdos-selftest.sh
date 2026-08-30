@@ -4,6 +4,7 @@ set -Eeuo pipefail
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 PYTHON_BIN="${PYTHON:-python3}"
 ZLANG_ROOT="${ZDOS_ZLANG_ROOT:-$ROOT/../Zlang}"
+ZLANGC="${ZDOS_ZLANGC:-$ZLANG_ROOT/tools/zlangc.py}"
 RUN_DISTRO=0
 RUN_QEMU=0
 STRICT=0
@@ -66,6 +67,7 @@ done
 cd "$ROOT"
 printf 'ZDOS_SELFTEST_ROOT=%s\n' "$ROOT"
 printf 'ZDOS_SELFTEST_ZLANG_ROOT=%s\n' "$ZLANG_ROOT"
+printf 'ZDOS_SELFTEST_ZLANGC=%s\n' "$ZLANGC"
 
 run_check 'shell syntax' bash -n \
   distro/build.sh distro/prepare-persistence-modules.sh distro/rootfs/init \
@@ -110,8 +112,8 @@ else
 fi
 
 if has_commands make gcc grub-file; then
-  if [ -d "$ZLANG_ROOT" ] && [ -f "$ZLANG_ROOT/tools/zlangc.py" ]; then
-    run_check 'x86_64 kernel verification' env ZLANGC="$ZLANG_ROOT/tools/zlangc.py" bash -c 'cd os/x86_64 && make clean verify'
+  if [ -f "$ZLANGC" ]; then
+    run_check 'x86_64 kernel verification' env ZLANGC="$ZLANGC" bash -c 'cd os/x86_64 && make clean verify'
   else
     skip 'x86_64 kernel verification (Zlang non disponibile)'
   fi
