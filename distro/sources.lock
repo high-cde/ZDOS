@@ -1,0 +1,12 @@
+# Input binari approvati per la build riproducibile di ZDOS Linux.
+# Qualsiasi override deve fornire il relativo SHA-256 tramite variabile ZDOS_*_SHA256.
+ZDOS_LOCK_BUSYBOX_VERSION=1.36.1
+ZDOS_LOCK_BUSYBOX_URL=https://busybox.net/downloads/busybox-1.36.1.tar.bz2
+ZDOS_LOCK_BUSYBOX_SHA256=b8cc24c9574d809e7279c3be349795c5d5ceb6fdf19ca709f80cde50e47de314
+
+ZDOS_LOCK_KERNEL_RELEASE=6.1.0-50-amd64
+ZDOS_LOCK_KERNEL_URL=https://deb.debian.org/debian/dists/bookworm/main/installer-amd64/current/images/netboot/debian-installer/amd64/linux
+ZDOS_LOCK_KERNEL_SHA256=d8808aa4ca188560da1e6d749dcb930c87a5fd8b11ebff1f3fa6d728af35203d
+
+ZDOS_LOCK_KERNEL_PACKAGE_URL=https://deb.debian.org/debian/pool/main/l/linux/linux-image-6.1.0-50-amd64-unsigned_6.1.176-1_amd64.deb
+ZDOS_LOCK_KERNEL_PACKAGE_SHA256=439422e41d2dbb840b60b81e3bf5e5955bfa56b7a8c268aec83c9ff882d421e6

@@ -14,41 +14,46 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout ZDOS
-        uses: actions/checkout@v4
-      - name: Checkout canonical Zlang dependency
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Checkout pinned Zlang dependency
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: high-cde/Zlang
-          ref: main
+          ref: 8a860454c7ed607f92dc517583902255bb546eb6 # v2026.2.0
           path: Zlang
           fetch-depth: 1
+
       - name: Checkout zdos-organism for workspace inspection
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: high-cde/zdos-organism
-          ref: main
+          ref: e70a465f7c7eb8655f08e4003bfa1eb47ef386f9
           path: zdos-organism
           filter: blob:none
           sparse-checkout: README.md
           fetch-depth: 1
+
       - name: Checkout SEC Portal for workspace inspection
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: high-cde/ZDOS-SEC-PORTAL
-          ref: main
+          ref: 47247dfd3eff79fbd0078b4187547dba37ac4818
           path: ZDOS-SEC-PORTAL
           filter: blob:none
           sparse-checkout: README.md
           fetch-depth: 1
+
       - name: Checkout Cybercore for workspace inspection
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: high-cde/Z-CYBERCORE
-          ref: main
+          ref: e8637a4e59e454a0b8bc0f748d4ed0d9bd5de4a0
           path: Z-CYBERCORE
           filter: blob:none
           sparse-checkout: README.md
           fetch-depth: 1
+
       - name: Run connected-microcosm tests
         env:
           ZDOS_ZLANG_ROOT: ${{ github.workspace }}/Zlang
@@ -58,6 +63,7 @@ jobs:
         env:
           ZDOS_MICROCOSM_WORKSPACE: ${{ github.workspace }}
         run: ./microcosm/zdos-microctl inspect
+
       - name: Assert external checkout presence and cleanliness
         run: |
           test -d Zlang && test -d zdos-organism && test -d ZDOS-SEC-PORTAL && test -d Z-CYBERCORE

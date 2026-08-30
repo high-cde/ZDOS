@@ -43,6 +43,7 @@ fi
 if command -v insmod >/dev/null 2>&1; then
   module_root=/lib/modules/$(uname -r)/kernel
   for module_path in \
+    "$module_root/drivers/virtio/virtio.ko" \
     "$module_root/drivers/virtio/virtio_pci_modern_dev.ko" \
     "$module_root/drivers/virtio/virtio_pci_legacy_dev.ko" \
     "$module_root/drivers/virtio/virtio_pci.ko" \
@@ -157,10 +158,21 @@ if [ -n "$persistence_test" ] && [ -n "$persistence_device" ]; then
   fi
 fi
 
-# Native ZDOS console defaults; do not depend on login-shell profile loading.
+# The live image starts as an unprivileged operator. Root recovery is an explicit
+# local boot decision and is never enabled by a passwordless default account.
 export ZDOS_CONSOLE=1
 export HOME=/home/zdos
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin
 cd /
-export PS1='x@zdos ${PWD} # '
+if [ "$(get_cmdline_value zdos.insecure_root_shell || true)" = 1 ]; then
+  export PS1='x@zdos ${PWD} # '
+  printf 'ZDOS_CONSOLE_USER=root mode=recovery\n'
+  exec /bin/sh
+fi
+export PS1='x@zdos ${PWD} $ '
+printf 'ZDOS_CONSOLE_USER=zdos mode=unprivileged\n'
+if command -v su >/dev/null 2>&1; then
+  exec su -p -s /bin/sh zdos
+fi
+printf 'ZDOS_CONSOLE_HALTED reason=privilege-drop-unavailable\n' >&2
 exec /bin/sh

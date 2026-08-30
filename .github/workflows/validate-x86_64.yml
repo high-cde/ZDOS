@@ -1,4 +1,4 @@
-name: Validate ZDOS x86_64
+name: Validate ZDOS
 
 on:
   push:
@@ -10,22 +10,23 @@ permissions:
 
 jobs:
   bootable-prototype:
-    name: Build and boot ZDOS x86_64
+    name: Build and boot ZDOS bare metal
     runs-on: ubuntu-latest
     steps:
       - name: Checkout ZDOS
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - name: Checkout canonical Zlang compiler
-        uses: actions/checkout@v4
+      - name: Checkout pinned Zlang compiler
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: high-cde/Zlang
+          ref: 8a860454c7ed607f92dc517583902255bb546eb6 # v2026.2.0
           path: Zlang
 
       - name: Install build and emulation tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc binutils make grub-pc-bin xorriso mtools qemu-system-x86 python3 php-cli curl
+          sudo apt-get install -y --no-install-recommends gcc binutils make grub-pc-bin xorriso mtools qemu-system-x86 python3 php-cli curl
 
       - name: Validate resident organism boot hook
         run: bash distro/test-organism-boot.sh
@@ -45,19 +46,66 @@ jobs:
           ZLANGC: ${{ github.workspace }}/Zlang/tools/zlangc.py
         run: sh os/x86_64/tools/verify_qemu.sh
 
-  web-contract:
-    name: Validate ZDOS web telemetry contract
+  linux-distro:
+    name: Build and verify ZDOS Linux
     runs-on: ubuntu-latest
     steps:
       - name: Checkout ZDOS
-        uses: actions/checkout@v4
-      - name: Install web checks
-        run: sudo apt-get update && sudo apt-get install -y php-cli curl
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Checkout pinned Zlang compiler
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: high-cde/Zlang
+          ref: 8a860454c7ed607f92dc517583902255bb546eb6 # v2026.2.0
+          path: Zlang
+
+      - name: Install Linux distro build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends bzip2 cpio e2fsprogs file gcc grub-pc-bin mtools qemu-system-x86 qemu-utils xorriso
+
+      - name: Run strict Linux distro gate
+        env:
+          ZDOS_ZLANG_ROOT: ${{ github.workspace }}/Zlang
+        run: ./tools/zdos-selftest.sh --all
+
+      - name: Upload Linux ISO and checksum
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: zdos-linux-x86_64
+          path: |
+            distro/build/zdos-linux-x86_64.iso
+            distro/build/zdos-linux-x86_64.iso.sha256
+          if-no-files-found: error
+
+  web-contract:
+    name: Validate ZDOS web interfaces
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout ZDOS
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: interface/web/package-lock.json
+
+      - name: Install and audit web dependencies
+        working-directory: interface/web
+        run: |
+          npm ci --ignore-scripts
+          npm run check
+          npm audit --omit=dev --audit-level=low
+
       - name: Validate scripts and PHP
         run: |
           bash -n scripts/setup_all.sh
           bash -n os/x86_64/update_and_build.sh
           php -l web/backend/api.php
+
       - name: Serve and query local telemetry
         run: |
           php -S 127.0.0.1:8088 -t web >/tmp/zdos-php.log 2>&1 &

@@ -2,6 +2,9 @@
 Description=ZDOS Resident Organism Supervisor
 After=local-fs.target
 ConditionPathExists=/usr/local/lib/zdos/organism/main.zlang
+ConditionPathExists=/usr/local/lib/zdos/organism/zdos-organismd.py
+StartLimitIntervalSec=60
+StartLimitBurst=3
 
 [Service]
 Type=simple
@@ -14,12 +17,31 @@ Environment=ZDOS_ZLANG_ROOT=/usr/local/lib/zdos/Zlang
 ExecStart=/usr/bin/python3 /usr/local/lib/zdos/organism/zdos-organismd.py
 Restart=on-failure
 RestartSec=5
+UMask=0077
 NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
 PrivateTmp=yes
+PrivateDevices=yes
 ProtectSystem=strict
 ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectHostname=yes
+ProtectClock=yes
+ProtectProc=invisible
+ProcSubset=pid
 ReadWritePaths=/var/lib/zdos/organism
 RestrictAddressFamilies=AF_UNIX
+IPAddressDeny=any
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+RemoveIPC=yes
+SystemCallArchitectures=native
 
 [Install]
 WantedBy=multi-user.target

@@ -6,41 +6,88 @@ DISTRO="$ROOT/distro"
 BUILD="${ZDOS_BUILD_DIR:-$DISTRO/build}"
 SOURCES="$BUILD/sources"
 ROOTFS="$BUILD/rootfs"
+LOCKFILE="$DISTRO/sources.lock"
 JOBS="${JOBS:-$(nproc)}"
 ZDOS_BUNDLE_ORGANISM="${ZDOS_BUNDLE_ORGANISM:-1}"
 ZDOS_ZLANG_ROOT="${ZDOS_ZLANG_ROOT:-$ROOT/../Zlang}"
-BUSYBOX_VERSION="${BUSYBOX_VERSION:-1.36.1}"
-BUSYBOX_TARBALL="$SOURCES/busybox-${BUSYBOX_VERSION}.tar.bz2"
-BUSYBOX_URL="https://busybox.net/downloads/busybox-${BUSYBOX_VERSION}.tar.bz2"
-# Bootstrap kernel: small, prebuilt Debian netboot kernel. Replace with a locally
-# built Linux bzImage using ZDOS_KERNEL for a fully source-reproducible release.
-ZDOS_KERNEL="${ZDOS_KERNEL:-$BUILD/vmlinuz}"
-ZDOS_KERNEL_URL="${ZDOS_KERNEL_URL:-https://deb.debian.org/debian/dists/bookworm/main/installer-amd64/current/images/netboot/debian-installer/amd64/linux}"
-ZDOS_MODULES_DIR="${ZDOS_MODULES_DIR:-/lib/modules/$(uname -r)}"
 
 need() { command -v "$1" >/dev/null 2>&1 || { echo "missing required command: $1" >&2; exit 1; }; }
-for tool in curl make gcc cpio gzip file xorriso grub-mkrescue; do need "$tool"; done
-mkdir -p "$SOURCES" "$BUILD"
+for tool in bzip2 curl make gcc cpio gzip file xorriso grub-mkrescue sha256sum; do need "$tool"; done
+test -r "$LOCKFILE" || { echo "missing source lockfile: $LOCKFILE" >&2; exit 1; }
+# shellcheck source=sources.lock
+. "$LOCKFILE"
 
-if [ ! -s "$ZDOS_KERNEL" ]; then
-  echo "Downloading bootstrap Linux kernel"
-  curl --fail --location --retry 3 --output "$ZDOS_KERNEL" "$ZDOS_KERNEL_URL"
-fi
+BUSYBOX_VERSION="${BUSYBOX_VERSION:-$ZDOS_LOCK_BUSYBOX_VERSION}"
+BUSYBOX_TARBALL="$SOURCES/busybox-${BUSYBOX_VERSION}.tar.bz2"
+BUSYBOX_URL="${BUSYBOX_URL:-$ZDOS_LOCK_BUSYBOX_URL}"
+BUSYBOX_SHA256="${BUSYBOX_SHA256:-$ZDOS_LOCK_BUSYBOX_SHA256}"
+# Bootstrap kernel is intentionally locked. A release build must update the
+# lockfile with reviewed hashes rather than silently accepting moving inputs.
+ZDOS_KERNEL="${ZDOS_KERNEL:-$BUILD/vmlinuz}"
+ZDOS_KERNEL_URL="${ZDOS_KERNEL_URL:-$ZDOS_LOCK_KERNEL_URL}"
+ZDOS_KERNEL_SHA256="${ZDOS_KERNEL_SHA256:-$ZDOS_LOCK_KERNEL_SHA256}"
+ZDOS_MODULES_DIR="${ZDOS_MODULES_DIR:-}"
+
+verify_sha256() {
+  local path="$1" expected="$2" actual
+  [[ "$expected" =~ ^[0-9a-fA-F]{64}$ ]] || { echo "invalid SHA-256 for $path" >&2; exit 1; }
+  actual=$(sha256sum "$path" | awk '{print $1}')
+  [ "$actual" = "$expected" ] || {
+    echo "SHA-256 mismatch for $path" >&2
+    echo "expected=$expected actual=$actual" >&2
+    exit 1
+  }
+}
+
+fetch_verified() {
+  local url="$1" out="$2" expected="$3" temporary
+  if [ -s "$out" ]; then
+    verify_sha256 "$out" "$expected"
+    return
+  fi
+  temporary="${out}.tmp.$$"
+  trap 'rm -f "$temporary"' RETURN
+  curl --fail --location --retry 3 --proto '=https' --tlsv1.2 --output "$temporary" "$url"
+  verify_sha256 "$temporary" "$expected"
+  mv "$temporary" "$out"
+  trap - RETURN
+}
+
+mkdir -p "$SOURCES" "$BUILD"
+fetch_verified "$ZDOS_KERNEL_URL" "$ZDOS_KERNEL" "$ZDOS_KERNEL_SHA256"
 KERNEL_RELEASE=$(file "$ZDOS_KERNEL" | sed -n 's/.*version \([^ ]*\).*/\1/p')
-if [ -n "$KERNEL_RELEASE" ] && [ -d "$ZDOS_MODULES_DIR" ]; then
-  MODULES_RELEASE=$(basename "$ZDOS_MODULES_DIR")
-  if [ "$KERNEL_RELEASE" != "$MODULES_RELEASE" ]; then
-    echo "kernel/modules mismatch: kernel=$KERNEL_RELEASE modules=$MODULES_RELEASE" >&2
-    echo "set ZDOS_MODULES_DIR to modules matching ZDOS_KERNEL" >&2
+test -n "$KERNEL_RELEASE" || { echo "unable to determine kernel release: $ZDOS_KERNEL" >&2; exit 1; }
+
+if [ -z "$ZDOS_MODULES_DIR" ]; then
+  host_modules="/lib/modules/$KERNEL_RELEASE"
+  if [ -d "$host_modules" ]; then
+    ZDOS_MODULES_DIR="$host_modules"
+  elif [ "$KERNEL_RELEASE" = "$ZDOS_LOCK_KERNEL_RELEASE" ]; then
+    auto_modules_root="$BUILD/kernel-modules-slim"
+    auto_modules_dir="$auto_modules_root/lib/modules/$KERNEL_RELEASE"
+    if [ ! -d "$auto_modules_dir" ]; then
+      ZDOS_KERNEL="$ZDOS_KERNEL" ZDOS_MODULES_DIR="$auto_modules_root" "$DISTRO/prepare-persistence-modules.sh"
+    fi
+    ZDOS_MODULES_DIR="$auto_modules_dir"
+  else
+    echo "kernel modules are unavailable for kernel=$KERNEL_RELEASE" >&2
+    echo "set ZDOS_MODULES_DIR to a matching module directory" >&2
     exit 1
   fi
 fi
 
-fetch() {
-  local url="$1" out="$2"
-  [ -s "$out" ] || curl --fail --location --retry 3 --output "$out" "$url"
-}
-fetch "$BUSYBOX_URL" "$BUSYBOX_TARBALL"
+if [ ! -d "$ZDOS_MODULES_DIR" ]; then
+  echo "kernel modules directory not found: $ZDOS_MODULES_DIR" >&2
+  exit 1
+fi
+MODULES_RELEASE=$(basename "$ZDOS_MODULES_DIR")
+if [ "$KERNEL_RELEASE" != "$MODULES_RELEASE" ]; then
+  echo "kernel/modules mismatch: kernel=$KERNEL_RELEASE modules=$MODULES_RELEASE" >&2
+  echo "set ZDOS_MODULES_DIR to modules matching ZDOS_KERNEL" >&2
+  exit 1
+fi
+
+fetch_verified "$BUSYBOX_URL" "$BUSYBOX_TARBALL" "$BUSYBOX_SHA256"
 if [ ! -d "$BUILD/busybox-${BUSYBOX_VERSION}" ]; then tar -xf "$BUSYBOX_TARBALL" -C "$BUILD"; fi
 BUSYBOX="$BUILD/busybox-${BUSYBOX_VERSION}"
 if [ ! -f "$BUSYBOX/.zdos-configured" ] || ! grep -q '^CONFIG_BLKID=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_FEATURE_VOLUMEID_EXT=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_MODPROBE_SMALL=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_MDEV=y' "$BUSYBOX/.config" || grep -q '^CONFIG_TC=y' "$BUSYBOX/.config"; then
@@ -78,14 +125,12 @@ make -C "$BUSYBOX" -j"$JOBS"
 rm -rf "$ROOTFS"
 mkdir -p "$ROOTFS"
 make -C "$BUSYBOX" CONFIG_PREFIX="$ROOTFS" install
-if [ -d "$ZDOS_MODULES_DIR" ]; then
-  mkdir -p "$ROOTFS/lib/modules"
-  cp -a "$ZDOS_MODULES_DIR" "$ROOTFS/lib/modules/"
-  if command -v depmod >/dev/null 2>&1; then
-    depmod -b "$ROOTFS" "$(basename "$ZDOS_MODULES_DIR")" 2>/dev/null || true
-  fi
+mkdir -p "$ROOTFS/lib/modules"
+cp -a "$ZDOS_MODULES_DIR" "$ROOTFS/lib/modules/"
+if command -v depmod >/dev/null 2>&1; then
+  depmod -b "$ROOTFS" "$KERNEL_RELEASE" 2>/dev/null || true
 fi
-mkdir -p "$ROOTFS/etc" "$ROOTFS/etc/zdos" "$ROOTFS/dev" "$ROOTFS/proc" "$ROOTFS/sys" "$ROOTFS/run" "$ROOTFS/tmp" "$ROOTFS/root"
+mkdir -p "$ROOTFS/etc" "$ROOTFS/etc/zdos" "$ROOTFS/dev" "$ROOTFS/proc" "$ROOTFS/sys" "$ROOTFS/run" "$ROOTFS/tmp" "$ROOTFS/root" "$ROOTFS/home/zdos" "$ROOTFS/var/lib/zdos/organism"
 cp "$DISTRO/rootfs/init" "$ROOTFS/init"
 cp "$DISTRO/rootfs/etc/inittab" "$ROOTFS/etc/inittab"
 cp "$DISTRO/rootfs/etc/motd" "$ROOTFS/etc/motd"
@@ -93,13 +138,17 @@ cp "$DISTRO/rootfs/etc/passwd" "$ROOTFS/etc/passwd"
 cp "$DISTRO/rootfs/etc/group" "$ROOTFS/etc/group"
 cp "$DISTRO/rootfs/etc/profile" "$ROOTFS/etc/profile"
 cp "$DISTRO/rootfs/etc/zdos/organism.conf" "$ROOTFS/etc/zdos/organism.conf"
+chmod 0755 "$ROOTFS/init"
+chmod 0755 "$ROOTFS/home/zdos"
+chmod 0700 "$ROOTFS/var/lib/zdos/organism"
+chmod 0644 "$ROOTFS/etc/inittab" "$ROOTFS/etc/motd" "$ROOTFS/etc/passwd" "$ROOTFS/etc/group" "$ROOTFS/etc/profile" "$ROOTFS/etc/zdos/organism.conf"
 
 if [ "$ZDOS_BUNDLE_ORGANISM" = 1 ]; then
   need python3
   test -f "$ZDOS_ZLANG_ROOT/tools/zlangc.py" || { echo "missing Zlang compiler: $ZDOS_ZLANG_ROOT/tools/zlangc.py" >&2; exit 1; }
   PYTHON_BIN=$(readlink -f "$(command -v python3)")
   PYTHON_STDLIB=$(python3 -c 'import sysconfig; print(sysconfig.get_path("stdlib"))')
-  mkdir -p "$ROOTFS/usr/bin" "$ROOTFS/usr/lib/zdos/Zlang/tools" "$ROOTFS/usr/share" "$ROOTFS/var/lib/zdos/organism"
+  mkdir -p "$ROOTFS/usr/bin" "$ROOTFS/usr/lib/zdos/Zlang/tools" "$ROOTFS/usr/share"
   cp -L "$PYTHON_BIN" "$ROOTFS/usr/bin/python3"
   cp -a "$PYTHON_STDLIB" "$ROOTFS/usr/lib/"
   cp "$ROOT/services/zdos-organismd.py" "$ROOTFS/usr/lib/zdos/zdos-organismd.py"
@@ -111,10 +160,9 @@ if [ "$ZDOS_BUNDLE_ORGANISM" = 1 ]; then
     cp -L "$library" "$ROOTFS$library"
   done
 fi
-chmod 0755 "$ROOTFS/init"
 ln -sf /proc/mounts "$ROOTFS/etc/mtab"
 rm -f "$BUILD/initramfs.cpio.gz"
-( cd "$ROOTFS" && find . -print0 | cpio --null -ov --format=newc 2>/dev/null | gzip -9 > "$BUILD/initramfs.cpio.gz" )
+( cd "$ROOTFS" && find . -print0 | LC_ALL=C sort -z | cpio --null -ov --owner=0:0 --format=newc 2>/dev/null | gzip -n -9 > "$BUILD/initramfs.cpio.gz" )
 ISO_DIR="$BUILD/iso"
 rm -rf "$ISO_DIR"
 mkdir -p "$ISO_DIR/boot/grub"
@@ -133,3 +181,6 @@ menuentry "ZDOS Linux" {
 EOF
 grub-mkrescue -o "$BUILD/zdos-linux-x86_64.iso" "$ISO_DIR" >/dev/null
 printf 'ZDOS_ISO=%s\n' "$BUILD/zdos-linux-x86_64.iso"
+printf 'ZDOS_KERNEL_RELEASE=%s\n' "$KERNEL_RELEASE"
+printf 'ZDOS_MODULES_DIR=%s\n' "$ZDOS_MODULES_DIR"
+sha256sum "$BUILD/zdos-linux-x86_64.iso" > "$BUILD/zdos-linux-x86_64.iso.sha256"

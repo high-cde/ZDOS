@@ -1,5 +1,17 @@
 {
+  "name": "zdos-interface-web",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Interfaccia web locale in sola lettura per ZDOS",
+  "main": "server/server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server/server.js",
+    "check": "node --check server/server.js"
+  },
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "5.2.1"
   }
 }

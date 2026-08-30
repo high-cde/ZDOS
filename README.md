@@ -120,7 +120,7 @@ Le caratteristiche attuali sono:
 |---|---|
 | Userspace | BusyBox statico con shell e utility essenziali |
 | Init | Script POSIX `/init` con fallback `live-only` |
-| Console | `ttyS0` per QEMU e console virtuale |
+| Console | `ttyS0` per QEMU e console virtuale; sessione `zdos` non privilegiata per default |
 | Networking | Tentativo DHCP su `eth0`, non garantito |
 | Storage | ext4 opzionale, identificato da UUID |
 | Boot | ISO GRUB BIOS e avvio diretto kernel/initramfs in QEMU |
@@ -475,6 +475,7 @@ Consulta [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md), [`C
 | Risorsa | Scopo |
 |---|---|
 | [`distro/README.md`](distro/README.md) | Build Linux e persistent-storage-v1 |
+| [`distro/PRODUCTION.md`](distro/PRODUCTION.md) | Gate, verifica artefatti e limiti di readiness operativa |
 | [`evidence/README.md`](evidence/README.md) | Contratto Evidence Chain |
 | [`docs/ECOSYSTEM.md`](docs/ECOSYSTEM.md) | Mappa dei repository e dei contratti |
 | [`docs/OPERATIONS.md`](docs/OPERATIONS.md) | Build, boot, CI, troubleshooting e release |

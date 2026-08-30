@@ -27,19 +27,19 @@ Dalla radice del repository:
 ./distro/build.sh
 ```
 
-Il processo scarica sorgenti versionate di Linux e BusyBox, compila il kernel e BusyBox in modo statico, genera l'initramfs e crea `build/zdos-linux-x86_64.iso`.
+Il processo verifica contro `sources.lock` il kernel Debian, il pacchetto dei moduli ABI-coerenti e BusyBox; compila BusyBox in modo statico, genera l'initramfs e crea `build/zdos-linux-x86_64.iso` con il relativo checksum SHA-256. Il kernel è un input binario bloccato: non viene compilato localmente.
 
-Per il test automatico:
+Per il gate completo di build, persistenza e boot:
 
 ```sh
-./distro/test-qemu.sh
+./tools/zdos-selftest.sh --all
 ```
 
-Il test termina quando rileva `ZDOS_READY` sulla console seriale oppure restituisce errore se il guest non esegue il percorso di init.
+Il gate verifica il boot in console non privilegiata, due boot con persistenza ext4 e la pulizia del filesystem. Il test isolato di console resta disponibile con `./distro/test-qemu.sh`.
 
 ## Milestone 0.2
 
-La milestone 0.2 aggiunge una base userspace più reale. Sono presenti gli account `root` e `zdos`, i gruppi di sistema, il tentativo automatico DHCP su `eth0` tramite BusyBox `udhcpc` e il mount opzionale di `/dev/vda1` su `/mnt/data`. L'immagine live continua ad avviarsi anche quando non è disponibile una scheda di rete o un disco persistente.
+La milestone 0.2 aggiunge una base userspace più reale. Sono presenti gli account `root` e `zdos`, i gruppi di sistema, il tentativo automatico DHCP su `eth0` tramite BusyBox `udhcpc` e il mount opzionale di `/dev/vda1` su `/mnt/data`. L’account root è bloccato e la console live viene avviata come `zdos`; una shell root è consentita solo tramite l’opzione esplicita di recovery `zdos.insecure_root_shell=1`. L'immagine live continua ad avviarsi anche quando non è disponibile una scheda di rete o un disco persistente.
 
 ## Persistent storage v1
 
@@ -69,4 +69,4 @@ La milestone Linux corrente è classificata **M2 — Reproducible**: produce una
 
 ## Requisiti
 
-Sono necessari `gcc`, `make`, `bc`, `bison`, `flex`, `openssl`, `elfutils`, `cpio`, `gzip`, `xorriso`, `mtools`, `grub-mkrescue`, `qemu-img`, `mkfs.ext4` e `qemu-system-x86_64`.
+Sono necessari `bzip2`, `curl`, `gcc`, `make`, `cpio`, `gzip`, `file`, `sha256sum`, `xorriso`, `mtools`, `grub-mkrescue`, `qemu-img`, `mkfs.ext4`, `e2fsck`, `debugfs` e `qemu-system-x86_64`. Per limiti e procedura di verifica dell’artefatto, consultare [`PRODUCTION.md`](PRODUCTION.md).

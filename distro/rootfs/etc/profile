@@ -4,4 +4,4 @@ export PATH=/bin:/sbin:/usr/bin:/usr/sbin
 export HOME=/home/zdos
 export PAGER=cat
 cd /
-PS1='x@zdos ${PWD} # '
+PS1='x@zdos ${PWD} $ '

@@ -13,12 +13,12 @@ for tool in qemu-img mkfs.ext4 qemu-system-x86_64 timeout file e2fsck debugfs; d
 
 mkdir -p "$BUILD"
 if [ -z "${ZDOS_MODULES_DIR:-}" ]; then
-  # First produce the kernel, then derive and cache its matching slim module set.
-  ZDOS_MODULES_DIR="$BUILD/no-modules" "$ROOT/distro/build.sh" >/tmp/zdos-persistence-bootstrap.log
-  "$ROOT/distro/prepare-persistence-modules.sh" >/tmp/zdos-persistence-modules.log
+  # The build resolves the slim, ABI-matched module set from sources.lock.
+  "$ROOT/distro/build.sh" >/tmp/zdos-persistence-bootstrap.log
   kernel_release=$(file "$BUILD/vmlinuz" | sed -n 's/.*version \([^ ]*\).*/\1/p')
   export ZDOS_MODULES_DIR="$BUILD/kernel-modules-slim/lib/modules/$kernel_release"
 fi
+test -d "$ZDOS_MODULES_DIR" || { echo "missing kernel modules: $ZDOS_MODULES_DIR" >&2; exit 1; }
 "$ROOT/distro/build.sh" >/tmp/zdos-persistence-build.log
 rm -f "$DATA_IMAGE"
 qemu-img create -f raw "$DATA_IMAGE" 128M >/dev/null

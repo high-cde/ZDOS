@@ -10,46 +10,74 @@ permissions:
 
 jobs:
   release:
-    name: Build and publish bootable ISO
+    name: Build, verify and publish ZDOS ISOs
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout ZDOS
-        uses: actions/checkout@v4
+      - name: Checkout tagged ZDOS source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
 
-      - name: Checkout canonical Zlang compiler
-        uses: actions/checkout@v4
+      - name: Verify annotated release context
+        run: |
+          test "$GITHUB_REF_TYPE" = tag
+          test "$(git describe --tags --exact-match)" = "$GITHUB_REF_NAME"
+
+      - name: Checkout pinned Zlang compiler
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: high-cde/Zlang
+          ref: 8a860454c7ed607f92dc517583902255bb546eb6 # v2026.2.0
           path: Zlang
 
       - name: Install build toolchain
         run: |
           sudo apt-get update
-          sudo apt-get install -y gcc binutils make grub-pc-bin xorriso mtools qemu-system-x86 python3
+          sudo apt-get install -y --no-install-recommends bzip2 cpio e2fsprogs file gcc binutils make grub-pc-bin mtools qemu-system-x86 qemu-utils xorriso python3 php-cli curl
 
-      - name: Build and verify ISO
+      - name: Build and verify Linux distro
+        env:
+          ZDOS_ZLANG_ROOT: ${{ github.workspace }}/Zlang
+        run: ./tools/zdos-selftest.sh --all
+
+      - name: Build and verify bare-metal ISO
         env:
           ZLANGC: ${{ github.workspace }}/Zlang/tools/zlangc.py
         run: |
-          make -C os/x86_64 clean all verify
+          make -C os/x86_64 clean verify
           sh os/x86_64/tools/verify_qemu.sh
 
-      - name: Create checksum and manifest
+      - name: Create checksums and manifest
         run: |
-          cd os/x86_64/build
-          sha256sum zdos-x86_64.iso > zdos-x86_64.iso.sha256
-          printf 'release=%s\nformat=ISO 9660 / GRUB Multiboot2\narchitecture=x86_64\n' "$GITHUB_REF_NAME" > zdos-x86_64.manifest
+          mkdir -p release
+          cp distro/build/zdos-linux-x86_64.iso release/zdos-linux-x86_64.iso
+          cp distro/build/zdos-linux-x86_64.iso.sha256 release/zdos-linux-x86_64.iso.sha256
+          cp os/x86_64/build/zdos-x86_64.iso release/zdos-baremetal-x86_64.iso
+          cd release
+          sha256sum zdos-linux-x86_64.iso zdos-baremetal-x86_64.iso > SHA256SUMS
+          cat > RELEASE-MANIFEST.txt <<EOF
+          release=$GITHUB_REF_NAME
+          commit=$GITHUB_SHA
+          architecture=x86_64
+          zlang_commit=8a860454c7ed607f92dc517583902255bb546eb6
+          linux_iso=zdos-linux-x86_64.iso
+          linux_profile=BusyBox initramfs with verified ext4 persistence in QEMU
+          baremetal_iso=zdos-baremetal-x86_64.iso
+          baremetal_profile=experimental GRUB Multiboot2 with embedded ZLB2 runtime
+          EOF
 
       - name: Publish GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "$GITHUB_REF_NAME" \
-            os/x86_64/build/zdos-x86_64.iso \
-            os/x86_64/build/zdos-x86_64.iso.sha256 \
-            os/x86_64/build/zdos-x86_64.manifest \
+            release/zdos-linux-x86_64.iso \
+            release/zdos-linux-x86_64.iso.sha256 \
+            release/zdos-baremetal-x86_64.iso \
+            release/SHA256SUMS \
+            release/RELEASE-MANIFEST.txt \
             --repo "$GITHUB_REPOSITORY" \
             --generate-notes \
-            --title "ZDOS $GITHUB_REF_NAME — x86_64 bootable ISO" \
-            --notes "ISO x86_64 bootabile verificata con GRUB Multiboot2 e QEMU. Il profilo è bare-metal sperimentale: console seriale e runtime ZLB2 incorporato; non include filesystem, rete, processi utente o installer." \
+            --title "ZDOS $GITHUB_REF_NAME — x86_64" \
+            --notes "Release verificata. L’ISO Linux include build con input bloccati, moduli ABI-coerenti e test QEMU di persistenza; l’ISO bare-metal resta sperimentale. Verificare SHA256SUMS prima dell’uso. Nessun installer, aggiornamento atomico o supporto hardware general-purpose è dichiarato da questa release." \
             --verify-tag
