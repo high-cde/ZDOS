@@ -1,0 +1,12 @@
+policy: "ZDOS Hardware Matrix"
+certified_architectures:
+  - "x86_64"
+minimum_requirements:
+  ram: "512M"
+  storage: "2G"
+  consoles:
+    - "ttyS0"
+    - "tty1"
+supported_nics:
+  - "virtio-net"
+  - "e1000"
