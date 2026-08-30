@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: high-cde/Zlang
-          ref: 8a860454c7ed607f92dc517583902255bb546eb6 # v2026.2.0
+          ref: 74958a3452897694f022ebfc8e2097702f3ba73a # compatibile con storage.read-v1
           path: Zlang
 
       - name: Install build and emulation tools
@@ -57,7 +57,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: high-cde/Zlang
-          ref: 8a860454c7ed607f92dc517583902255bb546eb6 # v2026.2.0
+          ref: 74958a3452897694f022ebfc8e2097702f3ba73a # compatibile con storage.read-v1
           path: Zlang
 
       - name: Install Linux distro build tools

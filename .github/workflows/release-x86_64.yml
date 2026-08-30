@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           repository: high-cde/Zlang
-          ref: 8a860454c7ed607f92dc517583902255bb546eb6 # v2026.2.0
+          ref: 74958a3452897694f022ebfc8e2097702f3ba73a # compatibile con storage.read-v1
           path: Zlang
 
       - name: Install build toolchain
@@ -59,7 +59,7 @@ jobs:
           release=$GITHUB_REF_NAME
           commit=$GITHUB_SHA
           architecture=x86_64
-          zlang_commit=8a860454c7ed607f92dc517583902255bb546eb6
+          zlang_commit=74958a3452897694f022ebfc8e2097702f3ba73a
           linux_iso=zdos-linux-x86_64.iso
           linux_profile=BusyBox initramfs with verified ext4 persistence in QEMU
           baremetal_iso=zdos-baremetal-x86_64.iso
