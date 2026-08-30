@@ -4,7 +4,7 @@ import hashlib
 import json
 from pathlib import Path
 
-HUB_URL = "https://zdos-hub.it/"
+HUB_URL = "https://x-zdos.it/"
 
 
 def prepare_manifest(project_root: Path, build_manifest: Path) -> Path:

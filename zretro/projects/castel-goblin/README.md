@@ -62,6 +62,6 @@ La versione successiva può aggiungere, in quest’ordine, un modello di input l
 * [Demo Meteor Patrol](../meteor-patrol/main.zretro)
 * [Zlang](https://github.com/high-cde/Zlang)
 * [ZDOS](https://github.com/high-cde/ZDOS)
-* [Pagina Retro Computing](https://zdos-hub.it/retro-computing.html)
+* [Pagina Retro Computing](https://x-zdos.it/retro-computing.html)
 
 **Castel Goblin · ZRetro · ZDOS — Build what you can prove.**

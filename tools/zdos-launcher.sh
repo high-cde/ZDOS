@@ -43,6 +43,7 @@ Uso:
   zdos-launcher zretro FILE.zretro     Avvia un progetto ZRetro
   zdos-launcher build                   Esegue la build ZDOS se disponibile
   zdos-launcher verify                  Esegue i test ZDOS/Zlang disponibili
+  zdos-launcher selftest [--distro]     Esegue la verifica integrata del checkout
   zdos-launcher qemu ISO                Avvia una ISO in QEMU, se installato
   zdos-launcher help                   Mostra questo aiuto
 
@@ -154,6 +155,7 @@ case "$command" in
   zretro) [[ $# -eq 2 ]] || die 'uso: zdos-launcher zretro FILE.zretro'; run_zretro "$2" ;;
   build) build_zdos ;;
   verify|test) verify ;;
+  selftest) [[ -n "${ZDOS_ROOT:-}" && -x "$ZDOS_ROOT/tools/zdos-selftest.sh" ]] || die 'zdos-selftest.sh non rilevato'; exec "$ZDOS_ROOT/tools/zdos-selftest.sh" "${@:2}" ;;
   qemu) [[ $# -eq 2 ]] || die 'uso: zdos-launcher qemu FILE.iso'; qemu "$2" ;;
   *) die "comando sconosciuto: $command" ;;
 esac

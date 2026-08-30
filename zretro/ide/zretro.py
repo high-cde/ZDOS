@@ -153,7 +153,7 @@ def console(root: Path) -> int:
                 if not build_manifest.is_file():
                     compile_project(source.parent, source)
                 output = prepare_manifest(source.parent, build_manifest)
-                print(f"ZRETRO_HUB_READY url=https://zdos-hub.it/ manifest={output}")
+                print(f"ZRETRO_HUB_READY url=https://x-zdos.it/ manifest={output}")
             elif command == "p":
                 print("ZRETRO_ERROR p richiede il percorso di un file .zretro")
             elif command == "n" and argument:

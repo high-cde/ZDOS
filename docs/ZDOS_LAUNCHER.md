@@ -23,13 +23,15 @@ export ZLANG_ROOT=/percorso/Zlang
 zdos-launcher status
 zdos-launcher doctor
 zdos-launcher verify
+zdos-launcher selftest
+zdos-launcher selftest --distro --qemu
 zdos-launcher zlang programma.zlang
 zdos-launcher zretro progetto.zretro
 zdos-launcher build
 zdos-launcher qemu immagine.iso
 ```
 
-`status` mostra l’ambiente rilevato. `doctor` esegue controlli non distruttivi e individua i progetti ZRetro. `zlang` compila un file `.zlang` in una directory temporanea. `zretro` invoca l’IDE disponibile. `verify` esegue le suite locali trovate. `build` invoca la build della distro. `qemu` avvia un’immagine soltanto quando richiesto esplicitamente.
+`status` mostra l’ambiente rilevato. `doctor` esegue controlli non distruttivi e individua i progetti ZRetro. `zlang` compila un file `.zlang` in una directory temporanea. `zretro` invoca l’IDE disponibile. `verify` esegue le suite locali trovate. `selftest` esegue shell syntax check, test ZRetro, test Zlang e verifica del kernel quando gli strumenti sono presenti; `--distro` abilita la build ISO e `--qemu` il boot test. I controlli non disponibili sono marcati `SKIP`, mentre una regressione produce `FAIL`. `build` invoca la build della distro. `qemu` avvia un’immagine soltanto quando richiesto esplicitamente.
 
 ## Castel Goblin
 

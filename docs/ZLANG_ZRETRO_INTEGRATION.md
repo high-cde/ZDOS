@@ -9,7 +9,7 @@ Questo documento descrive il confine tra ZDOS, Zlang e ZRetro. L’obiettivo è 
 | Zlang | Sorgente `.zlang`, compilatore e bytecode ZLB2 v2.5 | [Repository Zlang](https://github.com/high-cde/Zlang), `tools/zlangc.py` |
 | ZDOS | Target x86_64, runtime bare-metal, boot e verifiche QEMU | [Repository ZDOS](https://github.com/high-cde/ZDOS), `os/x86_64` |
 | ZRetro | IDE TUI e DSL dichiarativa per progetti retro | [`zretro/`](../zretro), [`docs/ZRETRO.md`](ZRETRO.md) |
-| Hub | Superficie pubblica per documentazione e segnali | [Retro Computing](https://zdos-hub.it/retro-computing.html) |
+| Hub | Superficie pubblica per documentazione e segnali | [Retro Computing](https://x-zdos.it/retro-computing.html) |
 
 ## Flusso verificato
 
@@ -75,7 +75,7 @@ I target dichiarati includono Commodore 64, Atari 8-bit e Amiga come direzioni d
 
 ZRetro non deve trattare il feed pubblico come registro di build, storage di artefatti o concessione di capability. Un’eventuale pubblicazione deve passare da un adapter esplicito, da un manifest firmato, da un’identità ZDOS e dalla capability `hub.project.publish` con approvazione.
 
-Non pubblicare ROM, BIOS, credenziali, chiavi private, token, dati personali o istruzioni operative dannose. Il tasto **ZRetro** del sito conduce alla pagina documentaria [Retro Computing](https://zdos-hub.it/retro-computing.html), non esegue build remote e non concede accessi al nodo.
+Non pubblicare ROM, BIOS, credenziali, chiavi private, token, dati personali o istruzioni operative dannose. Il tasto **ZRetro** del sito conduce alla pagina documentaria [Retro Computing](https://x-zdos.it/retro-computing.html), non esegue build remote e non concede accessi al nodo.
 
 ## Riferimenti
 
@@ -85,7 +85,7 @@ Non pubblicare ROM, BIOS, credenziali, chiavi private, token, dati personali o i
 * [ZRetro command library](../zretro/ide/command-library.json)
 * [ZRetro demo](../zretro/projects/meteor-patrol/main.zretro)
 * [ZDOS workflow x86_64](../.github/workflows/validate-x86_64.yml)
-* [Pagina pubblica Retro Computing](https://zdos-hub.it/retro-computing.html)
+* [Pagina pubblica Retro Computing](https://x-zdos.it/retro-computing.html)
 
 **ZDOS · Zlang · ZRetro — Build what you can prove.**
 

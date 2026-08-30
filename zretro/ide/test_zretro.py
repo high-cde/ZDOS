@@ -52,7 +52,7 @@ class ZRetroTests(unittest.TestCase):
             hub_manifest = source.parent / "build" / "hub-manifest.json"
             self.assertTrue(hub_manifest.is_file())
             payload = json.loads(hub_manifest.read_text(encoding="utf-8"))
-            self.assertEqual(payload["hub"], "https://zdos-hub.it/")
+            self.assertEqual(payload["hub"], "https://x-zdos.it/")
             self.assertTrue(payload["security"]["publish_requires_human_confirmation"])
 
     def test_unknown_instruction_is_rejected(self) -> None:
