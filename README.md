@@ -24,6 +24,7 @@
 - [Persistent Storage v1](#persistent-storage-v1)
 - [Zlang e runtime ZLB2](#zlang-e-runtime-zlb2)
 - [Evidence Chain](#evidence-chain)
+- [War Room e ZLang](#war-room-e-zlang)
 - [Micro-mondo connesso](#micro-mondo-connesso)
 - [Identità ZDOS e ZSpace](#identità-zdos-e-zspace)
 - [Organism residente](#organism-residente)
@@ -257,6 +258,14 @@ LEDGER=/var/lib/zdos-node/evidence.jsonl \
 L’evento `filesystem.persistence.attestation` registra UUID, tipo filesystem, mount point, hash dell’immagine QEMU, hash del marker, numero di boot, commit ZDOS e kernel. Non registra il contenuto del filesystem né dati privati.
 
 Per la specifica operativa, consultare [`evidence/README.md`](evidence/README.md).
+
+## War Room e ZLang
+
+La War Room è il control plane autenticato per programmi, asset, scope, approvazioni, evidenze e audit. L’esecuzione operativa deve restare nel perimetro **ZLang by ZDOS**, con manifest versionati, capability allowlisted, limiti espliciti e policy default-deny.
+
+Il primo profilo previsto è read-only: inventario degli asset già registrati, security headers, metadati TLS, DNS metadata e baseline HTTP non mutante. Exploit, brute force, shell arbitraria, fuzzing aggressivo e target fuori scope non fanno parte del circuito iniziale.
+
+La specifica completa è in [`docs/WAR_ROOM_ZLANG_INTEGRATION.md`](docs/WAR_ROOM_ZLANG_INTEGRATION.md). Il documento definisce manifest, approval gate, runner non privilegiato, schema `evidence.v1`, hash, audit e criteri di verifica. La pagina pubblica [ZDOS-SEC-PORTAL](https://github.com/high-cde/ZDOS-SEC-PORTAL) resta un HUD di telemetria; la War Room privata resta il piano autenticato.
 
 ## Micro-mondo connesso
 
