@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+
+from bus import link_terminal, receive_messages, send_message
 
 ROOT = Path(__file__).resolve().parents[2]
 CLI = ROOT / "zretro" / "ide" / "zretro.py"
@@ -87,6 +91,36 @@ class ZRetroTests(unittest.TestCase):
             self.assertEqual(inbox.returncode, 0, inbox.stderr)
             self.assertIn("ZRETRO_INBOX count=1", inbox.stdout)
             self.assertIn("hello amiga", inbox.stdout)
+
+    def test_multi_terminal_chat_four_nodes_concurrently(self) -> None:
+        """Simulate one chat round among C64, Amiga and two ZDOS terminals."""
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            os.environ["ZDOS_ZRETRO_BUS_DIR"] = str(root / "bus")
+            try:
+                nodes = ["c64-01", "amiga-01", "zdos-01", "zdos-02"]
+                for index, sender in enumerate(nodes):
+                    for recipient in nodes[index + 1 :]:
+                        link_terminal(root, sender, recipient)
+
+                rounds = [
+                    ("c64-01", "amiga-01", "C64 online"),
+                    ("amiga-01", "zdos-01", "Amiga ready"),
+                    ("zdos-01", "zdos-02", "ZDOS relay"),
+                    ("zdos-02", "c64-01", "C64 received"),
+                ]
+                with ThreadPoolExecutor(max_workers=4) as pool:
+                    sent = list(pool.map(lambda item: send_message(root, item[0], item[1], "zretro.chat", item[2]), rounds))
+
+                self.assertEqual(len(sent), 4)
+                self.assertEqual({message["channel"] for message in sent}, {"zretro.chat"})
+                self.assertEqual({message["recipient"] for message in sent}, set(nodes))
+                for node, expected in zip(nodes, ["C64 received", "C64 online", "Amiga ready", "ZDOS relay"]):
+                    inbox = receive_messages(root, node)
+                    self.assertEqual(len(inbox), 1, node)
+                    self.assertEqual(inbox[0]["body"], expected)
+            finally:
+                os.environ.pop("ZDOS_ZRETRO_BUS_DIR", None)
 
 
 if __name__ == "__main__":
