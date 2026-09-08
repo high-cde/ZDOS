@@ -1,0 +1,11 @@
+{
+  "schema": "zdos-zretro-official-catalog/v1",
+  "brand": "ZRetro by ZDOS",
+  "runtime": "zretro-terminal-v1",
+  "bus": "zretro.local",
+  "network_default": "disabled",
+  "packages": [
+    {"id": "zretro-terminal-c64", "target": "c64", "source": "zretro-terminal-c64/main.zretro", "cpu": "6502", "artifact": ".prg"},
+    {"id": "zretro-terminal-amiga", "target": "amiga", "source": "zretro-terminal-amiga/main.zretro", "cpu": "68000", "artifact": ".adf"}
+  ]
+}

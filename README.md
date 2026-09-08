@@ -315,7 +315,7 @@ python3 zretro/ide/zretro.py run zretro/projects/meteor-patrol/main.zretro
 python3 zretro/ide/zretro.py build zretro/projects/meteor-patrol/main.zretro
 ```
 
-Il preview terminale è già operativo. La pipeline produce IR e manifest verificabili; i backend per binari nativi e emulatori vengono attivati soltanto quando cc65/ca65, vasm, VICE, Altirra o FS-UAE sono presenti nel nodo. La specifica è in [`docs/ZRETRO.md`](docs/ZRETRO.md).
+Il preview terminale è già operativo. La pipeline produce IR e manifest verificabili; i backend per binari nativi e emulatori vengono attivati soltanto quando cc65/ca65, vasm, VICE, Altirra o FS-UAE sono presenti nel nodo. Il catalogo [`zretro/packages/official/`](zretro/packages/official/) contiene i primi software ufficiali **ZRetro by ZDOS** per Commodore 64 e Amiga. I terminali possono collegarsi e scambiarsi messaggi sul bus locale `zretro.local` con `l`, `s` e `i`; il bus è filesystem-scoped, append-only e senza rete implicita. La specifica è in [`docs/ZRETRO.md`](docs/ZRETRO.md).
 
 Il launcher operativo è [`tools/zdos-launcher.sh`](tools/zdos-launcher.sh), con documentazione in [`docs/ZDOS_LAUNCHER.md`](docs/ZDOS_LAUNCHER.md). Il progetto originale [`Castel Goblin`](zretro/projects/castel-goblin/README.md) è organizzato in tre livelli progressivi e può essere avviato dal launcher dopo la rilevazione dell’ambiente.
 

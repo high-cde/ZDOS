@@ -35,6 +35,9 @@ b <file>                  valida e prepara pacchetti target
 r <file>                  preview terminale retro
 t                         target supportati
 a                         panoramica asset
+l <id> <peer>              collega due terminali sul bus locale
+s <to> <messaggio>         invia messaggio ZRetro local-only
+i <id>                    legge la inbox del terminale
 p                         pubblicazione esplicita del manifest su Hub
 q                         uscita
 ```
@@ -47,7 +50,20 @@ python3 zretro/ide/zretro.py run zretro/projects/meteor-patrol/main.zretro
 python3 zretro/ide/zretro.py build zretro/projects/meteor-patrol/main.zretro
 ```
 
-La console mostra il prompt nativo `x@zdos /zretro` e instrada i comandi brevi verso init, preview, build e catalogo target.
+La console mostra il prompt nativo `x@zdos /zretro` e instrada i comandi brevi verso init, preview, build, catalogo target e bus locale.
+
+## Software ufficiale ZDOS per Amiga e Commodore 64
+
+Il catalogo [`zretro/packages/official/`](../zretro/packages/official/) contiene i primi pacchetti **ZRetro by ZDOS**: `zretro-terminal-c64` per Commodore 64 e `zretro-terminal-amiga` per Amiga. Sono sorgenti DSL e manifesti verificabili, non ROM o immagini proprietarie: il builder produce IR e provenance; l’emissione di `.prg` e `.adf` richiede toolchain native installate e viene dichiarata solo dopo una build verificata.
+
+I terminali possono essere creatori e comunicativi tramite `zretro.local`. Il bus è append-only JSONL nella directory di progetto o in `ZDOS_ZRETRO_BUS_DIR`; non apre socket, non usa credenziali e non abilita rete implicita. L’interconnessione è esplicita:
+
+```sh
+python3 zretro/ide/zretro.py console --root /tmp/zdos-bus
+# l c64-01 amiga-01
+# s amiga-01 hello from C64
+# i amiga-01
+```
 
 ## Target e backend
 
@@ -57,7 +73,7 @@ La console mostra il prompt nativo `x@zdos /zretro` e instrada i comandi brevi v
 | Atari 8-bit | 6502 | `.xex` | cc65/ca65 e Altirra |
 | Amiga | 68000 | `.adf` | vasm + disk builder e FS-UAE |
 
-La prima versione genera un IR ZRetro e manifest target verificabili. Il preview terminale è operativo; l’emissione di binari nativi e la chiamata agli emulatori sono backend successivi, da attivare soltanto quando gli strumenti sono presenti nel nodo.
+La versione attuale genera un IR ZRetro, manifest target verificabili e messaggi locali tra terminali. Il preview e il bus sono operativi; l’emissione di binari nativi e la chiamata agli emulatori sono backend successivi, da attivare soltanto quando gli strumenti sono presenti nel nodo.
 
 La scelta dei backend è coerente con gli strumenti pubblici: cc65 supporta target 6502 tra cui Commodore e Atari [1]; Altirra documenta immagini Atari come ATR, ATX, XFD, ROM e BIN [2]; FS-UAE è un emulatore Amiga multipiattaforma focalizzato sui giochi [3].
 
@@ -71,7 +87,7 @@ Il progetto è confinato alla propria root. La DSL non esegue shell arbitraria, 
 
 ## Roadmap
 
-La roadmap tecnica è: editor TUI nativo, parser ZRetro completo, asset pipeline palette/sprite/sound, backend cc65 per C64/Atari, backend 68000 per Amiga, launcher emulatore locale, manifest firmati e pannello ZRetro nella War Room/Hub.
+La roadmap tecnica residua è: editor TUI nativo, parser ZRetro completo, asset pipeline palette/sprite/sound, backend cc65 per C64, backend 68000 per Amiga, launcher emulatore locale, manifest firmati e pannello ZRetro nella War Room/Hub. Il contratto di comunicazione locale e il catalogo sorgente ufficiale sono già attivi e testati.
 
 ## Riferimenti
 

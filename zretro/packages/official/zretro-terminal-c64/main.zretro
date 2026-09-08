@@ -1,0 +1,11 @@
+project ZDOS Official Terminal C64
+target c64
+screen 40 22
+palette c64
+text "ZRETRO BY ZDOS // C64 TERMINAL"
+text "LINK / CREATE / SHARE"
+player terminal-c64
+on link
+on create
+on receive
+end

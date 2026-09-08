@@ -5,12 +5,14 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import shutil
 import sys
 from pathlib import Path
 
 from hub import prepare_manifest
+from bus import link_terminal, receive_messages, send_message
 
 TARGETS = {
     "c64": {"name": "Commodore 64", "cpu": "6502", "artifact": ".prg", "backend": "cc65/ca65"},
@@ -118,12 +120,16 @@ def help_text() -> str:
         "r <sorgente>      preview terminale",
         "t                 target supportati",
         "a                 asset del progetto",
+        "l <id> <peer>     collega due terminali sul bus locale",
+        "s <to> <msg>      invia messaggio ZRetro sul canale local",
+        "i <id>            leggi i messaggi ricevuti",
         "q                 esci",
     ])
 
 
 def console(root: Path) -> int:
-    print("ZRETRO IDE // ZLANG BY ZDOS // C64 MODE")
+    terminal_id = os.environ.get("ZDOS_TERMINAL_ID", "terminal-local")
+    print(f"ZRETRO IDE // ZLANG BY ZDOS // C64 MODE // {terminal_id}")
     print("digita h per aiuto")
     while True:
         try:
@@ -147,6 +153,23 @@ def console(root: Path) -> int:
                     print(f"{key:<8} {target['name']} CPU={target['cpu']} artifact={target['artifact']}")
             elif command == "a":
                 print("ZRETRO ASSETS: palette, sprite, scene, sound")
+            elif command == "l" and argument:
+                values = argument.split()
+                if len(values) != 2:
+                    raise ValueError("l richiede terminal-id e peer-id")
+                path = link_terminal(root, values[0], values[1])
+                print(f"ZRETRO_LINK_OK bus={path} pair={values[0]}<->{values[1]}")
+            elif command == "s" and argument:
+                values = argument.split(maxsplit=1)
+                if len(values) != 2:
+                    raise ValueError("s richiede destinatario e messaggio")
+                message = send_message(root, terminal_id, values[0], "zretro.local", values[1])
+                print(f"ZRETRO_SEND_OK id={message['id']} to={message['recipient']}")
+            elif command == "i" and argument:
+                messages = receive_messages(root, argument)
+                print(f"ZRETRO_INBOX count={len(messages)}")
+                for message in messages:
+                    print(f"{message['id']} {message['sender']} > {message['body']}")
             elif command == "p" and argument:
                 source = Path(argument)
                 build_manifest = source.parent / "build" / "manifest.json"
