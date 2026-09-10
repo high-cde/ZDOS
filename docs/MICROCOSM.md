@@ -11,15 +11,11 @@ flowchart LR
     ZD[ZDOS: build, QEMU, Evidence Chain]
     ZL[Zlang: compilatore e ZLB2]
     ORG[zdos-organism: runtime locale]
-    SEC[ZDOS-SEC-PORTAL: HUD, policy, API]
-    CY[Z-CYBERCORE: demo difensiva]
     PS[Prova ext4 a due boot]
     LE[Ledger locale verificabile]
 
     ZL -. checkout adiacente .-> ZD
     ORG -. checkout adiacente .-> ZD
-    SEC -. policy e visualizzazione .-> ZD
-    CY -. demo separata .-> ZD
     ZD --> PS --> LE
     ZL --> ZD
 ```
@@ -32,8 +28,6 @@ Il catalogo [`microcosm/catalog.json`](../microcosm/catalog.json) è l'unica map
 | Persistenza ext4 | Questo repository | **VERIFIED** | Due boot QEMU, clean shutdown, evento attestato e ledger valido. |
 | Zlang e ZLB2 | Repository primario adiacente | **VERIFIED** | Checkout pulito e allineato; storage bridge e suite unittest della fonte primaria superati localmente. |
 | zdos-organism | Repository primario adiacente | **EXPERIMENTAL** | Richiede le verifiche Rust dichiarate nel catalogo. |
-| ZDOS-SEC-PORTAL | Integrazione esterna opzionale | **PREPARED** | Il riferimento documentale esiste, ma il repository non è accessibile al workflow; nessuna prova viene dichiarata. |
-| Z-CYBERCORE | Integrazione esterna opzionale | **PREPARED** | Il riferimento documentale esiste, ma il repository non è accessibile al workflow; nessuna prova viene dichiarata. |
 
 ## Prova principale: persistenza attestata
 
@@ -81,12 +75,10 @@ Il micro-mondo assume checkout adiacenti, non copie interne alla tree ZDOS. È u
 workspace/
 ├── ZDOS/                 # nucleo e orchestratore del micro-mondo
 ├── Zlang/                # opzionale: fonte primaria
-├── zdos-organism/        # opzionale: fonte primaria
-├── ZDOS-SEC-PORTAL/      # opzionale: fonte primaria
-└── Z-CYBERCORE/          # opzionale: fonte primaria
+└── zdos-organism/        # opzionale: fonte primaria
 ```
 
-Quando manca un componente esterno, `inspect` lo segnala come assente e il relativo collegamento resta **PREPARED** o **EXPERIMENTAL**. Il workflow CI verifica direttamente soltanto Zlang e `zdos-organism`, che sono le dipendenze necessarie ai test connected; SEC Portal e Z-CYBERCORE restano opzionali e non bloccano la validazione locale di ZDOS.
+Il micro-mondo operativo è ora limitato a ZDOS, Zlang e `zdos-organism`. I riferimenti ai repository rimossi non fanno più parte del catalogo, del workflow o della sincronizzazione.
 
 ## Criterio di promozione
 

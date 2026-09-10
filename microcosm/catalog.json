@@ -50,36 +50,6 @@
         "cargo test",
         "cargo run -- --once"
       ]
-    },
-    {
-      "id": "zdos-sec-portal",
-      "name": "ZDOS-SEC-PORTAL",
-      "role": "HUD operativo, API locale, policy e spazio di lavoro delle evidenze",
-      "remote": "https://github.com/high-cde/ZDOS-SEC-PORTAL.git",
-      "local_path": "ZDOS-SEC-PORTAL",
-      "authority": "external-primary",
-      "status": "VERIFIED",
-      "verified_scope": "Checkout adiacente pulito e allineato a origin/main; API read-only, health, rifiuto delle mutazioni, ledger vuoto e controlli UI superati localmente. Nessun deployment pubblico viene dichiarato verificato.",
-      "checks": [
-        "health endpoint",
-        "authentication test",
-        "input validation test",
-        "ledger verification"
-      ]
-    },
-    {
-      "id": "z-cybercore",
-      "name": "Z-CYBERCORE",
-      "role": "componente dimostrativo di sicurezza difensiva e simulata",
-      "remote": "https://github.com/high-cde/Z-CYBERCORE.git",
-      "local_path": "Z-CYBERCORE",
-      "authority": "external-primary",
-      "status": "EXPERIMENTAL",
-      "verified_scope": "Compilazione Rust e simulazioni locali; non è un componente offensivo operativo.",
-      "checks": [
-        "cargo build --locked",
-        "cargo test"
-      ]
     }
   ],
   "flows": [

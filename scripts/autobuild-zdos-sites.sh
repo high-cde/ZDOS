@@ -2,11 +2,10 @@
 set -Eeuo pipefail
 
 XZDOS_ROOT="${XZDOS_ROOT:-/var/www/x-zdos.it/public}"
-SEC_ROOT="${SEC_ROOT:-/var/www/zdos-sec.it/public}"
 RELOAD_WEB="${RELOAD_WEB:-0}"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 
-mkdir -p "$XZDOS_ROOT" "$SEC_ROOT"
+mkdir -p "$XZDOS_ROOT"
 
 backup_index() {
   local root="$1"
@@ -96,8 +95,7 @@ write_site() {
 HTML
 }
 
-write_site "$XZDOS_ROOT" "x-zdos.it" "X-ZDOS" "PUBLIC EDGE / X-ZDOS" "Il sistema che puoi osservare." "Un punto di ingresso pubblico all’ecosistema ZDOS: tecnologia, runtime Zlang, distribuzione e percorso di evidenza raccontati senza promesse non dimostrate." "ESPLORA L’ECOSISTEMA" "https://github.com/high-cde/ZDOS" "LEGGI EVIDENCE CHAIN" "https://github.com/high-cde/ZDOS-SEC-PORTAL" "PUBLIC LANDING" "ZDOS Linux" "Una distribuzione x86_64 in evoluzione, con build ISO, initramfs e bootstrap operativo." "Zlang / ZLB2" "Il linguaggio e il runtime che definiscono il contratto bytecode v2.5." "Provenance" "Build, boot e ledger vengono collegati come eventi osservabili." "Roadmap" "Installer, package provenance e aggiornamenti atomici restano obiettivi espliciti."
-write_site "$SEC_ROOT" "zdos-sec.it" "ZDOS-SEC" "SEC OPERATIONS / ZDOS-SEC" "Observe the system. Prove the path." "Una console operativa per osservare feed, pipeline ZLB2, boot QEMU ed Evidence Chain con una trust boundary dichiarata." "APRI CONTROL CENTER" "https://github.com/high-cde/ZDOS-SEC-PORTAL" "VEDI IL CODICE" "https://github.com/high-cde/ZDOS" "OPERATIONAL HUD" "Control Center" "Dashboard, status panel, terminale e navigazione laterale in una singola interfaccia Secure Neon." "ZLB2 Pipeline" "Compilazione locale, streaming Socket.IO e collegamento al checkout ZDOS configurato." "Evidence Chain" "Ledger locale, record append-only e aggiornamento live tramite API e Socket.IO." "Trust boundary" "Il portale osserva i risultati; non sostituisce audit indipendenti o attestazioni esterne."
+write_site "$XZDOS_ROOT" "x-zdos.it" "X-ZDOS" "PUBLIC EDGE / X-ZDOS" "Il sistema che puoi osservare." "Un punto di ingresso pubblico all’ecosistema ZDOS: tecnologia, runtime Zlang, distribuzione e percorso di evidenza raccontati senza promesse non dimostrate." "ESPLORA L’ECOSISTEMA" "https://github.com/high-cde/ZDOS" "LEGGI EVIDENCE CHAIN" "https://github.com/high-cde/ZDOS" "PUBLIC LANDING" "ZDOS Linux" "Una distribuzione x86_64 in evoluzione, con build ISO, initramfs e bootstrap operativo." "Zlang / ZLB2" "Il linguaggio e il runtime che definiscono il contratto bytecode v2.5." "Provenance" "Build, boot e ledger vengono collegati come eventi osservabili." "Roadmap" "Installer, package provenance e aggiornamenti atomici restano obiettivi espliciti."
 
 if command -v nginx >/dev/null 2>&1; then
   nginx -t
@@ -115,4 +113,4 @@ else
   echo "[ZDOS] Nessun nginx/apache rilevato: file generati, reload non eseguito."
 fi
 
-printf '\n[ZDOS] Build completata.\n[ZDOS] x-zdos.it -> %s/index.html\n[ZDOS] zdos-sec.it -> %s/index.html\n[ZDOS] Backup timestamp -> %s\n' "$XZDOS_ROOT" "$SEC_ROOT" "$STAMP"
+printf '\n[ZDOS] Build completata.\n[ZDOS] x-zdos.it -> %s/index.html\n[ZDOS] Backup timestamp -> %s\n' "$XZDOS_ROOT" "$STAMP"
