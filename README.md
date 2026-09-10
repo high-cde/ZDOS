@@ -50,6 +50,18 @@ ZDOS è una piattaforma sperimentale per costruire sistemi x86_64 piccoli, osser
 
 ZDOS non è ancora una distribuzione general-purpose né un sostituto pronto per Debian, Ubuntu o altri sistemi operativi quotidiani. È una **base di sviluppo reale**, progettata per rendere esplicito ciò che è stato costruito, ciò che è stato testato e ciò che resta da implementare.
 
+### Struttura snella del Microcosmo
+
+Il Microcosmo ora mantiene soltanto tre fonti operative: **ZDOS**, **Zlang** e **zdos-organism**. ZDOS è il nucleo autorevole per build, boot, QEMU, Evidence Chain e gate; Zlang è il compilatore e il contratto ZLB2; `zdos-organism` è il runtime residente sperimentale. Non sono richiesti portali, dashboard o repository di sicurezza separati per eseguire i gate locali.
+
+| Componente | Responsabilità | Stato |
+|---|---|---|
+| `ZDOS` | Kernel sperimentale, distro Linux, QEMU, orchestrazione ed Evidence Chain | `VERIFIED` nel perimetro dichiarato |
+| `Zlang` | Compilatore, runtime, VM e bytecode ZLB2 | `VERIFIED` nel perimetro dichiarato |
+| `zdos-organism` | Tick residente e ponte Zlang/ZVM con policy `default-deny` | `EXPERIMENTAL` |
+
+La riduzione del perimetro elimina sincronizzazioni inutili e riferimenti a componenti non disponibili. Ogni capacità resta soggetta a contratto, test positivo, test negativo e prova riproducibile.
+
 ## Stato del progetto
 
 La maturità viene descritta per capacità, non soltanto per versione. Lo stato corrente è il seguente:
@@ -77,10 +89,10 @@ Il profilo pubblico espone soltanto workflow con responsabilità distinte. `Vali
 | Workflow | Scopo | Dipendenze esterne |
 |---|---|---|
 | `validate-x86_64.yml` | Build, bytecode, boot QEMU e contratto web | Zlang checkout canonico |
-| `connected-microcosm.yml` | Test identity/commands/microcosm, inspect e gate | Zlang checkout canonico; gli altri checkout restano osservati dall’inspect |
+| `connected-microcosm.yml` | Test identity/commands/microcosm, inspect e gate | Zlang e `zdos-organism` checkout |
 | `release-x86_64.yml` | Build e pubblicazione release | Toolchain Linux e permesso GitHub release |
 
-Il workflow del micro-mondo esegue i quattro checkout esterni in directory controllate del workspace. Zlang viene passato al bridge tramite `ZDOS_ZLANG_ROOT`, mentre `ZDOS_MICROCOSM_WORKSPACE` allinea l’ispezione al percorso del runner. In locale o sulla VPS il controller mantiene il fallback al workspace adiacente già previsto dal catalogo.
+Il workflow del micro-mondo esegue soltanto i checkout necessari in directory controllate del workspace. Zlang viene passato al bridge tramite `ZDOS_ZLANG_ROOT`, mentre `ZDOS_MICROCOSM_WORKSPACE` allinea l’ispezione al percorso del runner. In locale o sulla VPS il controller mantiene il fallback al workspace adiacente già previsto dal catalogo.
 
 ## Architettura
 
@@ -271,7 +283,7 @@ Il repository include un **micro-mondo connesso** che incorpora il modello di co
 | `./microcosm/zdos-microctl gate` | Valida entrypoint, policy, catalogo e contratto | Sola lettura |
 | `./microcosm/zdos-microctl attest-persistence` | Esegue due boot QEMU e registra l'attestazione | Genera build e ledger locali |
 
-Il collegamento già **VERIFIED** è `persistent-storage-evidence-v1`: due boot QEMU, marker di scrittura e lettura, clean shutdown, quindi evento `filesystem.persistence.attestation` in una Evidence Chain verificata. Zlang e ZDOS-SEC-PORTAL sono fonti primarie esterne ora verificate nel rispettivo perimetro locale; zdos-organism e Z-CYBERCORE restano `EXPERIMENTAL` finché non sono disponibili tutte le verifiche dichiarate. La specifica completa è in [`docs/MICROCOSM.md`](docs/MICROCOSM.md).
+Il collegamento già **VERIFIED** è `persistent-storage-evidence-v1`: due boot QEMU, marker di scrittura e lettura, clean shutdown, quindi evento `filesystem.persistence.attestation` in una Evidence Chain verificata. Zlang è la fonte primaria esterna verificata nel rispettivo perimetro locale; `zdos-organism` resta `EXPERIMENTAL` finché non sono disponibili tutte le verifiche dichiarate. La specifica completa è in [`docs/MICROCOSM.md`](docs/MICROCOSM.md).
 
 ## Identità ZDOS e ZSpace
 
@@ -498,7 +510,6 @@ Consulta [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md), [`C
 | [`CHANGELOG.md`](CHANGELOG.md) | Modifiche rilevanti |
 | [Zlang][1] | Compilatore e linguaggio |
 | [Profilo ZLB2 v2.5][2] | Contratto bytecode x86_64 |
-| [ZDOS-SEC Portal][3] | Repository separato del portale SEC |
 
 ## Licenza
 
@@ -512,4 +523,3 @@ Questo progetto è distribuito secondo la licenza indicata in [`LICENSE`](LICENS
 
 [1]: https://github.com/high-cde/Zlang "Repository Zlang"
 [2]: https://github.com/high-cde/Zlang/blob/main/docs/zdos-x86_64-profile.md "Profilo ZLB2 v2.5 per ZDOS x86_64"
-[3]: https://github.com/high-cde/ZDOS-SEC-PORTAL "ZDOS-SEC Portal"

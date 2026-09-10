@@ -17,7 +17,7 @@
   },
   "guards": {
     "policy": "default-deny",
-    "cybercore_mode": "fail-closed-adapter",
+    "external_adapter": "not-configured",
     "allowed_operations": ["observe", "zlang.read", "evidence.append"],
     "forbidden_operations": ["shell", "network", "exec", "write-node", "delete", "credential-access"],
     "human_approval_required": ["node-change", "external-action", "policy-change"]

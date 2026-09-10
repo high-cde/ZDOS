@@ -1,6 +1,6 @@
 # ZDOS Connected Microcosm
 
-Il **micro-mondo connesso** integra nel repository ZDOS il modello di coordinamento di ZDOS Lab senza creare un nuovo mirror autorevole. ZDOS rimane il nucleo che costruisce, avvia, testa e attesta; il catalogo dichiara le altre fonti primarie e rende visibile lo stato reale di ogni collegamento.
+Il **micro-mondo connesso** è un perimetro source-first e minimale composto da ZDOS, Zlang e `zdos-organism`. ZDOS rimane il nucleo che costruisce, avvia, testa e attesta; il catalogo dichiara le sole fonti primarie necessarie e rende visibile lo stato reale di ogni collegamento.
 
 > La connessione non è una promessa generica: è una relazione dichiarata tra repository, comandi, prove osservabili e criteri di promozione.
 
@@ -11,15 +11,11 @@ flowchart LR
     ZD[ZDOS: build, QEMU, Evidence Chain]
     ZL[Zlang: compilatore e ZLB2]
     ORG[zdos-organism: runtime locale]
-    SEC[ZDOS-SEC-PORTAL: HUD, policy, API]
-    CY[Z-CYBERCORE: demo difensiva]
     PS[Prova ext4 a due boot]
     LE[Ledger locale verificabile]
 
     ZL -. checkout adiacente .-> ZD
     ORG -. checkout adiacente .-> ZD
-    SEC -. policy e visualizzazione .-> ZD
-    CY -. demo separata .-> ZD
     ZD --> PS --> LE
     ZL --> ZD
 ```
@@ -32,8 +28,6 @@ Il catalogo [`microcosm/catalog.json`](../microcosm/catalog.json) è l'unica map
 | Persistenza ext4 | Questo repository | **VERIFIED** | Due boot QEMU, clean shutdown, evento attestato e ledger valido. |
 | Zlang e ZLB2 | Repository primario adiacente | **VERIFIED** | Checkout pulito e allineato; storage bridge e suite unittest della fonte primaria superati localmente. |
 | zdos-organism | Repository primario adiacente | **EXPERIMENTAL** | Richiede le verifiche Rust dichiarate nel catalogo. |
-| ZDOS-SEC-PORTAL | Repository primario adiacente | **VERIFIED** | API read-only, health, rifiuto mutazioni, ledger e controlli UI superati localmente; deployment pubblico escluso. |
-| Z-CYBERCORE | Repository primario adiacente | **EXPERIMENTAL** | Resta limitato a compilazione e simulazioni difensive locali. |
 
 ## Prova principale: persistenza attestata
 
@@ -81,12 +75,17 @@ Il micro-mondo assume checkout adiacenti, non copie interne alla tree ZDOS. È u
 workspace/
 ├── ZDOS/                 # nucleo e orchestratore del micro-mondo
 ├── Zlang/                # opzionale: fonte primaria
-├── zdos-organism/        # opzionale: fonte primaria
-├── ZDOS-SEC-PORTAL/      # opzionale: fonte primaria
-└── Z-CYBERCORE/          # opzionale: fonte primaria
+└── zdos-organism/        # opzionale: fonte primaria
 ```
 
-Quando manca un componente esterno, `inspect` lo segnala come assente e il relativo collegamento resta **PREPARED** o **EXPERIMENTAL**. In questa verifica Zlang e SEC Portal sono presenti, puliti, allineati e promossi a **VERIFIED** nel rispettivo perimetro locale; le prove locali di ZDOS non vengono per questo gonfiate né invalidate.
+Il micro-mondo operativo è limitato a tre componenti. Questa scelta riduce la superficie di sincronizzazione, evita dipendenze fantasma e rende il gate riproducibile anche senza servizi web esterni.
+
+| Regola di struttura | Applicazione |
+|---|---|
+| Una fonte autorevole | ZDOS coordina build, boot, Evidence Chain e promozione |
+| Una toolchain dichiarata | Zlang viene fissato come checkout adiacente e verificato |
+| Un runtime bounded | `zdos-organism` opera con `default-deny` e capability esplicite |
+| Nessuna integrazione fantasma | Componenti rimossi non compaiono in catalogo, workflow o sync |
 
 ## Criterio di promozione
 

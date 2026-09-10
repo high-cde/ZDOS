@@ -2,7 +2,7 @@
 
 ## Missione
 
-ZDOS riunisce una base operativa Linux, un laboratorio bare-metal, il runtime Zlang e strumenti di osservabilità e sviluppo. I repository non sono equivalenti: alcuni sono percorsi verificati, altri sono superfici sperimentali. Questa distinzione rende la documentazione credibile e impedisce di confondere una demo con una capacità di produzione.
+ZDOS riunisce una base operativa Linux, un laboratorio bare-metal, il runtime Zlang e un organismo residente bounded. La struttura è intenzionalmente minima: ZDOS coordina, Zlang definisce il contratto e `zdos-organism` esegue soltanto il ciclo locale dichiarato. Questa distinzione rende la documentazione credibile e impedisce di confondere una demo con una capacità di produzione.
 
 ## Repository e responsabilità
 
@@ -10,7 +10,7 @@ ZDOS riunisce una base operativa Linux, un laboratorio bare-metal, il runtime Zl
 |---|---|---|---|
 | [ZDOS](https://github.com/high-cde/ZDOS) | Kernel sperimentale, distro Linux e orchestrazione dell’ecosistema | Boot, init, runtime, CI e documentazione | ISO Linux live e boot bare-metal QEMU |
 | [Zlang](https://github.com/high-cde/Zlang) | Compilatore e specifica del linguaggio | ZLB2 v2.5: record `EMIT`, `LET`, `IF`, `LABEL`, `WAIT`, lunghezze e `HALT` bounds-checked | Test del compilatore e integrazione ZDOS |
-| [ZDOS-SEC-PORTAL](https://github.com/high-cde/ZDOS-SEC-PORTAL) | HUD web, feed, ledger locale e stream terminale | API JSON e messaggi Socket.IO | Server Express avviabile e interfaccia HUD |
+| `zdos-organism` | Runtime residente sperimentale | Tick Zlang/ZVM con guardia `default-deny` | Verifiche Rust dichiarate nel catalogo |
 
 ## Flusso verificato
 
