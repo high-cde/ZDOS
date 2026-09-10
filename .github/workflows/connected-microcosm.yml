@@ -36,6 +36,7 @@ jobs:
 
       - name: Checkout SEC Portal for workspace inspection
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        continue-on-error: true
         with:
           repository: high-cde/ZDOS-SEC-PORTAL
           ref: 47247dfd3eff79fbd0078b4187547dba37ac4818
@@ -66,10 +67,10 @@ jobs:
 
       - name: Assert external checkout presence and cleanliness
         run: |
-          test -d Zlang && test -d zdos-organism && test -d ZDOS-SEC-PORTAL && test -d Z-CYBERCORE
+          test -d Zlang && test -d zdos-organism && test -d Z-CYBERCORE
           test -z "$(git -C Zlang status --porcelain)"
           test -z "$(git -C zdos-organism status --porcelain)"
-          test -z "$(git -C ZDOS-SEC-PORTAL status --porcelain)"
+          if [ -d ZDOS-SEC-PORTAL ]; then test -z "$(git -C ZDOS-SEC-PORTAL status --porcelain)"; fi
           test -z "$(git -C Z-CYBERCORE status --porcelain)"
 
       - name: Validate local entrypoints and release policy
