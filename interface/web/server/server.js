@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const { snapshot } = require("./zretro-chat");
 
 const app = express();
 const port = Number.parseInt(process.env.PORT || "8080", 10);
@@ -29,6 +30,29 @@ app.get("/status", (_req, res) => {
     service: "zdos-interface-web",
     mutations: false,
     disclaimer: "Nessun feed remoto o nodo esterno è collegato.",
+  });
+});
+
+app.get("/zretro/chat", (_req, res) => {
+  res.json(snapshot());
+});
+
+app.get("/zretro/chat/stream", (req, res) => {
+  res.writeHead(200, {
+    "Cache-Control": "no-store",
+    "Content-Type": "text/event-stream",
+    Connection: "keep-alive",
+    "X-Accel-Buffering": "no",
+  });
+  let closed = false;
+  const publish = () => {
+    if (!closed) res.write(`event: snapshot\ndata: ${JSON.stringify(snapshot())}\n\n`);
+  };
+  publish();
+  const timer = setInterval(publish, 1000);
+  req.on("close", () => {
+    closed = true;
+    clearInterval(timer);
   });
 });
 

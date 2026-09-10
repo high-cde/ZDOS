@@ -1,0 +1,11 @@
+project ZDOS Official Terminal Amiga
+target amiga
+screen 80 25
+palette amiga
+text "ZRETRO BY ZDOS // AMIGA TERMINAL"
+text "LINK / CREATE / SHARE"
+player terminal-amiga
+on link
+on create
+on receive
+end

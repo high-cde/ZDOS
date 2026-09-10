@@ -1,13 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>DSN‑LIVE · Z‑GENESIS</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ZDOS // ZRetro Chat Control</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <h1>DSN‑LIVE · Z‑GENESIS</h1>
-  <div id="status"></div>
+  <main class="shell">
+    <header class="topbar">
+      <div><span class="eyebrow">ZDOS / ZRETRO</span><h1>CHAT CONTROL</h1><p>Monitoraggio locale read-only del traffico tra terminali.</p></div>
+      <div class="live"><span id="live-dot" class="dot"></span><span id="connection">CONNECTING</span><small>zretro.chat</small></div>
+    </header>
+    <section class="notice">LOCAL OBSERVER · Nessuna mutazione, rete remota o capability viene attivata da questa dashboard.</section>
+    <section class="kpis" aria-label="Indicatori">
+      <article><span>NODI OSSERVATI</span><strong id="node-count">0</strong></article>
+      <article><span>MESSAGGI NEL FEED</span><strong id="message-count">0</strong></article>
+      <article><span>MSG / MIN</span><strong id="rate">0</strong></article>
+      <article><span>ULTIMO EVENTO</span><strong id="last-event">—</strong></article>
+    </section>
+    <section class="grid">
+      <article class="panel"><div class="panel-head"><h2>NODE MATRIX</h2><span id="updated">—</span></div><div id="nodes" class="nodes"><p class="muted">In attesa del bus locale…</p></div></article>
+      <article class="panel"><div class="panel-head"><h2>TRAFFIC FEED</h2><span class="badge">APPEND-ONLY</span></div><div id="feed" class="feed"><p class="muted">Nessun messaggio zretro.chat ricevuto.</p></div></article>
+    </section>
+    <footer><span id="bus">BUS: —</span><span>ZDOS // ZRETRO BY ZDOS</span></footer>
+  </main>
   <script src="js/app.js"></script>
 </body>
 </html>
