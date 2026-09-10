@@ -1,0 +1,87 @@
+# ZDOS Anonymous Overlay Policy v0.1
+# Declarative policy only. No cryptography, sockets, keys, or shell access.
+# Transport implementation remains outside ZLang and must use reviewed primitives.
+
+profile zdos.anonymous-overlay.v0.1
+mode validate-only
+
+node.role client
+authority.directory signed
+consensus.require signed
+consensus.max-age 600
+
+node.capability circuit.create
+node.capability circuit.extend
+node.capability stream.open
+node.capability stream.close
+node.capability directory.read
+
+policy.route.min-hops 3
+policy.route.roles guard middle exit
+policy.route.distinct-operator true
+policy.route.distinct-family true
+policy.route.require-consensus true
+policy.route.require-authenticated-links true
+
+policy.stream.protocol tcp
+policy.stream.exit-port 443
+policy.stream.exit-port 80
+policy.stream.dns through-circuit
+policy.stream.reject-direct-dns true
+policy.stream.reject-udp true
+
+policy.limits.max-circuits 16
+policy.limits.max-streams-per-circuit 8
+policy.limits.max-frame-bytes 16384
+policy.limits.max-memory-bytes 8388608
+policy.limits.handshake-timeout-ms 5000
+policy.limits.idle-timeout-ms 60000
+policy.limits.close-timeout-ms 2000
+policy.limits.retry-count 2
+policy.limits.rate-bytes-per-second 1048576
+
+policy.security.reject-replay true
+policy.security.reject-unknown-version true
+policy.security.reject-invalid-signature true
+policy.security.reject-invalid-transition true
+policy.security.reject-duplicate-field true
+policy.security.reject-noncanonical-frame true
+policy.security.no-secret-logging true
+policy.security.no-key-export true
+policy.security.no-public-listener true
+
+policy.service onion.disabled
+policy.tun disabled
+policy.publish disabled
+policy.admin disabled
+
+state startup
+state directory-verified
+state link-authenticated
+state circuit-ready
+state stream-open
+state closing
+state halted
+
+transition startup directory-verified requires directory.read
+transition directory-verified link-authenticated requires circuit.create
+transition link-authenticated circuit-ready requires circuit.extend
+transition circuit-ready stream-open requires stream.open
+transition stream-open closing requires stream.close
+transition closing halted requires close-timeout-ms
+transition startup halted on invalid-policy
+transition directory-verified halted on stale-consensus
+transition link-authenticated halted on handshake-timeout
+transition circuit-ready halted on limit-exceeded
+transition stream-open halted on protocol-error
+
+observe overlay.policy.accepted
+observe overlay.directory.verified
+observe overlay.circuit.created
+observe overlay.circuit.extended
+observe overlay.stream.opened
+observe overlay.stream.closed
+observe overlay.policy.rejected
+observe overlay.security.violation
+
+halt
