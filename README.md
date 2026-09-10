@@ -50,6 +50,18 @@ ZDOS è una piattaforma sperimentale per costruire sistemi x86_64 piccoli, osser
 
 ZDOS non è ancora una distribuzione general-purpose né un sostituto pronto per Debian, Ubuntu o altri sistemi operativi quotidiani. È una **base di sviluppo reale**, progettata per rendere esplicito ciò che è stato costruito, ciò che è stato testato e ciò che resta da implementare.
 
+### Struttura snella del Microcosmo
+
+Il Microcosmo ora mantiene soltanto tre fonti operative: **ZDOS**, **Zlang** e **zdos-organism**. ZDOS è il nucleo autorevole per build, boot, QEMU, Evidence Chain e gate; Zlang è il compilatore e il contratto ZLB2; `zdos-organism` è il runtime residente sperimentale. Non sono richiesti portali, dashboard o repository di sicurezza separati per eseguire i gate locali.
+
+| Componente | Responsabilità | Stato |
+|---|---|---|
+| `ZDOS` | Kernel sperimentale, distro Linux, QEMU, orchestrazione ed Evidence Chain | `VERIFIED` nel perimetro dichiarato |
+| `Zlang` | Compilatore, runtime, VM e bytecode ZLB2 | `VERIFIED` nel perimetro dichiarato |
+| `zdos-organism` | Tick residente e ponte Zlang/ZVM con policy `default-deny` | `EXPERIMENTAL` |
+
+La riduzione del perimetro elimina sincronizzazioni inutili e riferimenti a componenti non disponibili. Ogni capacità resta soggetta a contratto, test positivo, test negativo e prova riproducibile.
+
 ## Stato del progetto
 
 La maturità viene descritta per capacità, non soltanto per versione. Lo stato corrente è il seguente:

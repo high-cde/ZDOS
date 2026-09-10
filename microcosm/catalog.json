@@ -1,7 +1,7 @@
 {
   "schema": "zdos-microcosm/v1",
   "name": "ZDOS Connected Microcosm",
-  "description": "Un perimetro locale e source-first che collega ZDOS, Zlang, Evidence Chain e superfici operative senza trasformare i mirror in fonti primarie.",
+  "description": "Un perimetro locale, source-first e minimale che collega soltanto ZDOS, Zlang, zdos-organism ed Evidence Chain.",
   "owner": "high-cde",
   "policy": "default-deny",
   "source_of_truth": "official-repositories",

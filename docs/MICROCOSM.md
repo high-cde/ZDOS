@@ -1,6 +1,6 @@
 # ZDOS Connected Microcosm
 
-Il **micro-mondo connesso** integra nel repository ZDOS il modello di coordinamento di ZDOS Lab senza creare un nuovo mirror autorevole. ZDOS rimane il nucleo che costruisce, avvia, testa e attesta; il catalogo dichiara le altre fonti primarie e rende visibile lo stato reale di ogni collegamento.
+Il **micro-mondo connesso** è un perimetro source-first e minimale composto da ZDOS, Zlang e `zdos-organism`. ZDOS rimane il nucleo che costruisce, avvia, testa e attesta; il catalogo dichiara le sole fonti primarie necessarie e rende visibile lo stato reale di ogni collegamento.
 
 > La connessione non è una promessa generica: è una relazione dichiarata tra repository, comandi, prove osservabili e criteri di promozione.
 
@@ -78,7 +78,14 @@ workspace/
 └── zdos-organism/        # opzionale: fonte primaria
 ```
 
-Il micro-mondo operativo è ora limitato a ZDOS, Zlang e `zdos-organism`. I riferimenti ai repository rimossi non fanno più parte del catalogo, del workflow o della sincronizzazione.
+Il micro-mondo operativo è limitato a tre componenti. Questa scelta riduce la superficie di sincronizzazione, evita dipendenze fantasma e rende il gate riproducibile anche senza servizi web esterni.
+
+| Regola di struttura | Applicazione |
+|---|---|
+| Una fonte autorevole | ZDOS coordina build, boot, Evidence Chain e promozione |
+| Una toolchain dichiarata | Zlang viene fissato come checkout adiacente e verificato |
+| Un runtime bounded | `zdos-organism` opera con `default-deny` e capability esplicite |
+| Nessuna integrazione fantasma | Componenti rimossi non compaiono in catalogo, workflow o sync |
 
 ## Criterio di promozione
 
