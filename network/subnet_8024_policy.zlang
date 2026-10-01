@@ -1,0 +1,11 @@
+# ZDOS 80.24 public subnet policy — declarative, no activation
+# Compilabile nel profilo ZLB2 quando Zlang è presente.
+emit zdos-network-profile-8024
+emit cidr-80.24.0.0-slash-16
+emit scope-public-assigned
+emit default-deny
+emit route-apply-requires-explicit-gate
+emit firewall-apply-requires-explicit-gate
+emit no-network-scan
+emit no-port-open
+HALT
