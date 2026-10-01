@@ -83,3 +83,33 @@ $("#terminal-form").addEventListener("submit", async (event) => {
 });
 
 updateClock(); setInterval(updateClock, 1000); refreshHealth(); setInterval(refreshHealth, 30000);
+
+const browserUrl = $("#browser-url");
+const browserFeed = $("#browser-feed");
+const browserStatus = $("#browser-status-text");
+const browserExternal = $("#browser-external");
+
+function setBrowserStatus(text, error = false) {
+  browserStatus.textContent = text;
+  browserStatus.style.color = error ? "var(--red)" : "var(--green)";
+}
+
+async function readBrowserPage() {
+  const url = browserUrl.value.trim();
+  if (!/^https:\/\//i.test(url)) { setBrowserStatus("DENIED · HTTPS REQUIRED", true); browserFeed.textContent = "Il Read Gateway accetta soltanto URL HTTPS."; return; }
+  setBrowserStatus("READING · ALLOWLIST CHECK…"); browserFeed.textContent = "Lettura read-only in corso…";
+  try {
+    const data = await getJson(`/api/local/browser?url=${encodeURIComponent(url)}`);
+    if (data.status !== "READ_ONLY") { setBrowserStatus(`${data.status} · ${data.error || "nessun contenuto"}`, true); browserFeed.textContent = pretty(data); return; }
+    browserFeed.textContent = `${data.title}\n\n${data.text}`;
+    setBrowserStatus(`READY · ${new URL(data.url).hostname} · NO COOKIES · NO FORMS`);
+  } catch (error) { setBrowserStatus(`OFFLINE · ${error.message}`, true); browserFeed.textContent = "Gateway non disponibile."; }
+}
+
+document.querySelectorAll("[data-browser-action]").forEach((button) => button.addEventListener("click", () => {
+  const action = button.dataset.browserAction;
+  if (action === "read") readBrowserPage();
+  if (action === "reload") readBrowserPage();
+  if (action === "back" || action === "forward") setBrowserStatus(`${action.toUpperCase()} · cronologia locale non ancora popolata`);
+}));
+browserUrl?.addEventListener("input", () => { if (browserExternal) browserExternal.href = browserUrl.value; });

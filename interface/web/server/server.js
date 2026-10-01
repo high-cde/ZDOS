@@ -11,6 +11,7 @@ const root = path.resolve(__dirname, "../../..");
 const remoteOrigin = "https://app.x-zdos.it";
 const remoteApi = `${remoteOrigin}/api/trpc`;
 const allowedRemote = new Set(["ecosystem.list", "evidence.list", "zcomm.catalog", "node.status", "zlang.validate"]);
+const allowedBrowserHosts = new Set(["app.x-zdos.it", "github.com", "www.github.com", "githubusercontent.com", "raw.githubusercontent.com"]);
 const audit = [];
 const startedAt = new Date().toISOString();
 
@@ -104,6 +105,23 @@ app.get("/api/local/audit", (_req, res) => {
 app.get("/api/local/system", (_req, res) => { record("LOCAL_SYSTEM_READ", "safe inventory"); res.json(localSystemSnapshot()); });
 app.get("/api/local/network", (_req, res) => res.json({ schema: "zdos.glass-engine.local-network.v1", read_only: true, interfaces: safeCommand("ip", ["-brief", "link"]).output, addresses: safeCommand("ip", ["-brief", "addr"]).output, wifi: safeCommand("nmcli", ["-t", "-f", "IN-USE,SSID,SIGNAL,SECURITY", "dev", "wifi"]).output, policy: "DEFAULT-DENY", note: "Rileva Wi-Fi e rete ma non salva password e non cambia connessioni." }));
 app.get("/api/local/zcomm", (_req, res) => res.json({ schema: "zdos.zcomm.desktop-bridge.v1", status: "LOCAL_QUEUE_READY", chat: "NOT_CONFIGURED", video: "NOT_CONFIGURED", capabilities: ["zcomm.page.read", "zcomm.message.queue"], transport: "local-first", policy: "DEFAULT-DENY", note: "Chat tra due utenti: signaling autenticato. Video: WebRTC/STUN/TURN. Non simulati." }));
+app.get("/api/local/browser", async (req, res) => {
+  const raw = String(req.query.url || "https://app.x-zdos.it/");
+  let target;
+  try { target = new URL(raw); } catch { return res.status(400).json({ status: "DENIED", error: "URL non valido" }); }
+  if (target.protocol !== "https:" || !allowedBrowserHosts.has(target.hostname)) return res.status(403).json({ status: "DENIED", policy: "BROWSER_ALLOWLIST", error: "host o protocollo non allowlisted" });
+  const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 7000);
+  try {
+    const response = await fetch(target, { signal: controller.signal, redirect: "manual", headers: { accept: "text/html,text/plain", "user-agent": "ZDOS-Read-Gateway/1" } });
+    if (!response.ok) return res.status(200).json({ status: "REMOTE_ERROR", http_status: response.status, url: target.toString(), policy: "READ_ONLY" });
+    const body = await response.text();
+    if (body.length > 2 * 1024 * 1024) return res.status(413).json({ status: "DENIED", error: "pagina oltre 2 MiB" });
+    const text = body.replace(/<script[\s\S]*?<\/script>/gi, " ").replace(/<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 12000);
+    record("BROWSER_READ", target.hostname);
+    res.json({ schema: "zdos.browser.page-read.v1", status: "READ_ONLY", url: target.toString(), title: text.slice(0, 160), text, policy: "HTTPS_ALLOWLIST_NO_COOKIES_NO_FORMS" });
+  } catch (error) { res.status(200).json({ status: "OFFLINE", url: target.toString(), policy: "READ_ONLY", error: error.message }); }
+  finally { clearTimeout(timer); }
+});
 
 for (const [route, procedure] of Object.entries({ "/api/remote/ecosystem": "ecosystem.list", "/api/remote/evidence": "evidence.list", "/api/remote/zcomm": "zcomm.catalog", "/api/remote/status": "node.status" })) {
   app.get(route, async (_req, res) => { try { const data = await remoteQuery(procedure); record("REMOTE_READ", procedure); res.json({ schema: "zdos.glass-engine.remote.v1", status: "ONLINE", procedure, source: remoteOrigin, data }); } catch (err) { record("REMOTE_OFFLINE", `${procedure}: ${err.message}`); remoteError(res, err); } });
