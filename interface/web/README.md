@@ -1,6 +1,6 @@
-# ZDOS Glass Engine · Parrot Edition
+# ZDOS Glass Engine · Kali Neon Edition
 
-Questa è la console web locale **read-only** di ZDOS. Preserva le superfici del Glass Engine originale — xCLOUD, dashboard, Cloud File Manager, Zlang Studio, Evidence Chain, browser, webapp, audit e terminale — ma le espone con confini espliciti e senza shell o mutazioni remote.
+Questa è la console web locale **read-only** di ZDOS. Preserva le superfici del Glass Engine originale — xCLOUD, dashboard, Cloud File Manager, Zlang Studio, Evidence Chain, browser, webapp, audit e terminale — ma le espone con confini espliciti e senza shell o mutazioni remote. La barra alta è dedicata a identità, data/ora, health remoto e analisi operativa.
 
 ## Avvio
 
@@ -18,7 +18,14 @@ Aprire `http://127.0.0.1:8080/`.
 | `GET /status` | stato della console e policy locale |
 | `GET /api/ping` | health check minimale |
 | `GET /api/local/audit` | eventi locali, ledger e stato organism se presenti |
+| `GET /api/local/system` | kernel, CPU, RAM, disco, tool presenti e snapshot locale |
+| `GET /api/local/network` | interfacce e Wi-Fi in sola lettura |
+| `GET /api/local/zcomm` | stato della coda ZComm e dei moduli chat/video |
 | `GET /` | Glass Engine UI |
+
+## PC Analysis e Wi-Fi
+
+`/api/local/system` usa solo comandi allowlisted (`ip`, `nmcli`, `df`) con timeout breve. Rileva NetworkManager/Wi-Fi se disponibili, ma non salva password, non cambia la connessione e non avvia tool. La UI mostra la presenza dei binari utili (QEMU, xorriso, ffmpeg, Docker e altri) senza accenderli automaticamente.
 
 ## Adapter read-only verso `app.x-zdos.it`
 

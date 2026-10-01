@@ -3,21 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ZDOS // Glass Engine · Parrot Edition</title>
+  <title>ZDOS // Glass Engine · Kali Neon Edition</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <div class="scanline"></div>
   <header class="topbar">
-    <div class="brand"><span class="brand-mark">❖</span> ZDOS // GLASS ENGINE <span class="edition">PARROT EDITION</span></div>
-    <nav class="quick-actions" aria-label="Superfici rapide">
-      <a class="quick active" href="#xcloud">☁ xCLOUD-by-zdos</a>
-      <a class="quick" href="#dashboards">▥ Dashboards</a>
-      <a class="quick" href="#browser">◎ Anon Browser</a>
-      <a class="quick" href="https://app.x-zdos.it/" target="_blank" rel="noreferrer">↗ Webapp</a>
-      <a class="quick" href="#zlang">ϟ Zlang M1-M7</a>
-      <a class="quick" href="#terminal">▣ Terminale</a>
-    </nav>
+    <div class="brand"><span class="brand-mark">❖</span> ZDOS // GLASS ENGINE <span class="edition">KALI NEON</span></div>
+    <div class="header-meta"><span id="system-date">--/--/----</span><span id="system-time">--:--:--</span></div>
     <div id="remote-pill" class="pill pending">REMOTE · CHECKING</div>
   </header>
 
@@ -38,8 +31,8 @@
     <section class="workspace">
       <section class="hero">
         <div>
-          <div class="eyebrow">ZDOS HYBRID OPERATING SYSTEM · v2026.2</div>
-          <h1>Glass Engine <span>operativo</span>.</h1>
+          <div class="eyebrow">ZDOS HYBRID OPERATING SYSTEM · v2026.2 · FIELD ANALYSIS</div>
+          <h1 class="glitch" data-text="Glass Engine operativo.">Glass Engine <span>operativo</span>.</h1>
           <p>La suite originale resta intatta: xCLOUD, dashboard, file manager, Zlang, Evidence Chain, browser, webapp, audit e terminale. Ora ogni superficie dichiara il proprio confine e può osservare ZDOS e Microcosm senza esecuzione remota.</p>
         </div>
         <div class="hero-status"><span class="status-dot"></span><b>LOCAL CORE</b><small>CONSOLE ACTIVE<br>NO MUTATIONS</small></div>
@@ -49,7 +42,8 @@
         <div class="metric"><small>LOCAL POLICY</small><strong>DEFAULT-DENY</strong><span>capability gated</span></div>
         <div class="metric"><small>REMOTE SURFACE</small><strong id="metric-remote">CHECKING</strong><span>app.x-zdos.it · HTTPS</span></div>
         <div class="metric"><small>ZCOMM NODE</small><strong id="metric-node">OFFLINE?</strong><span>read-only heartbeat</span></div>
-        <div class="metric"><small>EVIDENCE</small><strong id="metric-evidence">LOADING</strong><span>public records</span></div>
+        <div class="metric"><small>PC POSTURE</small><strong id="metric-pc">ANALYSING</strong><span>local read-only probe</span></div>
+        <div class="metric"><small>WIFI RADIO</small><strong id="metric-wifi">DETECTING</strong><span>NetworkManager / iw</span></div>
       </section>
 
       <section class="card-grid" id="xcloud">
@@ -61,6 +55,8 @@
         <article class="module" id="evidence"><div class="module-icon">♜</div><div><h2>Evidence Chain Ledger</h2><p>Leggi i record pubblici di release e le prove osservabili senza mutare il ledger.</p></div><button data-open="evidence">Apri →</button></article>
         <article class="module" id="browser"><div class="module-icon">◎</div><div><h2>Anon Browser</h2><p>Collegamento esterno esplicito. La console non dichiara un circuito Tor attivo.</p></div><button data-open="browser">Apri →</button></article>
         <article class="module"><div class="module-icon">↗</div><div><h2>Webapp app.x-zdos.it</h2><p>Microcosm Control Plane, ZComm catalog, Evidence Chain e validator Zlang pubblici.</p></div><a class="module-button" href="https://app.x-zdos.it/" target="_blank" rel="noreferrer">Apri →</a></article>
+        <article class="module" id="system"><div class="module-icon">⌁</div><div><h2>PC Analysis / Kali Ops</h2><p>Kernel, CPU, RAM, disco, interfacce, Wi‑Fi e tool presenti. Rilevamento soltanto.</p></div><button data-open="system">Analizza →</button></article>
+        <article class="module" id="zcomm"><div class="module-icon">◉</div><div><h2>ZComm / Microcosm Link</h2><p>Coda locale pronta; chat e video richiedono backend autenticato e signaling WebRTC.</p></div><button data-open="zcomm">Apri →</button></article>
       </section>
 
       <section class="console-panel" id="terminal">
@@ -69,7 +65,7 @@
         <form id="terminal-form"><span class="prompt">zdos@glass:~$</span><input id="terminal-input" autocomplete="off" placeholder="help · status · remote · evidence · zcomm · validate" aria-label="Comando locale bounded"><button>EXEC</button></form>
       </section>
 
-      <footer><span>ZDOS Glass Engine Active</span><span>Backend read-only · Parrot Edition</span><span id="footer-remote">Remote: checking</span></footer>
+      <footer><span>ZDOS Glass Engine Active</span><span>Backend read-only · Kali Neon</span><span id="footer-remote">Remote: checking</span></footer>
     </section>
   </main>
   <div id="modal" class="modal hidden"><div class="modal-card"><button id="modal-close" class="modal-close">×</button><div id="modal-content"></div></div></div>

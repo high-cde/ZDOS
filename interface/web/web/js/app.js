@@ -5,16 +5,15 @@ const modalContent = $("#modal-content");
 const remotePill = $("#remote-pill");
 
 function pretty(value) { return JSON.stringify(value, null, 2); }
-function showModal(title, body) {
-  modalContent.innerHTML = `<h2>${title}</h2><div class="data-block">${body}</div>`;
-  modal.classList.remove("hidden");
-}
+function showModal(title, body) { modalContent.innerHTML = `<h2>${title}</h2><div class="data-block">${body}</div>`; modal.classList.remove("hidden"); }
 function escapeHtml(value) { return String(value).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c])); }
 function writeTerminal(text) { output.innerHTML += `\n<span>${escapeHtml(text)}</span>`; output.scrollTop = output.scrollHeight; }
+async function getJson(path) { const response = await fetch(path, { headers: { accept: "application/json" } }); return response.json(); }
 
-async function getJson(path) {
-  const response = await fetch(path, { headers: { accept: "application/json" } });
-  return response.json();
+function updateClock() {
+  const now = new Date();
+  $("#system-date").textContent = now.toLocaleDateString("it-IT", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric" }).toUpperCase();
+  $("#system-time").textContent = now.toLocaleTimeString("it-IT", { hour12: false });
 }
 
 async function refreshHealth() {
@@ -27,16 +26,17 @@ async function refreshHealth() {
     $("#footer-remote").textContent = `Remote: ${online}/${health.results.length} online`;
     const node = health.results.find((item) => item.procedure === "node.status");
     $("#metric-node").textContent = node?.data?.status || node?.status || "OFFLINE";
-  } catch (error) {
-    remotePill.textContent = "REMOTE · OFFLINE";
-    remotePill.className = "pill pending";
-    $("#metric-remote").textContent = "OFFLINE";
-    $("#footer-remote").textContent = "Remote: offline";
+  } catch {
+    remotePill.textContent = "REMOTE · OFFLINE"; remotePill.className = "pill pending";
+    $("#metric-remote").textContent = "OFFLINE"; $("#footer-remote").textContent = "Remote: offline";
   }
+  try { const evidence = await getJson("/api/remote/evidence"); $("#metric-evidence")?.replaceWith(Object.assign(document.createElement("strong"), { id: "metric-evidence", textContent: Array.isArray(evidence.data) ? `${evidence.data.length} RECORDS` : "READY" })); } catch {}
   try {
-    const evidence = await getJson("/api/remote/evidence");
-    $("#metric-evidence").textContent = Array.isArray(evidence.data) ? `${evidence.data.length} RECORDS` : "READY";
-  } catch { $("#metric-evidence").textContent = "OFFLINE"; }
+    const system = await getJson("/api/local/system");
+    $("#metric-pc").textContent = system.os?.replace(" GNU/Linux", "").slice(0, 18) || "READY";
+    const wifi = system.wifi?.available ? "RADIO READY" : "NO NMCLI";
+    $("#metric-wifi").textContent = wifi;
+  } catch { $("#metric-pc").textContent = "OFFLINE"; $("#metric-wifi").textContent = "UNKNOWN"; }
 }
 
 async function openData(title, endpoint) {
@@ -52,16 +52,13 @@ function openModule(name) {
   if (name === "audit") openData("Backend Audit Logs", "/api/local/audit");
   if (name === "evidence") openData("Evidence Chain Ledger", "/api/remote/evidence");
   if (name === "browser") showModal("Anon Browser", "LINK SURFACE\n\nLa console non dichiara un circuito Tor attivo. Apri il browser autorizzato del sistema separatamente se necessario.");
+  if (name === "system") openData("PC Analysis / Kali Ops", "/api/local/system");
+  if (name === "network") openData("Wi-Fi & Network Radar", "/api/local/network");
+  if (name === "zcomm") openData("ZComm / Microcosm Link", "/api/local/zcomm");
   if (name === "zlang") {
     modalContent.innerHTML = `<h2>Zlang Runtime Studio</h2><p>Validazione server-side del profilo <b>zdos.zlang.microterm.v1</b>. Esecuzione sempre negata.</p><textarea id="validate-source" class="validate-box">emit hello</textarea><br><button class="modal-action" id="validate-button">VALIDATE CONTRACT</button><div id="validate-result" class="data-block" style="margin-top:12px">READY</div>`;
     modal.classList.remove("hidden");
-    $("#validate-button").addEventListener("click", async () => {
-      const source = $("#validate-source").value;
-      const result = $("#validate-result");
-      result.textContent = "VALIDATING…";
-      try { result.textContent = pretty(await getJson(`/api/remote/validate?source=${encodeURIComponent(source)}`)); }
-      catch (error) { result.textContent = `OFFLINE\n${error.message}`; }
-    });
+    $("#validate-button").addEventListener("click", async () => { const source = $("#validate-source").value; const result = $("#validate-result"); result.textContent = "VALIDATING…"; try { result.textContent = pretty(await getJson(`/api/remote/validate?source=${encodeURIComponent(source)}`)); } catch (error) { result.textContent = `OFFLINE\n${error.message}`; } });
   }
 }
 
@@ -71,21 +68,18 @@ modal.addEventListener("click", (event) => { if (event.target === modal) modal.c
 
 $("#terminal-form").addEventListener("submit", async (event) => {
   event.preventDefault();
-  const input = $("#terminal-input");
-  const command = input.value.trim();
-  input.value = "";
-  if (!command) return;
-  writeTerminal(`zdos@glass:~$ ${command}`);
-  const [verb, ...rest] = command.split(" ");
-  if (verb === "help") writeTerminal("help | status | remote | evidence | zcomm | validate <source> | clear");
+  const input = $("#terminal-input"); const command = input.value.trim(); input.value = ""; if (!command) return;
+  writeTerminal(`zdos@glass:~$ ${command}`); const [verb, ...rest] = command.split(" ");
+  if (verb === "help") writeTerminal("help | status | remote | system | wifi | evidence | zcomm | validate <source> | clear");
   else if (verb === "clear") output.innerHTML = "CLEARED · bounded local console";
   else if (verb === "status") { try { writeTerminal(pretty(await getJson("/status"))); } catch { writeTerminal("LOCAL STATUS OFFLINE"); } }
   else if (verb === "remote") { try { writeTerminal(pretty(await getJson("/api/remote/health"))); } catch { writeTerminal("REMOTE OFFLINE · no mutation attempted"); } }
+  else if (verb === "system") { try { writeTerminal(pretty(await getJson("/api/local/system"))); } catch { writeTerminal("LOCAL SYSTEM OFFLINE"); } }
+  else if (verb === "wifi") { try { writeTerminal(pretty(await getJson("/api/local/network"))); } catch { writeTerminal("WIFI RADAR OFFLINE"); } }
   else if (verb === "evidence") { try { writeTerminal(pretty(await getJson("/api/remote/evidence"))); } catch { writeTerminal("EVIDENCE REMOTE OFFLINE"); } }
-  else if (verb === "zcomm") { try { writeTerminal(pretty(await getJson("/api/remote/zcomm"))); } catch { writeTerminal("ZCOMM REMOTE OFFLINE"); } }
+  else if (verb === "zcomm") { try { writeTerminal(pretty(await getJson("/api/local/zcomm"))); } catch { writeTerminal("ZCOMM LOCAL OFFLINE"); } }
   else if (verb === "validate") { const source = rest.join(" ") || "emit hello"; try { writeTerminal(pretty(await getJson(`/api/remote/validate?source=${encodeURIComponent(source)}`))); } catch { writeTerminal("VALIDATOR OFFLINE"); } }
   else writeTerminal("DENIED · command outside Glass Engine safe catalog; no shell invoked");
 });
 
-refreshHealth();
-setInterval(refreshHealth, 30000);
+updateClock(); setInterval(updateClock, 1000); refreshHealth(); setInterval(refreshHealth, 30000);
