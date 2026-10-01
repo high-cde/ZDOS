@@ -1,13 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>DSN‑LIVE · Z‑GENESIS</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ZDOS // Glass Engine · Parrot Edition</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <h1>DSN‑LIVE · Z‑GENESIS</h1>
-  <div id="status"></div>
+  <div class="scanline"></div>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">❖</span> ZDOS // GLASS ENGINE <span class="edition">PARROT EDITION</span></div>
+    <nav class="quick-actions" aria-label="Superfici rapide">
+      <a class="quick active" href="#xcloud">☁ xCLOUD-by-zdos</a>
+      <a class="quick" href="#dashboards">▥ Dashboards</a>
+      <a class="quick" href="#browser">◎ Anon Browser</a>
+      <a class="quick" href="https://app.x-zdos.it/" target="_blank" rel="noreferrer">↗ Webapp</a>
+      <a class="quick" href="#zlang">ϟ Zlang M1-M7</a>
+      <a class="quick" href="#terminal">▣ Terminale</a>
+    </nav>
+    <div id="remote-pill" class="pill pending">REMOTE · CHECKING</div>
+  </header>
+
+  <main class="shell">
+    <aside class="sidebar">
+      <div class="side-label">GLASS CONTROL SUITE</div>
+      <a class="side-link selected" href="#xcloud">☁ xCLOUD-by-zdos Hub <span>CORE</span></a>
+      <a class="side-link" href="#dashboards">▥ Dedicated Dashboards <span>LOCAL</span></a>
+      <a class="side-link" href="#files">☁ Cloud File Manager <span>READ</span></a>
+      <a class="side-link" href="#zlang">ϟ Zlang Runtime Studio <span>VALIDATE</span></a>
+      <a class="side-link" href="#evidence">♜ Evidence Chain Ledger <span>HASH</span></a>
+      <a class="side-link" href="#browser">◎ Anon Browser (Tor) <span>LINK</span></a>
+      <a class="side-link" href="https://app.x-zdos.it/" target="_blank" rel="noreferrer">↗ Webapp app.x-zdos.it <span>OPEN</span></a>
+      <a class="side-link" href="#audit">⚒ Backend Audit Logs <span>LOCAL</span></a>
+      <div class="side-note"><b>POLICY</b><br>DEFAULT-DENY<br>READ-ONLY BY DEFAULT<br><br><b>REMOTE</b><br>HTTPS ALLOWLIST</div>
+    </aside>
+
+    <section class="workspace">
+      <section class="hero">
+        <div>
+          <div class="eyebrow">ZDOS HYBRID OPERATING SYSTEM · v2026.2</div>
+          <h1>Glass Engine <span>operativo</span>.</h1>
+          <p>La suite originale resta intatta: xCLOUD, dashboard, file manager, Zlang, Evidence Chain, browser, webapp, audit e terminale. Ora ogni superficie dichiara il proprio confine e può osservare ZDOS e Microcosm senza esecuzione remota.</p>
+        </div>
+        <div class="hero-status"><span class="status-dot"></span><b>LOCAL CORE</b><small>CONSOLE ACTIVE<br>NO MUTATIONS</small></div>
+      </section>
+
+      <section class="metrics" id="dashboards">
+        <div class="metric"><small>LOCAL POLICY</small><strong>DEFAULT-DENY</strong><span>capability gated</span></div>
+        <div class="metric"><small>REMOTE SURFACE</small><strong id="metric-remote">CHECKING</strong><span>app.x-zdos.it · HTTPS</span></div>
+        <div class="metric"><small>ZCOMM NODE</small><strong id="metric-node">OFFLINE?</strong><span>read-only heartbeat</span></div>
+        <div class="metric"><small>EVIDENCE</small><strong id="metric-evidence">LOADING</strong><span>public records</span></div>
+      </section>
+
+      <section class="card-grid" id="xcloud">
+        <article class="module featured"><div class="module-icon">☁</div><div><h2>xCLOUD-by-zdos Enterprise</h2><p>Dashboard aziendale, DSN wallet e Portal Fusion. La superficie resta disponibile come collegamento dichiarativo.</p></div><button data-open="xcloud">Apri →</button></article>
+        <article class="module"><div class="module-icon">▥</div><div><h2>System &amp; Mesh Dashboards</h2><p>Metriche locali della console, stato dei componenti e salute della connessione pubblica.</p></div><button data-open="dashboards">Apri →</button></article>
+        <article class="module" id="files"><div class="module-icon">☁</div><div><h2>Cloud File Manager</h2><p>Superficie conservata come accesso documentale. Nessuna scrittura remota viene simulata.</p></div><button data-open="files">Apri →</button></article>
+        <article class="module" id="audit"><div class="module-icon">⚒</div><div><h2>Backend Audit Logs</h2><p>Eventi locali della console, ledger e resident organism quando disponibili.</p></div><button data-open="audit">Apri →</button></article>
+        <article class="module" id="zlang"><div class="module-icon">ϟ</div><div><h2>Zlang Runtime Studio</h2><p>Valida un contratto Micro Terminal tramite l'endpoint pubblico. Esecuzione sempre negata.</p></div><button data-open="zlang">Apri →</button></article>
+        <article class="module" id="evidence"><div class="module-icon">♜</div><div><h2>Evidence Chain Ledger</h2><p>Leggi i record pubblici di release e le prove osservabili senza mutare il ledger.</p></div><button data-open="evidence">Apri →</button></article>
+        <article class="module" id="browser"><div class="module-icon">◎</div><div><h2>Anon Browser</h2><p>Collegamento esterno esplicito. La console non dichiara un circuito Tor attivo.</p></div><button data-open="browser">Apri →</button></article>
+        <article class="module"><div class="module-icon">↗</div><div><h2>Webapp app.x-zdos.it</h2><p>Microcosm Control Plane, ZComm catalog, Evidence Chain e validator Zlang pubblici.</p></div><a class="module-button" href="https://app.x-zdos.it/" target="_blank" rel="noreferrer">Apri →</a></article>
+      </section>
+
+      <section class="console-panel" id="terminal">
+        <div class="panel-head"><div><span class="eyebrow">LOCAL CONSOLE</span><h2>Glass Terminal</h2></div><span class="pill green">SAFE COMMANDS ONLY</span></div>
+        <div id="terminal-output" class="terminal-output">ZDOS Glass Engine ready. Type <b>help</b> for the bounded command catalog.</div>
+        <form id="terminal-form"><span class="prompt">zdos@glass:~$</span><input id="terminal-input" autocomplete="off" placeholder="help · status · remote · evidence · zcomm · validate" aria-label="Comando locale bounded"><button>EXEC</button></form>
+      </section>
+
+      <footer><span>ZDOS Glass Engine Active</span><span>Backend read-only · Parrot Edition</span><span id="footer-remote">Remote: checking</span></footer>
+    </section>
+  </main>
+  <div id="modal" class="modal hidden"><div class="modal-card"><button id="modal-close" class="modal-close">×</button><div id="modal-content"></div></div></div>
   <script src="js/app.js"></script>
 </body>
 </html>

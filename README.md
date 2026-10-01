@@ -384,6 +384,18 @@ cd ZDOS
 ZLANG_ROOT=../Zlang ./scripts/evolve-zlang-evidence.sh
 ```
 
+## Glass Engine · console operativa
+
+ZDOS include una console web locale in sola lettura che conserva le superfici del Glass Engine originale: xCLOUD-by-zdos, dashboard, Cloud File Manager, Zlang Runtime Studio, Evidence Chain Ledger, browser, webapp, audit e terminale bounded. L’interfaccia usa l’identità Parrot Edition e dichiara sempre il proprio confine `DEFAULT-DENY`.
+
+```sh
+cd interface/web
+npm install
+HOST=127.0.0.1 PORT=8080 npm start
+```
+
+La console osserva, senza modificare, `app.x-zdos.it` tramite procedure allowlisted: `ecosystem.list`, `evidence.list`, `zcomm.catalog`, `node.status` e `zlang.validate`. Il validator è server-side e mantiene `execution: DENIED`; il terminale grafico accetta soltanto comandi bounded (`help`, `status`, `remote`, `evidence`, `zcomm`, `validate`, `clear`). Dettagli e route sono in [`interface/web/README.md`](interface/web/README.md).
+
 ## Struttura del repository
 
 | Percorso | Responsabilità |
