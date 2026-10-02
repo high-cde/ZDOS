@@ -1,0 +1,25 @@
+{
+  "event_id": "urn:uuid:zdos-demo-receiving-0001",
+  "event_type": "ObjectEvent",
+  "action": "OBSERVE",
+  "event_time": "2026-10-02T00:00:00Z",
+  "event_timezone_offset": "+02:00",
+  "what": ["lot:ZDOS-RAW-0001"],
+  "where": "loc:ZDOS-PLANT-01",
+  "who": "did:zdos:org:zdos-demo",
+  "why": "receiving",
+  "biz_step": "receiving",
+  "disposition": "in_progress",
+  "source": "party:zdos-supplier-01",
+  "destination": "loc:ZDOS-PLANT-01",
+  "kde": {
+    "batch": "ZDOS-RAW-0001",
+    "quantity": 1000,
+    "uom": "EA"
+  },
+  "proof": {
+    "schema": "zdos.proof.v1",
+    "object_hash": "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+    "issuer": "did:zdos:org:zdos-demo"
+  }
+}
