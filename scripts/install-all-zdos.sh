@@ -4,6 +4,8 @@ IFS=$'\n\t'
 
 REPO="${ZDOS_REPO:-$HOME/ZDOS}"
 PATCH_URL="https://files.manuscdn.com/user_upload_by_module/session_file/310519663994341469/echkABxkaaxhtPLb.patch"
+SOURCE_REPO="https://github.com/high-cde/ZDOS.git"
+SOURCE_BRANCH="feat/glass-engine-console"
 TMP="${TMPDIR:-/tmp}/zdos-install-all"
 mkdir -p "$TMP"
 
@@ -20,6 +22,12 @@ if [ ! -d "$REPO/.git" ]; then
 fi
 cd "$REPO"
 
+# Se un'esecuzione precedente è rimasta dentro git am, la chiudiamo senza
+# toccare il working tree; il bootstrap usa poi il branch GitHub come sorgente.
+if [ -d "$REPO/.git/rebase-apply" ] || [ -d "$REPO/.git/rebase-merge" ]; then
+  git am --abort || true
+fi
+
 if [ -n "$(git status --porcelain)" ]; then
   echo "Repository con modifiche locali; non eseguo reset o cancellazioni:"
   git status --short
@@ -29,11 +37,28 @@ fi
 if ! grep -q 'xcloud-workbench' interface/web/web/index.html 2>/dev/null || \
    ! grep -q '/api/local/evidence/wallet' interface/web/server/server.js 2>/dev/null || \
    ! test -f hydro/zdos_hydro_guard.zlang; then
-  echo "[2/8] Applico il pacchetto completo..."
+  echo "[2/8] Sincronizzo i componenti dal branch GitHub..."
   git branch "backup-before-zdos-all-$(date +%Y%m%d-%H%M%S)"
-  wget -q --show-progress -O "$TMP/zdos-all.patch" "$PATCH_URL"
-  test -s "$TMP/zdos-all.patch"
-  git am --3way "$TMP/zdos-all.patch"
+  git fetch --depth=1 "$SOURCE_REPO" "$SOURCE_BRANCH"
+  git checkout FETCH_HEAD -- \
+    interface/web/server/server.js \
+    interface/web/web/index.html \
+    interface/web/web/js/app.js \
+    interface/web/web/css/style.css \
+    docs/EVIDENCE-WALLET.md \
+    docs/EVIDENCE-CHAIN-INDUSTRIAL-PLATFORM.md \
+    docs/HYDRO-GUARD-SAFE-MODULE.md \
+    supply-chain/zdos-trace-event.schema.json \
+    supply-chain/zdos-trace-event.example.json \
+    tools/validate-zdos-trace-event.py \
+    tools/evaluate-hydro-telemetry.py \
+    scripts/autobuild-evidence-chain.sh \
+    scripts/install-glass-engine-desktop.sh \
+    hydro/zdos_hydro_guard.zlang \
+    hydro/telemetry.example.json
+  chmod +x scripts/autobuild-evidence-chain.sh tools/evaluate-hydro-telemetry.py
+  git add interface/web docs supply-chain tools scripts hydro
+  git -c user.name="ZDOS Installer" -c user.email="installer@zdos.local" commit -m "chore: install ZDOS Glass Engine suite"
 else
   echo "[2/8] Componenti già presenti; salto la patch."
 fi
