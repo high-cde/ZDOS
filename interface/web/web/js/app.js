@@ -113,3 +113,32 @@ document.querySelectorAll("[data-browser-action]").forEach((button) => button.ad
   if (action === "back" || action === "forward") setBrowserStatus(`${action.toUpperCase()} · cronologia locale non ancora popolata`);
 }));
 browserUrl?.addEventListener("input", () => { if (browserExternal) browserExternal.href = browserUrl.value; });
+
+const walletStatus = $("#wallet-chain-status");
+const walletDetail = $("#wallet-chain-detail");
+const walletIdentity = $("#wallet-identity");
+const walletDid = $("#wallet-did");
+const walletRole = $("#wallet-role");
+const walletEntries = $("#wallet-entries");
+const walletHead = $("#wallet-head");
+const walletFeed = $("#wallet-feed");
+
+async function refreshEvidenceWallet() {
+  if (!walletStatus) return;
+  try {
+    const data = await getJson("/api/local/evidence/wallet");
+    const verification = data.ledger?.verification?.status || "EMPTY";
+    walletStatus.textContent = verification;
+    walletStatus.style.color = verification === "VERIFIED" ? "var(--green)" : verification === "INVALID" ? "var(--red)" : "var(--amber)";
+    walletDetail.textContent = data.ledger?.verification?.detail || "local ledger";
+    walletIdentity.textContent = data.identity?.status || "NOT INITIALIZED";
+    walletDid.textContent = data.identity?.did || "did:zdos:—";
+    walletRole.textContent = data.identity?.role ? `role: ${data.identity.role}` : "local identity required for capabilities";
+    walletEntries.textContent = `${data.ledger?.entries || 0} EVENTS`;
+    walletHead.textContent = data.ledger?.head ? `${data.ledger.head.slice(0, 18)}…` : "0000000000000000…";
+    walletFeed.textContent = pretty(data);
+  } catch (error) { walletStatus.textContent = "OFFLINE"; walletDetail.textContent = error.message; }
+}
+
+document.querySelectorAll("[data-wallet-action]").forEach((button) => button.addEventListener("click", refreshEvidenceWallet));
+refreshEvidenceWallet();

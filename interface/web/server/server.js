@@ -102,6 +102,22 @@ app.get("/api/local/audit", (_req, res) => {
   try { if (fs.existsSync(statusFile)) organism = JSON.parse(fs.readFileSync(statusFile, "utf8")); } catch { organism = { state: "INVALID_STATUS_FILE" }; }
   res.json({ schema: "zdos.glass-engine.local.v1", policy: "DEFAULT-DENY", mutations: false, organism, evidence: tailJsonl(path.join(root, "evidence/ledger.jsonl")), events: tailJsonl(path.join(root, "var/organism/events.jsonl")), audit });
 });
+app.get("/api/local/evidence/wallet", (_req, res) => {
+  const ledgerCandidates = [process.env.ZDOS_LEDGER, path.join(root, "evidence/ledger.jsonl"), "/var/lib/zdos-node/evidence.jsonl"].filter(Boolean);
+  const ledgerPath = ledgerCandidates.map((item) => path.resolve(item)).find((item) => fs.existsSync(item)) || ledgerCandidates[1];
+  const entries = tailJsonl(ledgerPath, 100000);
+  const identityCandidates = [process.env.ZDOS_IDENTITY_DIR, path.join(os.homedir(), ".config/zdos/identity"), path.join(root, "identity/state")].filter(Boolean);
+  let identity = { status: "NOT_INITIALIZED", network_identity: "none", capabilities: ["evidence.read-v1"] };
+  for (const directory of identityCandidates) {
+    const file = path.join(directory, "identity.json");
+    if (!fs.existsSync(file)) continue;
+    try { const profile = JSON.parse(fs.readFileSync(file, "utf8")); identity = { status: "IDENTITY_PRESENT", did: profile.identity, nick: profile.nick, role: profile.role, network_identity: profile.network_identity, capabilities: ["evidence.read-v1", ...(profile.role === "operator" || profile.role === "administrator" ? ["evidence.append-v1"] : [])] }; } catch { identity = { status: "INVALID_IDENTITY", network_identity: "none", capabilities: ["evidence.read-v1"] }; }
+    break;
+  }
+  const last = entries.at(-1);
+  const verification = entries.length ? spawnSync("python3", [path.join(root, "evidence/ledger.py"), "--ledger", ledgerPath, "verify"], { encoding: "utf8", timeout: 3000, maxBuffer: 16384 }) : { status: 0, stdout: "ledger is empty" };
+  res.json({ schema: "zdos.evidence-wallet.v1", wallet_type: "NON_CUSTODIAL_READ_ONLY", chain: "ZDOS Evidence Chain", monetary_assets: false, ledger: { path: ledgerPath, status: entries.length ? "LOCAL_LEDGER_PRESENT" : "EMPTY", entries: entries.length, head: last?.hash || "0".repeat(64), last_event: last?.event?.type || null, verification: { status: entries.length && verification.status === 0 ? "VERIFIED" : entries.length ? "INVALID" : "EMPTY", detail: String(verification.stdout || verification.stderr || "").trim() } }, identity, capabilities: ["evidence.read-v1", "evidence.verify-v1"], denied: ["wallet.transfer-v1", "wallet.sign-transaction-v1", "contract.approve-v1"], policy: "DEFAULT_DENY", note: "Ledger hash-chained non-monetario; non è una rete di consenso e non custodisce fondi." });
+});
 app.get("/api/local/system", (_req, res) => { record("LOCAL_SYSTEM_READ", "safe inventory"); res.json(localSystemSnapshot()); });
 app.get("/api/local/network", (_req, res) => res.json({ schema: "zdos.glass-engine.local-network.v1", read_only: true, interfaces: safeCommand("ip", ["-brief", "link"]).output, addresses: safeCommand("ip", ["-brief", "addr"]).output, wifi: safeCommand("nmcli", ["-t", "-f", "IN-USE,SSID,SIGNAL,SECURITY", "dev", "wifi"]).output, policy: "DEFAULT-DENY", note: "Rileva Wi-Fi e rete ma non salva password e non cambia connessioni." }));
 app.get("/api/local/zcomm", (_req, res) => res.json({ schema: "zdos.zcomm.desktop-bridge.v1", status: "LOCAL_QUEUE_READY", chat: "NOT_CONFIGURED", video: "NOT_CONFIGURED", capabilities: ["zcomm.page.read", "zcomm.message.queue"], transport: "local-first", policy: "DEFAULT-DENY", note: "Chat tra due utenti: signaling autenticato. Video: WebRTC/STUN/TURN. Non simulati." }));

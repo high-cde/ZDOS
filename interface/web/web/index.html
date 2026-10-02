@@ -51,6 +51,7 @@
         <a href="#browser-workbench">◎ BROWSER</a>
         <a href="#files-workbench">☁ FILES</a>
         <a href="#zlang-workbench">ϟ ZLANG</a>
+        <a href="#evidence-wallet">♜ EVIDENCE</a>
         <a href="#zcomm">◉ ZCOMM</a>
       </nav>
 
@@ -60,7 +61,7 @@
         <article class="module" id="files"><div class="module-icon">☁</div><div><h2>Cloud File Manager</h2><p>Superficie conservata come accesso documentale. Nessuna scrittura remota viene simulata.</p></div><button data-open="files">Apri →</button></article>
         <article class="module" id="audit"><div class="module-icon">⚒</div><div><h2>Backend Audit Logs</h2><p>Eventi locali della console, ledger e resident organism quando disponibili.</p></div><button data-open="audit">Apri →</button></article>
         <article class="module" id="zlang"><div class="module-icon">ϟ</div><div><h2>Zlang Runtime Studio</h2><p>Valida un contratto Micro Terminal tramite l'endpoint pubblico. Esecuzione sempre negata.</p></div><button data-open="zlang">Apri →</button></article>
-        <article class="module" id="evidence"><div class="module-icon">♜</div><div><h2>Evidence Chain Ledger</h2><p>Leggi i record pubblici di release e le prove osservabili senza mutare il ledger.</p></div><button data-open="evidence">Apri →</button></article>
+        <article class="module" id="evidence"><div class="module-icon">♜</div><div><h2>Evidence Wallet</h2><p>Identità, head hash e verifica della catena ZDOS. Non custodisce fondi e non firma transazioni.</p></div><a class="module-button" href="#evidence-wallet">Apri →</a></article>
         <article class="module" id="browser"><div class="module-icon">◎</div><div><h2>Anon Browser</h2><p>Workbench di lettura HTTPS con allowlist e nessun cookie. Collegamento esterno esplicito.</p></div><a class="module-button" href="#browser-workbench">Apri →</a></article>
         <article class="module"><div class="module-icon">↗</div><div><h2>Webapp app.x-zdos.it</h2><p>Microcosm Control Plane, ZComm catalog, Evidence Chain e validator Zlang pubblici.</p></div><a class="module-button" href="https://app.x-zdos.it/" target="_blank" rel="noreferrer">Apri →</a></article>
         <article class="module" id="system"><div class="module-icon">⌁</div><div><h2>PC Analysis / Kali Ops</h2><p>Kernel, CPU, RAM, disco, interfacce, Wi‑Fi e tool presenti. Rilevamento soltanto.</p></div><button data-open="system">Analizza →</button></article>
@@ -79,6 +80,13 @@ Consentiti: app.x-zdos.it · github.com · raw.githubusercontent.com</pre>
 
       <section class="workbench compact-workbench" id="files-workbench"><div class="workbench-head"><div><span class="eyebrow">CAPABILITY SURFACE · READ ONLY</span><h2>☁ File Manager <span>// namespace explorer</span></h2></div><a class="workbench-home" href="#top">⌂ home</a></div><div class="tool-row"><button data-open="files">LISTA ROOT AUTORIZZATA</button><button data-open="system">DISK STATUS</button><span>storage.read-v1 · no delete · no write</span></div></section>
       <section class="workbench compact-workbench" id="zlang-workbench"><div class="workbench-head"><div><span class="eyebrow">COMPILED POLICY SURFACE</span><h2>ϟ Zlang Studio <span>// ZLB2 bounded</span></h2></div><a class="workbench-home" href="#top">⌂ home</a></div><div class="tool-row"><button data-open="zlang">VALIDATE CONTRACT</button><span>emit · let · if · wait · HALT · execution denied</span></div></section>
+      <section class="workbench wallet-workbench" id="evidence-wallet">
+        <div class="workbench-head"><div><span class="eyebrow">IDENTITY · INTEGRITY · NO CUSTODY</span><h2>♜ ZDOS Evidence Wallet <span>// human mode</span></h2></div><a class="workbench-home" href="#top">⌂ home</a></div>
+        <div class="wallet-hero"><div><small>NETWORK</small><strong>ZDOS EVIDENCE CHAIN</strong><span>Native ZDOS/Zlang policy · non-monetary</span></div><div><small>WALLET MODE</small><strong class="accent-green">READ-ONLY</strong><span>no funds · no transfer · no signing</span></div><div><small>CHAIN STATUS</small><strong id="wallet-chain-status">CHECKING</strong><span id="wallet-chain-detail">verifying local ledger</span></div></div>
+        <div class="wallet-grid"><article class="wallet-card"><small>IDENTITY</small><strong id="wallet-identity">NOT INITIALIZED</strong><code id="wallet-did">did:zdos:—</code><span id="wallet-role">local identity required for capabilities</span></article><article class="wallet-card"><small>HEAD HASH</small><strong id="wallet-entries">0 EVENTS</strong><code id="wallet-head">0000000000000000…</code><span>hash-chained evidence</span></article><article class="wallet-card"><small>CAPABILITIES</small><strong>READ · VERIFY</strong><span>evidence.read-v1<br>evidence.verify-v1</span></article></div>
+        <div class="wallet-actions"><button class="primary-action" data-wallet-action="verify">VERIFY CHAIN</button><button data-wallet-action="refresh">REFRESH IDENTITY</button><span>Compatible concept: account / network / activity / permissions. No monetary asset exists in this ledger.</span></div>
+        <pre id="wallet-feed" class="browser-feed">Evidence Wallet ready. Nessuna chiave privata viene letta dalla UI.</pre>
+      </section>
 
       <section class="console-panel" id="terminal">
         <div class="panel-head"><div><span class="eyebrow">LOCAL CONSOLE</span><h2>Glass Terminal</h2></div><span class="pill green">SAFE COMMANDS ONLY</span></div>
