@@ -525,3 +525,22 @@ Questo progetto è distribuito secondo la licenza indicata in [`LICENSE`](LICENS
 [1]: https://github.com/high-cde/Zlang "Repository Zlang"
 [2]: https://github.com/high-cde/Zlang/blob/main/docs/zdos-x86_64-profile.md "Profilo ZLB2 v2.5 per ZDOS x86_64"
 [3]: https://github.com/high-cde/ZDOS-SEC-PORTAL "ZDOS-SEC Portal"
+
+## ZDOS Intelligence Release · 2026.10.02
+
+La workstation Glass Engine include un bridge LLM governato da Zlang. Il bridge è **offline di default** e passa online solo quando l'operatore configura esplicitamente un endpoint OpenAI-compatible. Le capability ammesse sono analisi, spiegazione e pianificazione testuale; shell, rete, segreti, scrittura file, radio e firma wallet restano negate.
+
+```bash
+python3 ai/zdos_llm_bridge.py "spiega lo stato della Evidence Chain"
+```
+
+Installazione pulita con backup automatico:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/high-cde/ZDOS/feat/glass-engine-console/scripts/install-zdos-clean.sh | bash
+```
+
+- [Release manifest](release/zdos-release.json)
+- [Zlang Intelligence contract](ai/zdos_intelligence.zlang)
+- [Intelligence release notes](docs/ZDOS-INTELLIGENCE-RELEASE.md)
+- [Distribution and trademark notice](NOTICE-ZDOS.md)

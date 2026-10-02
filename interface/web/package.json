@@ -1,8 +1,8 @@
 {
   "name": "zdos-interface-web",
-  "version": "0.2.0",
+  "version": "2026.10.02",
   "private": true,
-  "description": "Interfaccia web locale in sola lettura per ZDOS",
+  "description": "ZDOS Glass Engine desktop console with bounded Zlang Intelligence",
   "main": "server/server.js",
   "engines": {
     "node": ">=20"
