@@ -2,6 +2,7 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const os = require("os");
+const crypto = require("crypto");
 const { spawnSync } = require("child_process");
 
 const app = express();
@@ -14,6 +15,27 @@ const allowedRemote = new Set(["ecosystem.list", "evidence.list", "zcomm.catalog
 const allowedBrowserHosts = new Set(["app.x-zdos.it", "github.com", "www.github.com", "githubusercontent.com", "raw.githubusercontent.com"]);
 const audit = [];
 const startedAt = new Date().toISOString();
+const bridgeTokenFile = process.env.ZDOS_BRIDGE_TOKEN_FILE || path.join(os.homedir(), ".config/zdos/bridge.token");
+const bridgeDataFile = process.env.ZDOS_BRIDGE_DATA_FILE || path.join(os.homedir(), ".local/share/zdos-glass-engine/bridge/messages.jsonl");
+let bridgeMessages = [];
+
+function loadBridgeMessages() {
+  try { bridgeMessages = fs.readFileSync(bridgeDataFile, "utf8").trim().split("\n").filter(Boolean).slice(-500).map((line) => JSON.parse(line)); } catch { bridgeMessages = []; }
+}
+function bridgeToken() {
+  try { return fs.readFileSync(bridgeTokenFile, "utf8").trim(); } catch { return String(process.env.ZDOS_BRIDGE_TOKEN || "").trim(); }
+}
+function bridgeAuthorized(req) {
+  const expected = bridgeToken();
+  const supplied = String(req.headers["x-zdos-bridge-token"] || "");
+  return Boolean(expected && supplied && supplied.length === expected.length && crypto.timingSafeEqual(Buffer.from(supplied), Buffer.from(expected)));
+}
+function appendBridgeMessages(messages) {
+  if (!messages.length) return;
+  fs.mkdirSync(path.dirname(bridgeDataFile), { recursive: true, mode: 0o700 });
+  fs.appendFileSync(bridgeDataFile, messages.map((message) => `${JSON.stringify(message)}\n`).join(""), { mode: 0o600 });
+}
+loadBridgeMessages();
 
 if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error("PORT deve essere un intero compreso tra 1 e 65535");
 
@@ -120,7 +142,22 @@ app.get("/api/local/evidence/wallet", (_req, res) => {
 });
 app.get("/api/local/system", (_req, res) => { record("LOCAL_SYSTEM_READ", "safe inventory"); res.json(localSystemSnapshot()); });
 app.get("/api/local/network", (_req, res) => res.json({ schema: "zdos.glass-engine.local-network.v1", read_only: true, interfaces: safeCommand("ip", ["-brief", "link"]).output, addresses: safeCommand("ip", ["-brief", "addr"]).output, wifi: safeCommand("nmcli", ["-t", "-f", "IN-USE,SSID,SIGNAL,SECURITY", "dev", "wifi"]).output, policy: "DEFAULT-DENY", note: "Rileva Wi-Fi e rete ma non salva password e non cambia connessioni." }));
-app.get("/api/local/zcomm", (_req, res) => res.json({ schema: "zdos.zcomm.desktop-bridge.v1", status: "LOCAL_QUEUE_READY", chat: "NOT_CONFIGURED", video: "NOT_CONFIGURED", capabilities: ["zcomm.page.read", "zcomm.message.queue"], transport: "local-first", policy: "DEFAULT-DENY", note: "Chat tra due utenti: signaling autenticato. Video: WebRTC/STUN/TURN. Non simulati." }));
+app.get("/api/local/zcomm", (_req, res) => res.json({ schema: "zdos.zcomm.desktop-bridge.v2", status: bridgeToken() ? "PAIRING_READY" : "DISABLED_NO_TOKEN", chat: bridgeToken() ? "LAN_AUTHENTICATED_QUEUE" : "NOT_CONFIGURED", video: "NOT_CONFIGURED", capabilities: ["zcomm.page.read", "zcomm.message.queue", "zcomm.sync.push", "zcomm.sync.pull"], transport: "LAN_TOKEN_BRIDGE", policy: "DEFAULT-DENY", messages: bridgeMessages.length, recent: bridgeMessages.slice(-20), token_file: bridgeTokenFile, note: "Il bridge sincronizza solo messaggi ZComm autenticati; nessuna shell, file remoto, wallet o comando viene esposto." }));
+app.get("/api/bridge/status", (req, res) => {
+  if (!bridgeAuthorized(req)) return res.status(401).json({ status: "DENIED", detail: "bridge token required" });
+  record("BRIDGE_STATUS", String(req.headers["x-zdos-node-id"] || "android-unknown"));
+  res.json({ schema: "zdos.zcomm.bridge.v1", status: "PAIRED", node: "GLASS_ENGINE", transport: "LAN_AUTHENTICATED", policy: "DEFAULT-DENY", chat: "READY", video: "NOT_CONFIGURED", messages: bridgeMessages.slice(-100) });
+});
+app.post("/api/bridge/sync", (req, res) => {
+  if (!bridgeAuthorized(req)) return res.status(401).json({ status: "DENIED", detail: "bridge token required" });
+  const incoming = Array.isArray(req.body?.messages) ? req.body.messages.slice(0, 50) : [];
+  const known = new Set(bridgeMessages.map((message) => message.id));
+  const accepted = incoming.filter((message) => message && typeof message.id === "string" && typeof message.body === "string" && !known.has(message.id)).map((message) => ({ id: message.id.slice(0, 80), roomId: String(message.roomId || "piazza").slice(0, 40), nick: String(message.nick || "ANDROID").slice(0, 24), body: message.body.trim().slice(0, 240), createdAt: String(message.createdAt || new Date().toISOString()).slice(0, 40), source: "microcosm-android", receivedAt: new Date().toISOString() }));
+  bridgeMessages = [...bridgeMessages, ...accepted].slice(-500);
+  appendBridgeMessages(accepted);
+  record("BRIDGE_SYNC", `accepted=${accepted.length}`);
+  res.json({ schema: "zdos.zcomm.bridge-sync.v1", status: "SYNCED", accepted: accepted.length, messages: bridgeMessages.slice(-100), serverTime: new Date().toISOString() });
+});
 app.get("/api/local/browser", async (req, res) => {
   const raw = String(req.query.url || "https://app.x-zdos.it/");
   let target;
