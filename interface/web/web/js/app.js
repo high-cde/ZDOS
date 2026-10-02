@@ -142,3 +142,38 @@ async function refreshEvidenceWallet() {
 
 document.querySelectorAll("[data-wallet-action]").forEach((button) => button.addEventListener("click", refreshEvidenceWallet));
 refreshEvidenceWallet();
+
+const dashboardFeeds = {
+  health: $("#health-feed"), system: $("#system-feed"), audit: $("#audit-feed"), zcomm: $("#zcomm-feed"), files: $("#files-feed"), zlang: $("#zlang-feed")
+};
+
+async function refreshDashboard(name) {
+  const feed = dashboardFeeds[name];
+  if (feed) feed.textContent = "LOADING…";
+  try {
+    const endpoint = { health: "/api/remote/health", system: "/api/local/system", audit: "/api/local/audit", zcomm: "/api/local/zcomm" }[name];
+    const data = endpoint ? await getJson(endpoint) : name === "files" ? { schema: "zdos.storage.scope.v1", capability: "storage.read-v1", namespace: "explicit-root", root: "ZDOS workspace", allowed: ["read metadata", "read bounded files"], denied: ["write", "delete", "path traversal", "remote mutation"] } : { schema: "zdos.zlang.studio.v1", profile: "zdos.zlang.microterm.v1", status: "VALIDATE_ONLY", execution: "DENIED", source: "emit hello", capabilities: ["validate", "hash", "evidence.read-v1"] };
+    if (feed) feed.textContent = pretty(data);
+    if (name === "health") {
+      const online = (data.results || []).filter((item) => item.status === "ONLINE").length;
+      $("#health-online").textContent = `${online}/${(data.results || []).length} ONLINE`;
+      $("#health-local").textContent = "ACTIVE";
+    }
+    if (name === "system") {
+      $("#system-host").textContent = data.hostname || "READY";
+      $("#system-os").textContent = data.os || "OS unavailable";
+      $("#system-resources").textContent = data.cpu ? `${data.cpu.count} CORES` : "READY";
+      $("#system-uptime").textContent = `uptime ${Math.round(data.uptime_seconds || 0)}s`;
+      $("#system-tools").textContent = data.tools ? `${Object.values(data.tools).filter(Boolean).length}/${Object.keys(data.tools).length}` : "—";
+    }
+    if (name === "audit") $("#audit-count").textContent = `${(data.audit || []).length} EVENTS`;
+    if (name === "zcomm") {
+      $("#zcomm-status").textContent = data.status || "LOCAL_QUEUE_READY";
+      $("#zcomm-chat").textContent = data.chat || "NOT CONFIGURED";
+      $("#zcomm-video").textContent = data.video || "NOT CONFIGURED";
+    }
+  } catch (error) { if (feed) feed.textContent = `OFFLINE\n${error.message}`; }
+}
+
+document.querySelectorAll("[data-dashboard]").forEach((button) => button.addEventListener("click", () => refreshDashboard(button.dataset.dashboard)));
+["health", "system", "audit", "zcomm", "files", "zlang"].forEach(refreshDashboard);
