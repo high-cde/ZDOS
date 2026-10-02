@@ -1,0 +1,11 @@
+# ZDOS HYDRO GUARD / SAFE OBSERVATION PROFILE
+# ZLB2 source profile: deterministic policy declaration only.
+# Hardware, radio, sirens and external transmitters remain DEFAULT-DENY.
+# Runtime evaluation is performed by the bounded validator, not by this source alone.
+
+emit [INFO] ZDOS HYDRO GUARD policy loaded.
+emit [INFO] Input contract: water_level_cm, flow_speed_mm_s, sensor freshness.
+emit [INFO] Alert bands: ASSENTE, ORDINARIA, MODERATA, ELEVATA_FLASH_FLOOD.
+emit [INFO] Evidence output: hydro.evaluation.v1.
+emit [DENY] Radio TX, CB broadcast, Flipper subGHz TX and ESP32 siren actuation are disabled.
+emit [READY] Read-only telemetry and local operator review required.

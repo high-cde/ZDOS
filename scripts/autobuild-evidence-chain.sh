@@ -72,6 +72,10 @@ test -s docs/EVIDENCE-CHAIN-INDUSTRIAL-PLATFORM.md
 test -s supply-chain/zdos-trace-event.schema.json
 test -s supply-chain/zdos-trace-event.example.json
 test -x tools/validate-zdos-trace-event.py
+test -s hydro/zdos_hydro_guard.zlang
+test -s hydro/telemetry.example.json
+test -s docs/HYDRO-GUARD-SAFE-MODULE.md
+chmod +x tools/evaluate-hydro-telemetry.py
 
 echo "[2/7] Verifico evento CTE/KDE:"
 python3 tools/validate-zdos-trace-event.py supply-chain/zdos-trace-event.example.json
@@ -79,6 +83,10 @@ python3 tools/validate-zdos-trace-event.py supply-chain/zdos-trace-event.example
 echo "[3/7] Verifico JSON:"
 python3 -m json.tool supply-chain/zdos-trace-event.schema.json >/dev/null
 python3 -m json.tool supply-chain/zdos-trace-event.example.json >/dev/null
+python3 -m json.tool hydro/telemetry.example.json >/dev/null
+python3 tools/evaluate-hydro-telemetry.py hydro/telemetry.example.json >/tmp/zdos-hydro-evaluation.json
+grep -q '"policy": "DEFAULT-DENY"' /tmp/zdos-hydro-evaluation.json
+grep -q '"radio_tx": false' /tmp/zdos-hydro-evaluation.json
 
 echo "[4/7] Controllo JavaScript:"
 npm --prefix interface/web ci --ignore-scripts
@@ -92,6 +100,47 @@ bash scripts/install-glass-engine-desktop.sh
 systemctl --user daemon-reload
 systemctl --user restart zdos-glass-engine.service
 sleep 3
+
+if ! systemctl --user is-active --quiet zdos-glass-engine.service; then
+  echo "Servizio non persistente: riscrivo l'unità con percorsi assoluti."
+  APP_DIR=$(systemctl --user show zdos-glass-engine.service -p WorkingDirectory --value 2>/dev/null || true)
+  APP_DIR=${APP_DIR:-$HOME/.local/share/zdos-glass-engine/interface/web}
+  test -f "$APP_DIR/server/server.js"
+  UNIT_FILE=$(systemctl --user show zdos-glass-engine.service -p FragmentPath --value)
+  mkdir -p "$(dirname "$UNIT_FILE")"
+  cat > "$UNIT_FILE" <<EOF
+[Unit]
+Description=ZDOS Glass Engine local read-only console
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=$APP_DIR
+ExecStart=/usr/bin/node $APP_DIR/server/server.js
+Environment=HOST=127.0.0.1
+Environment=PORT=8080
+Environment=NODE_ENV=production
+Restart=always
+RestartSec=2
+KillMode=control-group
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=$APP_DIR
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target
+EOF
+  systemctl --user daemon-reload
+  systemctl --user reset-failed zdos-glass-engine.service || true
+  systemctl --user restart zdos-glass-engine.service
+  sleep 3
+fi
+systemctl --user is-active --quiet zdos-glass-engine.service
 
 echo "[7/7] Verifiche HTTP:"
 curl --fail-with-body -sS http://127.0.0.1:8080/status
