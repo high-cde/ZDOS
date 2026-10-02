@@ -22,11 +22,14 @@ if [ ! -d "$REPO/.git" ]; then
 fi
 cd "$REPO"
 
-# Se un'esecuzione precedente è rimasta dentro git am, la chiudiamo senza
-# toccare il working tree; il bootstrap usa poi il branch GitHub come sorgente.
-if [ -d "$REPO/.git/rebase-apply" ] || [ -d "$REPO/.git/rebase-merge" ]; then
-  git am --abort || true
-fi
+# Se un'esecuzione precedente è rimasta dentro git am, la chiudiamo. Se Git
+# ha lasciato solo conflitti unmerged, ripristiniamo esclusivamente quei file
+# dalla revisione HEAD: nessun altro file viene modificato o cancellato.
+git am --abort >/dev/null 2>&1 || true
+while IFS= read -r conflicted; do
+  [ -z "$conflicted" ] && continue
+  git restore --source=HEAD --staged --worktree -- "$conflicted"
+done < <(git diff --name-only --diff-filter=U)
 
 if [ -n "$(git status --porcelain)" ]; then
   echo "Repository con modifiche locali; non eseguo reset o cancellazioni:"
