@@ -177,3 +177,11 @@ async function refreshDashboard(name) {
 
 document.querySelectorAll("[data-dashboard]").forEach((button) => button.addEventListener("click", () => refreshDashboard(button.dataset.dashboard)));
 ["health", "system", "audit", "zcomm", "files", "zlang"].forEach(refreshDashboard);
+
+const sideLinks = [...document.querySelectorAll(".side-link[href^='#']")];
+function syncSideSelection() {
+  const hash = window.location.hash || "#desktop-home";
+  sideLinks.forEach((link) => link.classList.toggle("selected", link.getAttribute("href") === hash || (!window.location.hash && link.getAttribute("href") === "#xcloud-workbench")));
+}
+window.addEventListener("hashchange", syncSideSelection);
+syncSideSelection();
