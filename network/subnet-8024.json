@@ -1,0 +1,33 @@
+{
+  "schema": "zdos.network.profile.v1",
+  "profile": "zdos-public-8024",
+  "cidr": "80.24.0.0/16",
+  "address_scope": "public-assigned",
+  "activation": "DESIGN_ONLY",
+  "policy": "DEFAULT_DENY",
+  "gateway": null,
+  "interface": null,
+  "dhcp": false,
+  "nat": false,
+  "firewall": "not-configured",
+  "dns": [],
+  "reserved": {
+    "network": "80.24.0.0",
+    "broadcast": "80.24.255.255",
+    "gateway": null,
+    "control_plane": [],
+    "services": [],
+    "clients": []
+  },
+  "capabilities": [
+    "network.profile.read-v1",
+    "network.route.plan-v1"
+  ],
+  "denied_capabilities": [
+    "network.route.apply-v1",
+    "network.firewall.apply-v1",
+    "network.port.open-v1",
+    "network.scan-v1"
+  ],
+  "note": "CIDR pubblico dichiarato dall'utente; nessun IP viene assegnato e nessuna configurazione del PC viene modificata."
+}

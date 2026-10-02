@@ -1,0 +1,6 @@
+{
+  "water_level_cm": 42,
+  "flow_speed_mm_s": 700,
+  "sensor_id": "esp32:hydro-demo-01",
+  "observed_at": "2026-10-02T15:00:00Z"
+}

@@ -1,0 +1,15 @@
+# ZDOS Intelligence Core — bounded Zlang contract
+# Descrive capability; non esegue shell, rete, file o transazioni.
+profile zdos.llm.v1
+mode bounded_reasoning
+allow text.analysis
+allow text.plan
+allow text.explain
+deny shell.exec
+deny network.scan
+deny credential.read
+deny wallet.sign
+deny radio.tx
+deny file.write
+audit evidence.chain.candidate
+HALT
