@@ -19,4 +19,8 @@ chmod 0644 "$DESKTOP_FILE"
 command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$DESKTOP_DIR" || true
 echo "Applicazione desktop installata: $DESKTOP_FILE"
 echo "Avvia dal menu applicazioni: ZDOS Glass Engine"
-echo "Il servizio resta su 127.0.0.1:8080 per non esporre wallet e identità sulla rete."
+if [[ "${ZDOS_LAN:-0}" == "1" ]]; then
+  echo "Modalità bridge LAN attiva: Glass Engine raggiungibile dall'APK sull'IP del PC."
+else
+  echo "Modalità locale: Glass Engine su 127.0.0.1:8080; bridge Android non attivo."
+fi
