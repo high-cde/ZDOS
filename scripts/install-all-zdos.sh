@@ -29,7 +29,7 @@ git am --abort >/dev/null 2>&1 || true
 while IFS= read -r conflicted; do
   [ -z "$conflicted" ] && continue
   git restore --source=HEAD --staged --worktree -- "$conflicted"
-done < <(git diff --name-only --diff-filter=U)
+done < <(git ls-files -u | awk '{print $4}' | sort -u)
 
 if [ -n "$(git status --porcelain)" ]; then
   echo "Repository con modifiche locali; non eseguo reset o cancellazioni:"
