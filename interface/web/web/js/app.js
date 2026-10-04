@@ -144,14 +144,14 @@ document.querySelectorAll("[data-wallet-action]").forEach((button) => button.add
 refreshEvidenceWallet();
 
 const dashboardFeeds = {
-  health: $("#health-feed"), system: $("#system-feed"), audit: $("#audit-feed"), zcomm: $("#zcomm-feed"), files: $("#files-feed"), zlang: $("#zlang-feed")
+  health: $("#health-feed"), system: $("#system-feed"), audit: $("#audit-feed"), zcomm: $("#zcomm-feed"), files: $("#files-feed"), zlang: $("#zlang-feed"), web3: $("#web3-feed")
 };
 
 async function refreshDashboard(name) {
   const feed = dashboardFeeds[name];
   if (feed) feed.textContent = "LOADING…";
   try {
-    const endpoint = { health: "/api/remote/health", system: "/api/local/system", audit: "/api/local/audit", zcomm: "/api/local/zcomm" }[name];
+    const endpoint = { health: "/api/remote/health", system: "/api/local/system", audit: "/api/local/audit", zcomm: "/api/local/zcomm", web3: "/api/web3/status" }[name];
     const data = endpoint ? await getJson(endpoint) : name === "files" ? { schema: "zdos.storage.scope.v1", capability: "storage.read-v1", namespace: "explicit-root", root: "ZDOS workspace", allowed: ["read metadata", "read bounded files"], denied: ["write", "delete", "path traversal", "remote mutation"] } : { schema: "zdos.zlang.studio.v1", profile: "zdos.zlang.microterm.v1", status: "VALIDATE_ONLY", execution: "DENIED", source: "emit hello", capabilities: ["validate", "hash", "evidence.read-v1"] };
     if (feed) feed.textContent = pretty(data);
     if (name === "health") {
@@ -172,11 +172,27 @@ async function refreshDashboard(name) {
       $("#zcomm-chat").textContent = data.chat || "NOT CONFIGURED";
       $("#zcomm-video").textContent = data.video || "NOT CONFIGURED";
     }
+    if (name === "web3") $("#web3-networks").textContent = `${(data.results || []).filter((item) => item.status === "ONLINE").length}/${(data.results || []).length} ONLINE`;
   } catch (error) { if (feed) feed.textContent = `OFFLINE\n${error.message}`; }
 }
 
 document.querySelectorAll("[data-dashboard]").forEach((button) => button.addEventListener("click", () => refreshDashboard(button.dataset.dashboard)));
-["health", "system", "audit", "zcomm", "files", "zlang"].forEach(refreshDashboard);
+["health", "system", "audit", "zcomm", "files", "zlang", "web3"].forEach(refreshDashboard);
+
+document.querySelectorAll("[data-web3-action]").forEach((button) => button.addEventListener("click", async () => {
+  const feed = $("#web3-feed");
+  feed.textContent = "READING…";
+  try {
+    const action = button.dataset.web3Action;
+    if (action === "validate") feed.textContent = pretty(await getJson("/api/web3/validate"));
+    else {
+      const address = $("#web3-address").value.trim();
+      if (!address) { feed.textContent = pretty(await getJson("/api/web3/status")); return; }
+      const network = $("#web3-network").value;
+      feed.textContent = pretty(await getJson(`/api/web3/address?network=${encodeURIComponent(network)}&address=${encodeURIComponent(address)}`));
+    }
+  } catch (error) { feed.textContent = `OFFLINE\n${error.message}`; }
+}));
 
 const sideLinks = [...document.querySelectorAll(".side-link[href^='#']")];
 function syncSideSelection() {

@@ -22,6 +22,7 @@
       <a class="side-link" href="#files-workbench">☁ Cloud File Manager <span>READ</span></a>
       <a class="side-link" href="#zlang-workbench">ϟ Zlang Runtime Studio <span>VALIDATE</span></a>
       <a class="side-link" href="#evidence-wallet">♜ Evidence Chain Ledger <span>HASH</span></a>
+      <a class="side-link" href="#web3-workbench">◈ Web3 Observation Plane <span>RPC READ</span></a>
       <a class="side-link" href="#browser-workbench">◎ Anon Browser (Tor) <span>LINK</span></a>
       <a class="side-link" href="https://app.x-zdos.it/" target="_blank" rel="noreferrer">↗ Webapp app.x-zdos.it <span>OPEN</span></a>
       <a class="side-link" href="#audit-workbench">⚒ Backend Audit Logs <span>LOCAL</span></a>
@@ -52,6 +53,7 @@
         <a href="#files-workbench">☁ FILES</a>
         <a href="#zlang-workbench">ϟ ZLANG</a>
         <a href="#evidence-wallet">♜ EVIDENCE</a>
+        <a href="#web3-workbench">◈ WEB3</a>
         <a href="#zcomm">◉ ZCOMM</a>
       </nav>
 
@@ -91,6 +93,12 @@ Consentiti: app.x-zdos.it · github.com · raw.githubusercontent.com</pre>
         <div class="wallet-grid"><article class="wallet-card"><small>IDENTITY</small><strong id="wallet-identity">NOT INITIALIZED</strong><code id="wallet-did">did:zdos:—</code><span id="wallet-role">local identity required for capabilities</span></article><article class="wallet-card"><small>HEAD HASH</small><strong id="wallet-entries">0 EVENTS</strong><code id="wallet-head">0000000000000000…</code><span>hash-chained evidence</span></article><article class="wallet-card"><small>CAPABILITIES</small><strong>READ · VERIFY</strong><span>evidence.read-v1<br>evidence.verify-v1</span></article></div>
         <div class="wallet-actions"><button class="primary-action" data-wallet-action="verify">VERIFY CHAIN</button><button data-wallet-action="refresh">REFRESH IDENTITY</button><span>Compatible concept: account / network / activity / permissions. No monetary asset exists in this ledger.</span></div>
         <pre id="wallet-feed" class="browser-feed">Evidence Wallet ready. Nessuna chiave privata viene letta dalla UI.</pre>
+      </section>
+      <section class="workbench suite-workbench" id="web3-workbench">
+        <div class="workbench-head"><div><span class="eyebrow">WEB3 OBSERVATION PLANE · ZLANG BOUNDED</span><h2>◈ Chain Observatory <span>// no custody</span></h2></div><button class="workbench-home dashboard-refresh" data-dashboard="web3">↻ aggiorna</button></div>
+        <div class="suite-grid"><div class="suite-card"><small>ALLOWLISTED CHAINS</small><strong id="web3-networks">CHECKING</strong><span>Ethereum · Polygon · Base · Arbitrum</span></div><div class="suite-card"><small>RPC MODE</small><strong class="accent-green">READ ONLY</strong><span>HTTPS JSON-RPC · timeout 7s</span></div><div class="suite-card"><small>WRITE CAPABILITIES</small><strong class="accent-red">DENIED</strong><span>sign · transfer · contract.write</span></div></div>
+        <div class="tool-row"><input id="web3-address" placeholder="0x… address EVM opzionale" aria-label="Indirizzo EVM da osservare"><select id="web3-network"><option value="ethereum">Ethereum</option><option value="polygon">Polygon</option><option value="base">Base</option><option value="arbitrum">Arbitrum</option><option value="sepolia">Sepolia</option></select><button data-web3-action="observe">OSSERVA ADDRESS</button><button data-web3-action="validate">VALIDATE ZLANG</button></div>
+        <pre id="web3-feed" class="browser-feed dashboard-feed">Web3 Observation Plane in caricamento…</pre>
       </section>
 
       <section class="workbench suite-workbench" id="xcloud-workbench"><div class="workbench-head"><div><span class="eyebrow">ENTERPRISE SURFACE · DECLARATIVE LINK</span><h2>☁ xCLOUD-by-zdos <span>// portal bridge</span></h2></div><a class="workbench-home" href="https://app.x-zdos.it/" target="_blank" rel="noreferrer">apri portale ↗</a></div><div class="suite-grid"><div class="suite-card"><small>CONNECTION</small><strong>EXTERNAL LINK</strong><span>app.x-zdos.it · HTTPS</span></div><div class="suite-card"><small>AUTH SESSION</small><strong>NOT INHERITED</strong><span>Login non copiato nella console locale</span></div><div class="suite-card"><small>POLICY</small><strong>NO REMOTE MUTATION</strong><span>Il bridge non inventa operazioni aziendali</span></div></div><div class="suite-actions"><a class="module-button" href="https://app.x-zdos.it/" target="_blank" rel="noreferrer">APRI CONTROL PLANE ↗</a><span>Superficie dichiarativa: l'autenticazione avviene nel portale originale.</span></div></section>

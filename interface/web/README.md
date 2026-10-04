@@ -21,6 +21,10 @@ Aprire `http://127.0.0.1:8080/`.
 | `GET /api/local/system` | kernel, CPU, RAM, disco, tool presenti e snapshot locale |
 | `GET /api/local/network` | interfacce e Wi-Fi in sola lettura |
 | `GET /api/local/zcomm` | stato della coda ZComm e dei moduli chat/video |
+| `GET /api/web3/networks` | registry di reti EVM allowlistate e capability read-only |
+| `GET /api/web3/status` | chain ID e blocco corrente delle reti selezionate |
+| `GET /api/web3/address` | osservazione bounded del saldo di un indirizzo EVM |
+| `GET /api/web3/validate` | validazione del profilo Zlang `zdos.web3.observe.v1` |
 | `GET /` | Glass Engine UI |
 
 ## PC Analysis e Wi-Fi
@@ -41,6 +45,10 @@ L'URL remoto è fisso e allowlisted: `https://app.x-zdos.it`. Il browser parla s
 | `GET /api/remote/validate?source=emit%20hello` | `zlang.validate` con profilo `zdos.zlang.microterm.v1` |
 
 `zlang.validate` esegue soltanto validazione server-side: il risultato deve dichiarare `execution: DENIED`. Un errore o un timeout viene restituito come stato `OFFLINE`; la console non ritenta aggressivamente e non apre fallback arbitrari.
+
+## Web3 Observation Plane
+
+`#web3-workbench` usa RPC HTTPS allowlistati per leggere reti EVM, blocchi e saldi. Il profilo Zlang `web3/zdos_web3_observe.zlang` è bounded: signing, trasferimenti, scrittura di contratti, lettura di chiavi private e `eth_sendRawTransaction` sono negati. ZDOS non custodisce fondi e non interpreta una lettura RPC come prova di proprietà.
 
 ## Terminale
 

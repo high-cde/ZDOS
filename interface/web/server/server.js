@@ -18,6 +18,38 @@ const startedAt = new Date().toISOString();
 const bridgeTokenFile = process.env.ZDOS_BRIDGE_TOKEN_FILE || path.join(os.homedir(), ".config/zdos/bridge.token");
 const bridgeDataFile = process.env.ZDOS_BRIDGE_DATA_FILE || path.join(os.homedir(), ".local/share/zdos-glass-engine/bridge/messages.jsonl");
 let bridgeMessages = [];
+const web3Networks = {
+  ethereum: { chainId: "0x1", name: "Ethereum Mainnet", rpc: process.env.ZDOS_WEB3_ETHEREUM_RPC || "https://ethereum-rpc.publicnode.com" },
+  polygon: { chainId: "0x89", name: "Polygon PoS", rpc: process.env.ZDOS_WEB3_POLYGON_RPC || "https://polygon-bor-rpc.publicnode.com" },
+  base: { chainId: "0x2105", name: "Base", rpc: process.env.ZDOS_WEB3_BASE_RPC || "https://base-rpc.publicnode.com" },
+  arbitrum: { chainId: "0xa4b1", name: "Arbitrum One", rpc: process.env.ZDOS_WEB3_ARBITRUM_RPC || "https://arbitrum-one-rpc.publicnode.com" },
+  sepolia: { chainId: "0xaa36a7", name: "Ethereum Sepolia", rpc: process.env.ZDOS_WEB3_SEPOLIA_RPC || "https://ethereum-sepolia-rpc.publicnode.com" },
+};
+const web3Methods = new Set(["eth_chainId", "eth_blockNumber", "eth_getBalance", "net_version"]);
+
+function isHexAddress(value) { return /^0x[a-fA-F0-9]{40}$/.test(String(value || "")); }
+function web3Network(id) { return web3Networks[String(id || "").toLowerCase()] || null; }
+async function web3Rpc(network, method, params = []) {
+  if (!web3Methods.has(method)) throw new Error("metodo RPC non allowlisted: solo osservazione");
+  if (!Array.isArray(params) || params.length > 2) throw new Error("parametri RPC oltre il limite");
+  if (method === "eth_getBalance" && (!isHexAddress(params[0]) || !["latest", "pending"].includes(params[1]))) throw new Error("eth_getBalance richiede address e latest/pending");
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 7000);
+  try {
+    const response = await fetch(network.rpc, { method: "POST", signal: controller.signal, headers: { accept: "application/json", "content-type": "application/json", "user-agent": "ZDOS-Web3-Observer/1" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }) });
+    if (!response.ok) throw new Error(`RPC HTTP ${response.status}`);
+    const body = await response.json();
+    if (body?.error) throw new Error(body.error.message || "RPC error");
+    return body?.result ?? null;
+  } finally { clearTimeout(timer); }
+}
+function validateWeb3Zlang(source) {
+  const normalized = String(source || "").split("\n").map((line) => line.trim().toLowerCase()).filter(Boolean);
+  const allowed = new Set(["web3.networks", "web3.chain.status", "web3.block.read", "web3.balance.read", "web3.address.validate", "web3.evidence.candidate", "wallet.sign.deny", "wallet.transfer.deny", "contract.write.deny", "halt"]);
+  if (!normalized.length || normalized.some((line) => !allowed.has(line))) return { status: "DENIED", detail: "syntax or capability outside zdos.web3.observe.v1", capabilities: [] };
+  if (!normalized.includes("web3.networks") || !normalized.includes("halt")) return { status: "DENIED", detail: "web3 observation profile requires web3.networks and HALT", capabilities: [] };
+  return { status: "ACCEPTED", detail: "bounded Web3 observation contract", capabilities: normalized.filter((line) => line.startsWith("web3.")) };
+}
 
 function loadBridgeMessages() {
   try { bridgeMessages = fs.readFileSync(bridgeDataFile, "utf8").trim().split("\n").filter(Boolean).slice(-500).map((line) => JSON.parse(line)); } catch { bridgeMessages = []; }
@@ -157,6 +189,32 @@ app.post("/api/bridge/sync", (req, res) => {
   appendBridgeMessages(accepted);
   record("BRIDGE_SYNC", `accepted=${accepted.length}`);
   res.json({ schema: "zdos.zcomm.bridge-sync.v1", status: "SYNCED", accepted: accepted.length, messages: bridgeMessages.slice(-100), serverTime: new Date().toISOString() });
+});
+app.get("/api/web3/networks", (_req, res) => res.json({ schema: "zdos.web3.network-registry.v1", status: "READ_ONLY", policy: "DEFAULT-DENY", networks: Object.entries(web3Networks).map(([id, network]) => ({ id, name: network.name, chainId: network.chainId, rpc: new URL(network.rpc).origin, capabilities: ["chain.status", "block.read", "balance.read", "address.validate"] })), denied: ["wallet.sign", "wallet.transfer", "contract.write", "private-key.read"], note: "RPC allowlist HTTPS; ZDOS non custodisce fondi e non firma transazioni." }));
+app.get("/api/web3/status", async (req, res) => {
+  const requested = String(req.query.network || "").split(",").map((item) => item.trim().toLowerCase()).filter(Boolean);
+  const ids = requested.length ? requested.slice(0, 5) : Object.keys(web3Networks);
+  const results = await Promise.all(ids.map(async (id) => {
+    const network = web3Network(id);
+    if (!network) return { id, status: "DENIED", error: "network non allowlisted" };
+    try { return { id, name: network.name, chainId: await web3Rpc(network, "eth_chainId"), blockNumber: await web3Rpc(network, "eth_blockNumber"), status: "ONLINE" }; }
+    catch (error) { return { id, name: network.name, status: "OFFLINE", error: error.message }; }
+  }));
+  record("WEB3_STATUS_READ", ids.join(","));
+  res.json({ schema: "zdos.web3.observation-status.v1", policy: "DEFAULT-DENY", results, denied: ["eth_sendRawTransaction", "personal_sign", "wallet.sign", "contract.write"] });
+});
+app.get("/api/web3/address", async (req, res) => {
+  const address = String(req.query.address || "");
+  const network = web3Network(req.query.network || "ethereum");
+  if (!network || !isHexAddress(address)) return res.status(400).json({ status: "DENIED", error: "network o indirizzo EVM non valido" });
+  try {
+    const balance = await web3Rpc(network, "eth_getBalance", [address, "latest"]);
+    res.json({ schema: "zdos.web3.address-observation.v1", status: "READ_ONLY", network: network.name, chainId: network.chainId, address, balanceWei: balance, balanceUnit: "wei", policy: "DEFAULT-DENY", note: "Saldo osservato via RPC; nessuna chiave o firma letta." });
+  } catch (error) { res.status(200).json({ schema: "zdos.web3.address-observation.v1", status: "OFFLINE", network: network.name, address, policy: "DEFAULT-DENY", error: error.message }); }
+});
+app.get("/api/web3/validate", (req, res) => {
+  const result = validateWeb3Zlang(req.query.source || "web3.networks\nweb3.chain.status\nweb3.block.read\nwallet.sign.deny\nwallet.transfer.deny\ncontract.write.deny\nhalt");
+  res.json({ schema: "zdos.web3.zlang-validation.v1", profile: "zdos.web3.observe.v1", ...result, execution: "DENIED", policy: "DEFAULT-DENY" });
 });
 app.get("/api/local/browser", async (req, res) => {
   const raw = String(req.query.url || "https://app.x-zdos.it/");
