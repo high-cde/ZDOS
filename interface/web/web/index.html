@@ -23,6 +23,7 @@
       <a class="side-link" href="#zlang-workbench">ϟ Zlang Runtime Studio <span>VALIDATE</span></a>
       <a class="side-link" href="#evidence-wallet">♜ Evidence Chain Ledger <span>HASH</span></a>
       <a class="side-link" href="#web3-workbench">◈ Web3 Observation Plane <span>RPC READ</span></a>
+      <a class="side-link" href="#alerts-workbench">⚠ Alert Command Center <span>LIVE · OFFLINE</span></a>
       <a class="side-link" href="#browser-workbench">◎ Anon Browser (Tor) <span>LINK</span></a>
       <a class="side-link" href="https://app.x-zdos.it/" target="_blank" rel="noreferrer">↗ Webapp app.x-zdos.it <span>OPEN</span></a>
       <a class="side-link" href="#audit-workbench">⚒ Backend Audit Logs <span>LOCAL</span></a>
@@ -54,6 +55,7 @@
         <a href="#zlang-workbench">ϟ ZLANG</a>
         <a href="#evidence-wallet">♜ EVIDENCE</a>
         <a href="#web3-workbench">◈ WEB3</a>
+        <a href="#alerts-workbench">⚠ ALERTS</a>
         <a href="#zcomm">◉ ZCOMM</a>
       </nav>
 
@@ -99,6 +101,12 @@ Consentiti: app.x-zdos.it · github.com · raw.githubusercontent.com</pre>
         <div class="suite-grid"><div class="suite-card"><small>ALLOWLISTED CHAINS</small><strong id="web3-networks">CHECKING</strong><span>Ethereum · Polygon · Base · Arbitrum</span></div><div class="suite-card"><small>RPC MODE</small><strong class="accent-green">READ ONLY</strong><span>HTTPS JSON-RPC · timeout 7s</span></div><div class="suite-card"><small>WRITE CAPABILITIES</small><strong class="accent-red">DENIED</strong><span>sign · transfer · contract.write</span></div></div>
         <div class="tool-row"><input id="web3-address" placeholder="0x… address EVM opzionale" aria-label="Indirizzo EVM da osservare"><select id="web3-network"><option value="ethereum">Ethereum</option><option value="polygon">Polygon</option><option value="base">Base</option><option value="arbitrum">Arbitrum</option><option value="sepolia">Sepolia</option></select><button data-web3-action="observe">OSSERVA ADDRESS</button><button data-web3-action="validate">VALIDATE ZLANG</button></div>
         <pre id="web3-feed" class="browser-feed dashboard-feed">Web3 Observation Plane in caricamento…</pre>
+      </section>
+      <section class="workbench suite-workbench" id="alerts-workbench">
+        <div class="workbench-head"><div><span class="eyebrow">EARLY WARNING · REAL SOURCES · STORE &amp; FORWARD</span><h2>⚠ Alert Command Center <span>// weather · landslide · snow</span></h2></div><button class="workbench-home dashboard-refresh" data-dashboard="alerts">↻ aggiorna</button></div>
+        <div class="suite-grid"><div class="suite-card"><small>OFFICIAL SOURCES</small><strong id="alerts-sources">CHECKING</strong><span>MeteoAlarm · Protezione Civile</span></div><div class="suite-card"><small>OFFLINE MODE</small><strong id="alerts-offline" class="accent-violet">STALE-AWARE</strong><span>cache verificata · ZComm outbox</span></div><div class="suite-card"><small>AI MODE</small><strong class="accent-green">BOUNDED</strong><span>spiega, non decide · no fake alert</span></div></div>
+        <div class="tool-row"><input id="alerts-lat" inputmode="decimal" placeholder="latitudine es. 45.4642" aria-label="Latitudine"><input id="alerts-lon" inputmode="decimal" placeholder="longitudine es. 9.1900" aria-label="Longitudine"><button data-alert-action="refresh">FETCH REAL ALERTS</button><button data-alert-action="explain">AI EXPLAIN</button></div>
+        <pre id="alerts-feed" class="browser-feed dashboard-feed">Alert Command Center in caricamento…</pre>
       </section>
 
       <section class="workbench suite-workbench" id="xcloud-workbench"><div class="workbench-head"><div><span class="eyebrow">ENTERPRISE SURFACE · DECLARATIVE LINK</span><h2>☁ xCLOUD-by-zdos <span>// portal bridge</span></h2></div><a class="workbench-home" href="https://app.x-zdos.it/" target="_blank" rel="noreferrer">apri portale ↗</a></div><div class="suite-grid"><div class="suite-card"><small>CONNECTION</small><strong>EXTERNAL LINK</strong><span>app.x-zdos.it · HTTPS</span></div><div class="suite-card"><small>AUTH SESSION</small><strong>NOT INHERITED</strong><span>Login non copiato nella console locale</span></div><div class="suite-card"><small>POLICY</small><strong>NO REMOTE MUTATION</strong><span>Il bridge non inventa operazioni aziendali</span></div></div><div class="suite-actions"><a class="module-button" href="https://app.x-zdos.it/" target="_blank" rel="noreferrer">APRI CONTROL PLANE ↗</a><span>Superficie dichiarativa: l'autenticazione avviene nel portale originale.</span></div></section>

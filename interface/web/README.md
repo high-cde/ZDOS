@@ -25,6 +25,10 @@ Aprire `http://127.0.0.1:8080/`.
 | `GET /api/web3/status` | chain ID e blocco corrente delle reti selezionate |
 | `GET /api/web3/address` | osservazione bounded del saldo di un indirizzo EVM |
 | `GET /api/web3/validate` | validazione del profilo Zlang `zdos.web3.observe.v1` |
+| `GET /api/alerts/status` | stato cache e fonti di allerta |
+| `GET /api/alerts/refresh` | raccolta reale MeteoAlarm, Protezione Civile e Open-Meteo |
+| `GET /api/alerts/outbox` | pacchetti offline ZComm con bridge token |
+| `POST /api/alerts/explain` | spiegazione AI bounded e deterministica |
 | `GET /` | Glass Engine UI |
 
 ## PC Analysis e Wi-Fi
@@ -49,6 +53,10 @@ L'URL remoto è fisso e allowlisted: `https://app.x-zdos.it`. Il browser parla s
 ## Web3 Observation Plane
 
 `#web3-workbench` usa RPC HTTPS allowlistati per leggere reti EVM, blocchi e saldi. Il profilo Zlang `web3/zdos_web3_observe.zlang` è bounded: signing, trasferimenti, scrittura di contratti, lettura di chiavi private e `eth_sendRawTransaction` sono negati. ZDOS non custodisce fondi e non interpreta una lettura RPC come prova di proprietà.
+
+## Alert Command Center
+
+`#alerts-workbench` legge fonti ufficiali reali per meteo e rischio idrogeologico, aggiunge previsione neve locale solo quando vengono fornite coordinate e conserva una cache marcata `OFFLINE_STALE` per il funzionamento senza rete. I nuovi alert entrano nell'outbox store-and-forward ZComm con hash SHA-256. L'AI è bounded: spiega e classifica i segnali, ma non inventa allerte, non invia ordini e non sostituisce le autorità.
 
 ## Terminale
 

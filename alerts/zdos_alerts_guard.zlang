@@ -1,0 +1,21 @@
+# ZDOS Alert Guard — real-source, stale-aware, bounded contract
+profile zdos.alerts.guard.v1
+mode safety_observation
+allow alert.source.meteoalarm.read
+allow alert.source.protezione_civile.read
+allow alert.source.open_meteo.read
+allow alert.cache.stale.read
+allow alert.outbox.store_forward
+allow alert.integrity.sha256
+allow alert.ai.explain
+allow alert.ai.classify
+allow zcomm.alert.packet.read
+deny alert.simulate
+deny alert.official_status.invent
+deny emergency.dispatch
+deny radio.tx
+deny location.track
+deny credential.read
+deny file.delete
+ audit evidence.chain.candidate
+HALT

@@ -9,6 +9,7 @@ function showModal(title, body) { modalContent.innerHTML = `<h2>${title}</h2><di
 function escapeHtml(value) { return String(value).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c])); }
 function writeTerminal(text) { output.innerHTML += `\n<span>${escapeHtml(text)}</span>`; output.scrollTop = output.scrollHeight; }
 async function getJson(path) { const response = await fetch(path, { headers: { accept: "application/json" } }); return response.json(); }
+async function postJson(path, body) { const response = await fetch(path, { method: "POST", headers: { accept: "application/json", "content-type": "application/json" }, body: JSON.stringify(body) }); return response.json(); }
 
 function updateClock() {
   const now = new Date();
@@ -144,14 +145,14 @@ document.querySelectorAll("[data-wallet-action]").forEach((button) => button.add
 refreshEvidenceWallet();
 
 const dashboardFeeds = {
-  health: $("#health-feed"), system: $("#system-feed"), audit: $("#audit-feed"), zcomm: $("#zcomm-feed"), files: $("#files-feed"), zlang: $("#zlang-feed"), web3: $("#web3-feed")
+  health: $("#health-feed"), system: $("#system-feed"), audit: $("#audit-feed"), zcomm: $("#zcomm-feed"), files: $("#files-feed"), zlang: $("#zlang-feed"), web3: $("#web3-feed"), alerts: $("#alerts-feed")
 };
 
 async function refreshDashboard(name) {
   const feed = dashboardFeeds[name];
   if (feed) feed.textContent = "LOADING…";
   try {
-    const endpoint = { health: "/api/remote/health", system: "/api/local/system", audit: "/api/local/audit", zcomm: "/api/local/zcomm", web3: "/api/web3/status" }[name];
+    const endpoint = { health: "/api/remote/health", system: "/api/local/system", audit: "/api/local/audit", zcomm: "/api/local/zcomm", web3: "/api/web3/status", alerts: "/api/alerts/status" }[name];
     const data = endpoint ? await getJson(endpoint) : name === "files" ? { schema: "zdos.storage.scope.v1", capability: "storage.read-v1", namespace: "explicit-root", root: "ZDOS workspace", allowed: ["read metadata", "read bounded files"], denied: ["write", "delete", "path traversal", "remote mutation"] } : { schema: "zdos.zlang.studio.v1", profile: "zdos.zlang.microterm.v1", status: "VALIDATE_ONLY", execution: "DENIED", source: "emit hello", capabilities: ["validate", "hash", "evidence.read-v1"] };
     if (feed) feed.textContent = pretty(data);
     if (name === "health") {
@@ -173,11 +174,16 @@ async function refreshDashboard(name) {
       $("#zcomm-video").textContent = data.video || "NOT CONFIGURED";
     }
     if (name === "web3") $("#web3-networks").textContent = `${(data.results || []).filter((item) => item.status === "ONLINE").length}/${(data.results || []).length} ONLINE`;
+    if (name === "alerts") {
+      const online = (data.sources || []).filter((item) => item.status === "ONLINE").length;
+      $("#alerts-sources").textContent = `${online}/${(data.sources || []).length || 2} ONLINE`;
+      $("#alerts-offline").textContent = data.stale ? "STALE CACHE" : "LIVE CACHE";
+    }
   } catch (error) { if (feed) feed.textContent = `OFFLINE\n${error.message}`; }
 }
 
 document.querySelectorAll("[data-dashboard]").forEach((button) => button.addEventListener("click", () => refreshDashboard(button.dataset.dashboard)));
-["health", "system", "audit", "zcomm", "files", "zlang", "web3"].forEach(refreshDashboard);
+["health", "system", "audit", "zcomm", "files", "zlang", "web3", "alerts"].forEach(refreshDashboard);
 
 document.querySelectorAll("[data-web3-action]").forEach((button) => button.addEventListener("click", async () => {
   const feed = $("#web3-feed");
@@ -190,6 +196,22 @@ document.querySelectorAll("[data-web3-action]").forEach((button) => button.addEv
       if (!address) { feed.textContent = pretty(await getJson("/api/web3/status")); return; }
       const network = $("#web3-network").value;
       feed.textContent = pretty(await getJson(`/api/web3/address?network=${encodeURIComponent(network)}&address=${encodeURIComponent(address)}`));
+    }
+  } catch (error) { feed.textContent = `OFFLINE\n${error.message}`; }
+}));
+let latestAlertSnapshot = null;
+document.querySelectorAll("[data-alert-action]").forEach((button) => button.addEventListener("click", async () => {
+  const feed = $("#alerts-feed"); feed.textContent = "CONTACTING OFFICIAL SOURCES…";
+  try {
+    if (button.dataset.alertAction === "refresh") {
+      const lat = $("#alerts-lat").value.trim(); const lon = $("#alerts-lon").value.trim();
+      const query = lat && lon ? `?lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}` : "";
+      latestAlertSnapshot = await getJson(`/api/alerts/refresh${query}`); feed.textContent = pretty(latestAlertSnapshot);
+      $("#alerts-offline").textContent = latestAlertSnapshot.stale ? "STALE CACHE" : latestAlertSnapshot.status;
+    } else {
+      const snapshot = latestAlertSnapshot || await getJson("/api/alerts/status");
+      const alerts = (snapshot.sources || []).flatMap((source) => source.alerts || []);
+      feed.textContent = pretty(await postJson("/api/alerts/explain", { alerts }));
     }
   } catch (error) { feed.textContent = `OFFLINE\n${error.message}`; }
 }));

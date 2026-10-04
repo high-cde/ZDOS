@@ -1,11 +1,11 @@
 {
   "schema": "zdos.release.v1",
   "product": "ZDOS Glass Engine",
-  "version": "2026.10.02-intelligence",
+  "version": "2026.10.04-alert-command-center",
   "channel": "experimental",
   "runtime": "Ubuntu 22.04+ / Node 20+ / Python 3.10+",
-  "features": ["desktop-workstation", "evidence-chain", "industrial-traceability", "hydro-guard-safe", "zlang-bounded-llm"],
-  "security": {"default_deny": true, "read_only_default": true, "network_scope": "loopback", "shell_tools": false, "wallet_custody": false},
-  "integrity": {"source_branch": "feat/glass-engine-console", "build_id": "zdos-2026.10.02-intelligence"},
+  "features": ["desktop-workstation", "evidence-chain", "industrial-traceability", "hydro-guard-safe", "zlang-bounded-llm", "real-weather-alerts", "offline-alert-store-forward", "bounded-alert-ai"],
+  "security": {"default_deny": true, "read_only_default": true, "network_scope": "loopback-or-explicit-lan", "shell_tools": false, "wallet_custody": false},
+  "integrity": {"source_branch": "feat/glass-engine-console", "build_id": "zdos-2026.10.04-alert-command-center"},
   "support": "experimental / operator verification required"
 }

@@ -4,6 +4,7 @@ const path = require("path");
 const os = require("os");
 const crypto = require("crypto");
 const { spawnSync } = require("child_process");
+const alertEngine = require("./alert-engine");
 
 const app = express();
 const port = Number.parseInt(process.env.PORT || "8080", 10);
@@ -189,6 +190,30 @@ app.post("/api/bridge/sync", (req, res) => {
   appendBridgeMessages(accepted);
   record("BRIDGE_SYNC", `accepted=${accepted.length}`);
   res.json({ schema: "zdos.zcomm.bridge-sync.v1", status: "SYNCED", accepted: accepted.length, messages: bridgeMessages.slice(-100), serverTime: new Date().toISOString() });
+});
+app.get("/api/alerts/status", (_req, res) => {
+  const snapshot = alertEngine.offlineSnapshot();
+  res.json({ ...snapshot, outbox: { count: alertEngine.readOutbox().length, file: alertEngine.OUTBOX_FILE }, sources: snapshot.sources.map((source) => ({ source: source.source, status: source.status, url: source.url, fetched_at: source.fetched_at, alert_count: (source.alerts || []).length })) });
+});
+app.get("/api/alerts/refresh", async (req, res) => {
+  try {
+    const snapshot = await alertEngine.collect({ latitude: req.query.lat, longitude: req.query.lon });
+    const queued = alertEngine.queueSnapshot(snapshot);
+    record("ALERTS_REFRESH", `${snapshot.status} queued=${queued.queued}`);
+    res.json({ ...snapshot, offline_delivery: queued });
+  } catch (error) {
+    const snapshot = alertEngine.offlineSnapshot(); record("ALERTS_OFFLINE", error.message); res.status(200).json({ ...snapshot, error: error.message });
+  }
+});
+app.get("/api/alerts/outbox", (req, res) => {
+  if (!bridgeAuthorized(req)) return res.status(401).json({ status: "DENIED", detail: "bridge token required" });
+  res.json({ schema: "zdos.alert.offline-outbox.v1", status: "READY", transport: "store-and-forward-zcomm", packets: alertEngine.readOutbox(Number(req.query.limit || 100)), policy: "DEFAULT-DENY" });
+});
+app.post("/api/alerts/explain", (req, res) => {
+  const alerts = Array.isArray(req.body?.alerts) ? req.body.alerts : [];
+  const deterministic = alertEngine.explain(alerts);
+  if (req.body?.online === true && process.env.ZDOS_ALERT_AI_ONLINE === "1") return res.json(alertEngine.explainWithLlm(alerts, root));
+  res.json(deterministic);
 });
 app.get("/api/web3/networks", (_req, res) => res.json({ schema: "zdos.web3.network-registry.v1", status: "READ_ONLY", policy: "DEFAULT-DENY", networks: Object.entries(web3Networks).map(([id, network]) => ({ id, name: network.name, chainId: network.chainId, rpc: new URL(network.rpc).origin, capabilities: ["chain.status", "block.read", "balance.read", "address.validate"] })), denied: ["wallet.sign", "wallet.transfer", "contract.write", "private-key.read"], note: "RPC allowlist HTTPS; ZDOS non custodisce fondi e non firma transazioni." }));
 app.get("/api/web3/status", async (req, res) => {
