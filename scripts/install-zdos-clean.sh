@@ -7,18 +7,23 @@ SOURCE="https://github.com/high-cde/ZDOS.git"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 BACKUP="$HOME/ZDOS-backups/zdos-$STAMP"
 SERVICE="zdos-glass-engine.service"
+ORIGINAL_PWD="$(pwd -P 2>/dev/null || printf '%s' "$HOME")"
 
 say(){ printf '\n==> %s\n' "$*"; }
 fail(){ echo "ERRORE: $*" >&2; exit 1; }
 for cmd in git curl tar npm python3 systemctl; do command -v "$cmd" >/dev/null 2>&1 || fail "comando mancante: $cmd"; done
 
-say "Backup non attivo della vecchia installazione"
+say "Backup della vecchia installazione"
 mkdir -p "$BACKUP"
 systemctl --user stop "$SERVICE" 2>/dev/null || true
 systemctl --user disable "$SERVICE" 2>/dev/null || true
 if [ -d "$REPO" ]; then tar --exclude='.git' --exclude='interface/web/node_modules' -czf "$BACKUP/ZDOS-worktree.tgz" -C "$(dirname "$REPO")" "$(basename "$REPO")"; fi
 if [ -d "$HOME/.local/share/zdos-glass-engine" ]; then tar -czf "$BACKUP/installed-app.tgz" -C "$HOME/.local/share" zdos-glass-engine; fi
 cp -a "$HOME/.config/systemd/user/$SERVICE" "$BACKUP/" 2>/dev/null || true
+# Il chiamante può aver eseguito l'autobuild da ~/ZDOS. Dopo rm -rf quella
+# directory non esisterebbe più come cwd e Git fallirebbe con "remote helper aborted".
+# Spostiamoci prima in una directory stabile, senza cambiare la destinazione finale.
+cd "$HOME"
 rm -rf "$HOME/.local/share/zdos-glass-engine" "$HOME/.local/share/applications/zdos-glass-engine.desktop" "$HOME/.config/systemd/user/$SERVICE" "$REPO"
 systemctl --user daemon-reload
 
