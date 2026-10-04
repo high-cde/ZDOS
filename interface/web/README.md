@@ -29,6 +29,8 @@ Aprire `http://127.0.0.1:8080/`.
 | `GET /api/alerts/refresh` | raccolta reale MeteoAlarm, Protezione Civile e Open-Meteo |
 | `GET /api/alerts/outbox` | pacchetti offline ZComm con bridge token |
 | `POST /api/alerts/explain` | spiegazione AI bounded e deterministica |
+| `GET /api/zcomm/ghostnet` | canali GhostNet compatibili e messaggi locali |
+| `POST /api/zcomm/ghostnet/messages` | accoda un messaggio locale con intent esplicito |
 | `GET /` | Glass Engine UI |
 
 ## PC Analysis e Wi-Fi
@@ -57,6 +59,10 @@ L'URL remoto è fisso e allowlisted: `https://app.x-zdos.it`. Il browser parla s
 ## Alert Command Center
 
 `#alerts-workbench` legge fonti ufficiali reali per meteo e rischio idrogeologico, aggiunge previsione neve locale solo quando vengono fornite coordinate e conserva una cache marcata `OFFLINE_STALE` per il funzionamento senza rete. I nuovi alert entrano nell'outbox store-and-forward ZComm con hash SHA-256. L'AI è bounded: spiega e classifica i segnali, ma non inventa allerte, non invia ordini e non sostituisce le autorità.
+
+## GhostNet / ZComm
+
+`#zcomm-workbench` riproduce la superficie pubblica GhostNet a livello di interazione, mantenendo i canali `general`, `ghostnet`, `anonymous`, `trading`, `zdos`, `vera` e `hotpulci`. La messaggistica è local-first: la composizione è esplicita, l'outbox è persistente e il passaggio LAN usa il bridge autenticato. Non vengono copiati backend, cookie, wallet, chiavi o identità della chat pubblica.
 
 ## Terminale
 

@@ -184,7 +184,39 @@ async function refreshDashboard(name) {
 
 document.querySelectorAll("[data-dashboard]").forEach((button) => button.addEventListener("click", () => refreshDashboard(button.dataset.dashboard)));
 ["health", "system", "audit", "zcomm", "files", "zlang", "web3", "alerts"].forEach(refreshDashboard);
-
+let ghostSelectedChannel = "general";
+function renderGhostMessages(messages) {
+  const list = $("#ghost-message-list"); if (!list) return;
+  list.innerHTML = messages.length ? messages.map((message) => `<article class="ghost-message"><div><b>${escapeHtml(message.nick || "GHOST")}</b><time>${escapeHtml(String(message.createdAt || "").slice(11, 16))}</time></div><p>${escapeHtml(message.body || "")}</p><small>${escapeHtml(message.delivery || "LOCAL")}</small></article>`).join("") : '<div class="ghost-empty">Nessun messaggio in questo canale. Scrivi il primo messaggio locale.</div>';
+  list.scrollTop = list.scrollHeight;
+}
+function renderGhostChannels(channels) {
+  const list = $("#ghost-channel-list"); if (!list) return;
+  list.innerHTML = channels.map((channel) => `<button type="button" class="ghost-channel ${channel === ghostSelectedChannel ? "active" : ""}" data-ghost-channel="${escapeHtml(channel)}"><span>#</span> ${escapeHtml(channel)}</button>`).join("");
+  list.querySelectorAll("[data-ghost-channel]").forEach((button) => button.addEventListener("click", () => { ghostSelectedChannel = button.dataset.ghostChannel; loadGhostNet(); }));
+}
+async function loadGhostNet() {
+  try {
+    const data = await getJson(`/api/zcomm/ghostnet?channel=${encodeURIComponent(ghostSelectedChannel)}`);
+    renderGhostChannels(data.channels || []); renderGhostMessages(data.messages || []);
+    $("#ghost-channel-title").textContent = `# ${data.selected}`; $("#ghost-compose-prefix").textContent = `# ${data.selected}`; $("#ghostnet-peers").textContent = data.peers || "LOCAL ONLY";
+    $("#zcomm-status").textContent = `${(data.messages || []).length} MSG`; $("#zcomm-chat").textContent = data.transport === "LOCAL_OUTBOX" ? "LOCAL OUTBOX" : "ZCOMM READY";
+  } catch (error) { $("#ghost-message-list").textContent = `GHOSTNET OFFLINE\n${error.message}`; }
+}
+document.querySelectorAll("[data-ghost-tab]").forEach((button) => button.addEventListener("click", () => {
+  document.querySelectorAll("[data-ghost-tab]").forEach((item) => item.classList.toggle("active", item === button));
+  const tab = button.dataset.ghostTab; const title = $("#ghost-side-title"); const copy = $("#ghostnet-sidecard p");
+  if (tab === "dm") { title.textContent = "DIRECT MESSAGES"; copy.textContent = "DM locale predisposto. Nessun contatto remoto viene importato automaticamente."; }
+  else if (tab === "wallet") { title.textContent = "WALLET VIEW"; copy.textContent = "Vista compatibile con GhostNet, ma ZDOS non custodisce fondi e non importa seed o chiavi."; }
+  else if (tab === "identity") { title.textContent = "IDENTITY"; copy.textContent = "Identità locale separata dalla chat pubblica. Il pairing reale usa DID/Ed25519 nel bridge."; }
+  else { title.textContent = "LOCAL IDENTITY"; copy.textContent = "Nome visualizzato locale. Nessuna chiave privata o identità remota viene copiata dalla chat pubblica."; }
+}));
+$("#ghost-message-form")?.addEventListener("submit", async (event) => {
+  event.preventDefault(); const input = $("#ghost-message-input"); const body = input.value.trim(); if (!body) return;
+  try { input.disabled = true; await fetch("/api/zcomm/ghostnet/messages", { method: "POST", headers: { "content-type": "application/json", "x-zdos-chat-intent": "SEND_LOCAL_MESSAGE" }, body: JSON.stringify({ roomId: ghostSelectedChannel, body }) }); input.value = ""; await loadGhostNet(); } catch (error) { $("#ghost-message-list").textContent = `SEND DENIED\n${error.message}`; } finally { input.disabled = false; input.focus(); }
+});
+$("#ghost-channel-add")?.addEventListener("click", () => showModal("GhostNet / Create Channel", "I nomi pubblici restano invariati. La creazione di nuovi canali locali sarà aggiunta solo con un contratto Zlang esplicito; nessuna mutazione remota viene eseguita."));
+loadGhostNet();
 document.querySelectorAll("[data-web3-action]").forEach((button) => button.addEventListener("click", async () => {
   const feed = $("#web3-feed");
   feed.textContent = "READING…";

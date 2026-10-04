@@ -1,0 +1,22 @@
+# ZDOS GhostNet compatibility surface — bounded Zlang contract
+profile zdos.zcomm.ghostnet.v1
+mode local_first_messaging
+allow channel.read
+allow message.compose
+allow message.queue
+allow zcomm.sync.push
+allow zcomm.sync.pull
+allow identity.display.local
+allow identity.did.verify
+allow evidence.chain.candidate
+deny identity.impersonate
+deny identity.private_key.read
+deny credential.export
+deny wallet.custody
+deny wallet.sign
+deny wallet.transfer
+deny remote.broadcast
+deny channel.delete
+deny invite.unbounded
+deny shell.exec
+HALT

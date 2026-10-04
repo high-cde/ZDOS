@@ -18,7 +18,11 @@ const audit = [];
 const startedAt = new Date().toISOString();
 const bridgeTokenFile = process.env.ZDOS_BRIDGE_TOKEN_FILE || path.join(os.homedir(), ".config/zdos/bridge.token");
 const bridgeDataFile = process.env.ZDOS_BRIDGE_DATA_FILE || path.join(os.homedir(), ".local/share/zdos-glass-engine/bridge/messages.jsonl");
+const ghostChatFile = process.env.ZDOS_GHOST_CHAT_FILE || path.join(os.homedir(), ".local/share/zdos-glass-engine/ghostnet/messages.jsonl");
+const ghostChannels = ["general", "ghostnet", "anonymous", "trading", "zdos", "vera", "hotpulci"];
+const ghostNavigation = ["CHANNELS", "DM", "WALLET", "IDENTITY"];
 let bridgeMessages = [];
+let ghostMessages = [];
 const web3Networks = {
   ethereum: { chainId: "0x1", name: "Ethereum Mainnet", rpc: process.env.ZDOS_WEB3_ETHEREUM_RPC || "https://ethereum-rpc.publicnode.com" },
   polygon: { chainId: "0x89", name: "Polygon PoS", rpc: process.env.ZDOS_WEB3_POLYGON_RPC || "https://polygon-bor-rpc.publicnode.com" },
@@ -54,6 +58,7 @@ function validateWeb3Zlang(source) {
 
 function loadBridgeMessages() {
   try { bridgeMessages = fs.readFileSync(bridgeDataFile, "utf8").trim().split("\n").filter(Boolean).slice(-500).map((line) => JSON.parse(line)); } catch { bridgeMessages = []; }
+  try { ghostMessages = fs.readFileSync(ghostChatFile, "utf8").trim().split("\n").filter(Boolean).slice(-500).map((line) => JSON.parse(line)); } catch { ghostMessages = []; }
 }
 function bridgeToken() {
   try { return fs.readFileSync(bridgeTokenFile, "utf8").trim(); } catch { return String(process.env.ZDOS_BRIDGE_TOKEN || "").trim(); }
@@ -67,6 +72,15 @@ function appendBridgeMessages(messages) {
   if (!messages.length) return;
   fs.mkdirSync(path.dirname(bridgeDataFile), { recursive: true, mode: 0o700 });
   fs.appendFileSync(bridgeDataFile, messages.map((message) => `${JSON.stringify(message)}\n`).join(""), { mode: 0o600 });
+}
+function appendGhostMessages(messages) {
+  if (!messages.length) return;
+  fs.mkdirSync(path.dirname(ghostChatFile), { recursive: true, mode: 0o700 });
+  fs.appendFileSync(ghostChatFile, messages.map((message) => `${JSON.stringify(message)}\n`).join(""), { mode: 0o600 });
+}
+function localChatIntent(req) {
+  const address = String(req.ip || req.socket?.remoteAddress || "");
+  return ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(address) && req.headers["x-zdos-chat-intent"] === "SEND_LOCAL_MESSAGE";
 }
 loadBridgeMessages();
 
@@ -190,6 +204,17 @@ app.post("/api/bridge/sync", (req, res) => {
   appendBridgeMessages(accepted);
   record("BRIDGE_SYNC", `accepted=${accepted.length}`);
   res.json({ schema: "zdos.zcomm.bridge-sync.v1", status: "SYNCED", accepted: accepted.length, messages: bridgeMessages.slice(-100), serverTime: new Date().toISOString() });
+});
+app.get("/api/zcomm/ghostnet", (req, res) => {
+  const channel = ghostChannels.includes(String(req.query.channel || "")) ? String(req.query.channel) : "general";
+  res.json({ schema: "zdos.zcomm.ghostnet.v1", product: "GHOSTNET", identity_label: "ghost_local", navigation: ghostNavigation, channels: ghostChannels, selected: channel, peers: bridgeToken() ? "LAN PAIRING READY" : "LOCAL ONLY", messages: ghostMessages.filter((message) => message.roomId === channel).slice(-100), capabilities: ["channel.read", "message.compose", "message.queue"], denied: ["wallet.custody", "credential.export", "identity.impersonate", "remote.broadcast"], transport: bridgeToken() ? "LOCAL_PLUS_AUTHENTICATED_ZCOMM" : "LOCAL_OUTBOX", policy: "DEFAULT-DENY", source_model: "public-ui-compatible-not-backend-clone" });
+});
+app.post("/api/zcomm/ghostnet/messages", (req, res) => {
+  if (!localChatIntent(req)) return res.status(403).json({ status: "DENIED", detail: "local chat intent required; LAN clients must use authenticated ZComm bridge", policy: "DEFAULT-DENY" });
+  const roomId = String(req.body?.roomId || ""); const body = String(req.body?.body || "").trim();
+  if (!ghostChannels.includes(roomId) || !body) return res.status(400).json({ status: "DENIED", detail: "channel or message invalid" });
+  const message = { id: `local-${crypto.randomUUID()}`, roomId, nick: "GHOST_LOCAL", body: body.slice(0, 500), createdAt: new Date().toISOString(), source: "zdos-glass-engine", delivery: bridgeToken() ? "QUEUED_FOR_ZCOMM" : "LOCAL_OUTBOX" };
+  ghostMessages = [...ghostMessages, message].slice(-500); appendGhostMessages([message]); record("GHOSTNET_MESSAGE_QUEUED", roomId); res.status(201).json({ schema: "zdos.zcomm.ghostnet.message.v1", status: "QUEUED", message, policy: "DEFAULT-DENY" });
 });
 app.get("/api/alerts/status", (_req, res) => {
   const snapshot = alertEngine.offlineSnapshot();
