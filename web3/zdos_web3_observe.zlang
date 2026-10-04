@@ -1,0 +1,17 @@
+# ZDOS Web3 Observation Plane — bounded Zlang contract
+# Solo lettura via RPC HTTPS allowlisted. Nessuna custodia o firma.
+profile zdos.web3.observe.v1
+mode observation_only
+allow web3.networks
+allow web3.chain.status
+allow web3.block.read
+allow web3.balance.read
+allow web3.address.validate
+allow web3.evidence.candidate
+deny wallet.sign
+deny wallet.transfer
+deny contract.write
+deny private-key.read
+deny eth_sendRawTransaction
+audit evidence.chain.candidate
+HALT

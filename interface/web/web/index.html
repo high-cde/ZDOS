@@ -1,13 +1,130 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>DSN‑LIVE · Z‑GENESIS</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ZDOS // Glass Engine · Kali Neon Edition</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-  <h1>DSN‑LIVE · Z‑GENESIS</h1>
-  <div id="status"></div>
+<body id="top">
+  <div class="scanline"></div>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">❖</span> ZDOS // GLASS ENGINE <span class="edition">KALI NEON</span></div>
+    <div class="header-meta"><span id="system-date">--/--/----</span><span id="system-time">--:--:--</span></div>
+    <div id="remote-pill" class="pill pending">REMOTE · CHECKING</div>
+  </header>
+
+  <main class="shell">
+    <aside class="sidebar">
+      <div class="side-label">GLASS CONTROL SUITE</div>
+      <a class="side-link selected" href="#xcloud-workbench">☁ xCLOUD-by-zdos Hub <span>CORE</span></a>
+      <a class="side-link" href="#dashboards-workbench">▥ Dedicated Dashboards <span>LOCAL</span></a>
+      <a class="side-link" href="#files-workbench">☁ Cloud File Manager <span>READ</span></a>
+      <a class="side-link" href="#zlang-workbench">ϟ Zlang Runtime Studio <span>VALIDATE</span></a>
+      <a class="side-link" href="#evidence-wallet">♜ Evidence Chain Ledger <span>HASH</span></a>
+      <a class="side-link" href="#web3-workbench">◈ Web3 Observation Plane <span>RPC READ</span></a>
+      <a class="side-link" href="#alerts-workbench">⚠ Alert Command Center <span>LIVE · OFFLINE</span></a>
+      <a class="side-link" href="#browser-workbench">◎ Anon Browser (Tor) <span>LINK</span></a>
+      <a class="side-link" href="https://app.x-zdos.it/" target="_blank" rel="noreferrer">↗ Webapp app.x-zdos.it <span>OPEN</span></a>
+      <a class="side-link" href="#audit-workbench">⚒ Backend Audit Logs <span>LOCAL</span></a>
+      <div class="side-note"><b>POLICY</b><br>DEFAULT-DENY<br>READ-ONLY BY DEFAULT<br><br><b>REMOTE</b><br>HTTPS ALLOWLIST</div>
+    </aside>
+
+    <section class="workspace">
+      <section class="hero">
+        <div>
+          <div class="eyebrow">ZDOS HYBRID OPERATING SYSTEM · v2026.2 · OBSERVATION DESK</div>
+          <h1 class="glitch" data-text="Glass Engine sotto controllo.">Glass Engine <span>sotto controllo</span>.</h1>
+          <p>Una workstation leggibile per osservare il sistema, validare contratti, conservare prove e collegare Microcosm. Ogni superficie espone il proprio confine: chiaro per l'umano, verificabile per la macchina, senza esecuzione remota implicita.</p>
+        </div>
+        <div class="hero-status"><span class="status-dot"></span><b>LOCAL CORE</b><small>CONSOLE ACTIVE<br>NO MUTATIONS</small></div>
+      </section>
+
+      <section class="metrics" id="dashboards">
+        <div class="metric"><small>LOCAL POLICY</small><strong>DEFAULT-DENY</strong><span>nessuna capacità senza contratto</span></div>
+        <div class="metric"><small>REMOTE SURFACE</small><strong id="metric-remote">CHECKING</strong><span>app.x-zdos.it · HTTPS</span></div>
+        <div class="metric"><small>ZCOMM NODE</small><strong id="metric-node">OFFLINE?</strong><span>heartbeat e bridge autenticato</span></div>
+        <div class="metric"><small>PC POSTURE</small><strong id="metric-pc">ANALYSING</strong><span>analisi locale in sola lettura</span></div>
+        <div class="metric"><small>WIFI RADIO</small><strong id="metric-wifi">DETECTING</strong><span>NetworkManager / iw</span></div>
+      </section>
+
+      <nav class="home-dock" aria-label="Home workbench">
+        <a class="dock-home" href="#top">⌂ HOME</a>
+        <a href="#browser-workbench">◎ BROWSER</a>
+        <a href="#files-workbench">☁ FILES</a>
+        <a href="#zlang-workbench">ϟ ZLANG</a>
+        <a href="#evidence-wallet">♜ EVIDENCE</a>
+        <a href="#web3-workbench">◈ WEB3</a>
+        <a href="#alerts-workbench">⚠ ALERTS</a>
+        <a href="#zcomm-workbench">◉ ZCOMM</a>
+      </nav>
+
+      <section class="desktop-home" id="desktop-home">
+        <div class="desktop-welcome">
+          <div class="welcome-copy"><span class="eyebrow">MICROCOSM CONTROL PLANE · CORE-01</span><h2>One workstation,<br><em>four boundaries.</em></h2><p>Glass Engine è la superficie locale di ZDOS per leggere lo stato, validare contratti e conservare prove. Piccola nel gesto, rigorosa nel confine: ogni capability dichiara cosa osserva e cosa rifiuta.</p><div class="welcome-actions"><a class="primary-launch" href="#dashboards-workbench">OPEN CONTROL TOWER</a><a href="#evidence-wallet">OPEN EVIDENCE CHAIN</a><a href="https://app.x-zdos.it/" target="_blank" rel="noreferrer">PUBLIC NODE ↗</a></div></div>
+          <div class="desktop-orbit"><div class="orbit-ring ring-a"></div><div class="orbit-ring ring-b"></div><div class="orbit-core">❖<small>ZDOS<br>CORE</small></div><span class="orbit-tag tag-a">ZLANG</span><span class="orbit-tag tag-b">EVIDENCE</span><span class="orbit-tag tag-c">MICROCOSM</span></div>
+        </div>
+        <div class="desktop-section-head"><div><span class="eyebrow">ACTIVE SURFACES</span><h2>Quattro confini, una sola console</h2></div><span class="section-note">observable · capability gated · read-only</span></div>
+        <div class="project-deck">
+          <a class="project-card project-primary" href="#evidence-wallet"><span class="project-number">01 / APPEND-ONLY</span><strong>Evidence Chain</strong><p>Prove locali collegate a hash, leggibili dall'uomo e verificabili senza consenso pubblico.</p><span class="project-link">OPEN EVIDENCE →</span></a>
+          <a class="project-card" href="#dashboards-workbench"><span class="project-number">02 / 40×24</span><strong>Control Tower</strong><p>Salute dei servizi, superfici remote e postura del computer in una sola lettura.</p><span class="project-link">OPEN DASHBOARD →</span></a>
+          <a class="project-card" href="#zlang-workbench"><span class="project-number">03 / READY</span><strong>Zlang Contracts</strong><p>Contratti piccoli, runtime deterministico e capability rifiutate quando non dichiarate.</p><span class="project-link">OPEN CONTRACTS →</span></a>
+          <a class="project-card" href="#zcomm-workbench"><span class="project-number">04 / GHOSTNET</span><strong>GhostNet / ZComm</strong><p>Canali compatibili, outbox locale e bridge autenticato: nomi preservati, identità e wallet separati.</p><span class="project-link">OPEN GHOSTNET →</span></a>
+        </div>
+        <div class="desktop-lower">
+          <article class="manifest-panel"><div class="desktop-section-head"><div><span class="eyebrow">ZDOS MANIFEST</span><h2>Una piattaforma, non un cassetto</h2></div><span class="live-badge">● LIVE PROFILE</span></div><div class="manifest-list"><div><b>TRACE</b><span>Filiera, lotti, sensor data e prove</span><code>epcis · cte · kde</code></div><div><b>BUILD</b><span>Zlang, kernel, runtime e release</span><code>zlb2 · policy · attest</code></div><div><b>OPERATE</b><span>PC, Wi-Fi, servizi e strumenti</span><code>local-read · default-deny</code></div><div><b>CONNECT</b><span>Microcosm, ZComm e webapp</span><code>https · webrtc · mesh</code></div></div></article>
+          <article class="reference-panel"><span class="eyebrow">REFERENCE DESK</span><h2>Riferimenti utili</h2><a href="https://www.gs1.org/standards/epcis" target="_blank" rel="noreferrer"><b>GS1 EPCIS 2.0</b><span>eventi e visibilità di filiera ↗</span></a><a href="https://www.w3.org/TR/vc-data-model-2.0/" target="_blank" rel="noreferrer"><b>W3C Verifiable Credentials</b><span>issuer · holder · verifier ↗</span></a><a href="https://www.nccoe.nist.gov/projects/supply-chain-traceability-principles-manufacturing-meta-framework" target="_blank" rel="noreferrer"><b>NIST Traceability</b><span>integrità e resilienza industriale ↗</span></a><a href="https://github.com/high-cde/ZDOS" target="_blank" rel="noreferrer"><b>ZDOS on GitHub</b><span>codice, issue e roadmap ↗</span></a></article>
+        </div>
+      </section>
+
+      <section class="workbench" id="browser-workbench">
+        <div class="workbench-head"><div><span class="eyebrow">LIVE WORKBENCH · READ ONLY</span><h2>◎ Anon Browser <span>// active surface</span></h2></div><a class="workbench-home" href="#top">⌂ torna alla home</a></div>
+        <div class="browser-toolbar"><button data-browser-action="back">←</button><button data-browser-action="forward">→</button><button data-browser-action="reload">⟳</button><input id="browser-url" value="https://app.x-zdos.it/" aria-label="URL HTTPS allowlist"><button class="primary-action" data-browser-action="read">LEGGI TESTO</button><a class="open-external" id="browser-external" href="https://app.x-zdos.it/" target="_blank" rel="noreferrer">APRI SCHEDA ↗</a></div>
+        <div class="browser-status"><span class="status-dot"></span><span id="browser-status-text">READY · HTTPS ALLOWLIST · NO COOKIES · NO FORMS</span></div>
+        <pre id="browser-feed" class="browser-feed">ZDOS Read Gateway ready.
+Inserisci un URL allowlisted e premi LEGGI TESTO.
+
+Consentiti: app.x-zdos.it · github.com · raw.githubusercontent.com</pre>
+      </section>
+
+      <section class="workbench compact-workbench" id="files-workbench"><div class="workbench-head"><div><span class="eyebrow">CAPABILITY SURFACE · READ ONLY</span><h2>☁ File Manager <span>// namespace explorer</span></h2></div><a class="workbench-home" href="#top">⌂ home</a></div><div class="tool-row"><button data-dashboard="files">LISTA ROOT AUTORIZZATA</button><button data-dashboard="system">DISK STATUS</button><span>storage.read-v1 · no delete · no write</span></div><pre id="files-feed" class="browser-feed dashboard-feed">Namespace explorer pronto.</pre></section>
+      <section class="workbench compact-workbench" id="zlang-workbench"><div class="workbench-head"><div><span class="eyebrow">COMPILED POLICY SURFACE</span><h2>ϟ Zlang Studio <span>// ZLB2 bounded</span></h2></div><a class="workbench-home" href="#top">⌂ home</a></div><div class="tool-row"><button data-dashboard="zlang">VALIDATE CONTRACT</button><span>emit · let · if · wait · HALT · execution denied</span></div><pre id="zlang-feed" class="browser-feed dashboard-feed">Validator pronto. Nessuna esecuzione locale.</pre></section>
+      <section class="workbench wallet-workbench" id="evidence-wallet">
+        <div class="workbench-head"><div><span class="eyebrow">IDENTITY · INTEGRITY · NO CUSTODY</span><h2>♜ ZDOS Evidence Wallet <span>// human mode</span></h2></div><a class="workbench-home" href="#top">⌂ home</a></div>
+        <div class="wallet-hero"><div><small>NETWORK</small><strong>ZDOS EVIDENCE CHAIN</strong><span>Native ZDOS/Zlang policy · non-monetary</span></div><div><small>WALLET MODE</small><strong class="accent-green">READ-ONLY</strong><span>no funds · no transfer · no signing</span></div><div><small>CHAIN STATUS</small><strong id="wallet-chain-status">CHECKING</strong><span id="wallet-chain-detail">verifying local ledger</span></div></div>
+        <div class="wallet-grid"><article class="wallet-card"><small>IDENTITY</small><strong id="wallet-identity">NOT INITIALIZED</strong><code id="wallet-did">did:zdos:—</code><span id="wallet-role">local identity required for capabilities</span></article><article class="wallet-card"><small>HEAD HASH</small><strong id="wallet-entries">0 EVENTS</strong><code id="wallet-head">0000000000000000…</code><span>hash-chained evidence</span></article><article class="wallet-card"><small>CAPABILITIES</small><strong>READ · VERIFY</strong><span>evidence.read-v1<br>evidence.verify-v1</span></article></div>
+        <div class="wallet-actions"><button class="primary-action" data-wallet-action="verify">VERIFY CHAIN</button><button data-wallet-action="refresh">REFRESH IDENTITY</button><span>Compatible concept: account / network / activity / permissions. No monetary asset exists in this ledger.</span></div>
+        <pre id="wallet-feed" class="browser-feed">Evidence Wallet ready. Nessuna chiave privata viene letta dalla UI.</pre>
+      </section>
+      <section class="workbench suite-workbench" id="web3-workbench">
+        <div class="workbench-head"><div><span class="eyebrow">WEB3 OBSERVATION PLANE · ZLANG BOUNDED</span><h2>◈ Chain Observatory <span>// no custody</span></h2></div><button class="workbench-home dashboard-refresh" data-dashboard="web3">↻ aggiorna</button></div>
+        <div class="suite-grid"><div class="suite-card"><small>ALLOWLISTED CHAINS</small><strong id="web3-networks">CHECKING</strong><span>Ethereum · Polygon · Base · Arbitrum</span></div><div class="suite-card"><small>RPC MODE</small><strong class="accent-green">READ ONLY</strong><span>HTTPS JSON-RPC · timeout 7s</span></div><div class="suite-card"><small>WRITE CAPABILITIES</small><strong class="accent-red">DENIED</strong><span>sign · transfer · contract.write</span></div></div>
+        <div class="tool-row"><input id="web3-address" placeholder="0x… address EVM opzionale" aria-label="Indirizzo EVM da osservare"><select id="web3-network"><option value="ethereum">Ethereum</option><option value="polygon">Polygon</option><option value="base">Base</option><option value="arbitrum">Arbitrum</option><option value="sepolia">Sepolia</option></select><button data-web3-action="observe">OSSERVA ADDRESS</button><button data-web3-action="validate">VALIDATE ZLANG</button></div>
+        <pre id="web3-feed" class="browser-feed dashboard-feed">Web3 Observation Plane in caricamento…</pre>
+      </section>
+      <section class="workbench suite-workbench" id="alerts-workbench">
+        <div class="workbench-head"><div><span class="eyebrow">EARLY WARNING · REAL SOURCES · STORE &amp; FORWARD</span><h2>⚠ Alert Command Center <span>// weather · landslide · snow</span></h2></div><button class="workbench-home dashboard-refresh" data-dashboard="alerts">↻ aggiorna</button></div>
+        <div class="suite-grid"><div class="suite-card"><small>OFFICIAL SOURCES</small><strong id="alerts-sources">CHECKING</strong><span>MeteoAlarm · Protezione Civile</span></div><div class="suite-card"><small>OFFLINE MODE</small><strong id="alerts-offline" class="accent-violet">STALE-AWARE</strong><span>cache verificata · ZComm outbox</span></div><div class="suite-card"><small>AI MODE</small><strong class="accent-green">BOUNDED</strong><span>spiega, non decide · no fake alert</span></div></div>
+        <div class="tool-row"><input id="alerts-lat" inputmode="decimal" placeholder="latitudine es. 45.4642" aria-label="Latitudine"><input id="alerts-lon" inputmode="decimal" placeholder="longitudine es. 9.1900" aria-label="Longitudine"><button data-alert-action="refresh">FETCH REAL ALERTS</button><button data-alert-action="explain">AI EXPLAIN</button></div>
+        <pre id="alerts-feed" class="browser-feed dashboard-feed">Alert Command Center in caricamento…</pre>
+      </section>
+
+      <section class="workbench suite-workbench" id="xcloud-workbench"><div class="workbench-head"><div><span class="eyebrow">ENTERPRISE SURFACE · DECLARATIVE LINK</span><h2>☁ xCLOUD-by-zdos <span>// portal bridge</span></h2></div><a class="workbench-home" href="https://app.x-zdos.it/" target="_blank" rel="noreferrer">apri portale ↗</a></div><div class="suite-grid"><div class="suite-card"><small>CONNECTION</small><strong>EXTERNAL LINK</strong><span>app.x-zdos.it · HTTPS</span></div><div class="suite-card"><small>AUTH SESSION</small><strong>NOT INHERITED</strong><span>Login non copiato nella console locale</span></div><div class="suite-card"><small>POLICY</small><strong>NO REMOTE MUTATION</strong><span>Il bridge non inventa operazioni aziendali</span></div></div><div class="suite-actions"><a class="module-button" href="https://app.x-zdos.it/" target="_blank" rel="noreferrer">APRI CONTROL PLANE ↗</a><span>Superficie dichiarativa: l'autenticazione avviene nel portale originale.</span></div></section>
+      <section class="workbench suite-workbench" id="dashboards-workbench"><div class="workbench-head"><div><span class="eyebrow">CONTROL TOWER · LIVE READ</span><h2>▥ Dedicated Dashboards <span>// mesh health</span></h2></div><button class="workbench-home dashboard-refresh" data-dashboard="health">↻ aggiorna</button></div><div class="suite-grid"><div class="suite-card"><small>REMOTE PROCEDURES</small><strong id="health-online">CHECKING</strong><span>ecosystem · evidence · zcomm · node</span></div><div class="suite-card"><small>LOCAL SERVICE</small><strong id="health-local">CHECKING</strong><span>Glass Engine / loopback</span></div><div class="suite-card"><small>POLICY</small><strong class="accent-green">DEFAULT-DENY</strong><span>read-only by default</span></div></div><pre id="health-feed" class="browser-feed dashboard-feed">Dashboard in caricamento…</pre></section>
+      <section class="workbench suite-workbench" id="system-workbench"><div class="workbench-head"><div><span class="eyebrow">HOST TELEMETRY · READ ONLY</span><h2>⌁ PC Analysis <span>// Kali Ops</span></h2></div><button class="workbench-home dashboard-refresh" data-dashboard="system">↻ scansiona</button></div><div class="suite-grid"><div class="suite-card"><small>HOST</small><strong id="system-host">CHECKING</strong><span id="system-os">OS in rilevamento</span></div><div class="suite-card"><small>CPU / MEMORY</small><strong id="system-resources">CHECKING</strong><span id="system-uptime">uptime —</span></div><div class="suite-card"><small>TOOLS</small><strong id="system-tools">CHECKING</strong><span>inventory locale</span></div></div><pre id="system-feed" class="browser-feed dashboard-feed">Analisi locale in caricamento…</pre></section>
+      <section class="workbench suite-workbench" id="audit-workbench"><div class="workbench-head"><div><span class="eyebrow">OBSERVABILITY · LOCAL ONLY</span><h2>⚒ Backend Audit Logs <span>// evidence trail</span></h2></div><button class="workbench-home dashboard-refresh" data-dashboard="audit">↻ aggiorna</button></div><div class="audit-strip"><span>EVENTS <b id="audit-count">—</b></span><span>POLICY <b>READ-ONLY</b></span><span>REMOTE <b>NO SECRETS</b></span></div><pre id="audit-feed" class="browser-feed dashboard-feed">Audit in caricamento…</pre></section>
+      <section class="workbench suite-workbench ghostnet-workbench" id="zcomm-workbench"><div class="workbench-head"><div><span class="eyebrow">GHOSTNET · ZCOMM · ZLANG GOVERNED</span><h2><span class="ghost-title-mark">◉</span> GHOSTNET <span>// private channel desk</span></h2><p class="workbench-subtitle">Una piazza locale per messaggi, identità e collegamenti verificabili.</p></div><button class="workbench-home dashboard-refresh" data-dashboard="zcomm">↻ stato</button></div><div class="ghostnet-shell"><nav class="ghostnet-nav" aria-label="GhostNet navigation"><b><span class="ghost-wordmark">◈</span> GHOSTNET</b><code id="ghostnet-identity">ghost_local · local identity</code><button class="ghost-tab active" data-ghost-tab="channels">◉ CHANNELS</button><button class="ghost-tab" data-ghost-tab="dm">◇ DM</button><button class="ghost-tab" data-ghost-tab="wallet">▣ WALLET</button><button class="ghost-tab" data-ghost-tab="identity">♙ IDENTITY</button><span class="ghost-peer"><i></i><span id="ghostnet-peers">LOCAL ONLY</span></span></nav><aside class="ghostnet-channels"><div class="ghost-channel-head"><span>CHANNELS</span><button id="ghost-channel-add" type="button" title="Create a local channel">＋</button></div><div id="ghost-channel-list" class="ghost-channel-list"></div><small>nomi preservati · outbox locale</small></aside><div class="ghostnet-chat"><div class="ghost-chat-head"><span id="ghost-channel-title"># general</span><span id="ghost-channel-meta">ZLANG / DEFAULT-DENY</span></div><div id="ghost-message-list" class="ghost-message-list"><div class="ghost-empty"><span class="ghost-empty-orbit">◈</span><strong>Canale pronto</strong><span>Seleziona una stanza e lascia il primo messaggio locale.</span><small>Il bridge ZComm sincronizza solo contenuti autorizzati.</small></div></div><form id="ghost-message-form" class="ghost-message-form"><span id="ghost-compose-prefix"># general</span><input id="ghost-message-input" maxlength="500" placeholder="Scrivi qui · massimo 500 caratteri" autocomplete="off"><button type="submit">ACCODA ↗</button></form></div><aside id="ghostnet-sidecard" class="ghostnet-sidecard"><strong id="ghost-side-title">LOCAL IDENTITY</strong><code>ghost_local</code><p>Nome visualizzato locale. Nessuna chiave privata o identità remota viene copiata dalla chat pubblica.</p><span>● <b>DEFAULT-DENY</b></span></aside></div><div class="suite-grid ghostnet-status-grid"><div class="suite-card"><small>QUEUE</small><strong id="zcomm-status">CHECKING</strong><span>store-and-forward</span></div><div class="suite-card"><small>CHAT</small><strong id="zcomm-chat">LOCAL OUTBOX</strong><span>bridge autenticato opzionale</span></div><div class="suite-card"><small>VIDEO</small><strong id="zcomm-video">NOT CONFIGURED</strong><span>WebRTC + STUN/TURN richiesti</span></div></div><pre id="zcomm-feed" class="browser-feed dashboard-feed">GhostNet/ZComm ready. Nessuna sessione pubblica viene clonata.</pre></section>
+
+      <section class="console-panel" id="terminal">
+        <div class="panel-head"><div><span class="eyebrow">LOCAL CONSOLE</span><h2>Glass Terminal</h2></div><span class="pill green">SAFE COMMANDS ONLY</span></div>
+        <div id="terminal-output" class="terminal-output">ZDOS Glass Engine ready. Type <b>help</b> for the bounded command catalog.</div>
+        <form id="terminal-form"><span class="prompt">zdos@glass:~$</span><input id="terminal-input" autocomplete="off" placeholder="help · status · remote · evidence · zcomm · validate" aria-label="Comando locale bounded"><button>EXEC</button></form>
+      </section>
+
+      <footer><span>ZDOS Glass Engine Active</span><span>Backend read-only · Kali Neon</span><span id="footer-remote">Remote: checking</span></footer>
+    </section>
+  </main>
+  <div id="modal" class="modal hidden"><div class="modal-card"><button id="modal-close" class="modal-close">×</button><div id="modal-content"></div></div></div>
   <script src="js/app.js"></script>
 </body>
 </html>
