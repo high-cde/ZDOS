@@ -16,7 +16,7 @@ for cmd in curl bash; do command -v "$cmd" >/dev/null 2>&1 || { echo "ERRORE: co
 
 echo "=== ZDOS AUTOBUILD / ONE SHOT ==="
 echo "branch: $BRANCH"
-echo "fasi: backup → clean install → LLM/Zlang → dashboard → service → gates"
+echo "fasi: backup → clean install → LLM/Zlang → global UI → dashboard → service → gates"
 
 echo "[1/2] Scarico il clean installer verificato..."
 curl --fail --silent --show-error --location --retry 3 "$BASE/install-zdos-clean.sh" -o "$TMP/install-zdos-clean.sh"
