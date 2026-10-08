@@ -271,7 +271,7 @@ Il repository include un **micro-mondo connesso** che incorpora il modello di co
 | `./microcosm/zdos-microctl gate` | Valida entrypoint, policy, catalogo e contratto | Sola lettura |
 | `./microcosm/zdos-microctl attest-persistence` | Esegue due boot QEMU e registra l'attestazione | Genera build e ledger locali |
 
-Il collegamento già **VERIFIED** è `persistent-storage-evidence-v1`: due boot QEMU, marker di scrittura e lettura, clean shutdown, quindi evento `filesystem.persistence.attestation` in una Evidence Chain verificata. Zlang è verificato nel proprio perimetro; zdos-organism e Z-CYBERCORE restano `EXPERIMENTAL` finché non sono disponibili tutte le verifiche dichiarate. La specifica completa è in [`docs/MICROCOSM.md`](docs/MICROCOSM.md).
+Il collegamento già **VERIFIED** è `persistent-storage-evidence-v1`: due boot QEMU, marker di scrittura e lettura, clean shutdown, quindi evento `filesystem.persistence.attestation` in una Evidence Chain verificata. Zlang è verificato nel proprio perimetro; zdos-organism resta `EXPERIMENTAL` finché non sono disponibili tutte le verifiche dichiarate. La specifica completa è in [`docs/MICROCOSM.md`](docs/MICROCOSM.md).
 
 ## Identità ZDOS e ZSpace
 
