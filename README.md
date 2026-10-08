@@ -80,7 +80,7 @@ Il profilo pubblico espone soltanto workflow con responsabilità distinte. `Vali
 | `connected-microcosm.yml` | Test identity/commands/microcosm, inspect e gate | Zlang checkout canonico; gli altri checkout restano osservati dall’inspect |
 | `release-x86_64.yml` | Build e pubblicazione release | Toolchain Linux e permesso GitHub release |
 
-Il workflow del micro-mondo esegue i quattro checkout esterni in directory controllate del workspace. Zlang viene passato al bridge tramite `ZDOS_ZLANG_ROOT`, mentre `ZDOS_MICROCOSM_WORKSPACE` allinea l’ispezione al percorso del runner. In locale o sulla VPS il controller mantiene il fallback al workspace adiacente già previsto dal catalogo.
+Il workflow del micro-mondo richiede il checkout Zlang e tenta in modalità best-effort i checkout di organism, SEC Portal e Cybercore per l’ispezione; la loro assenza riduce la copertura osservabile senza bloccare i test locali. Zlang viene passato al bridge tramite `ZDOS_ZLANG_ROOT`, mentre `ZDOS_MICROCOSM_WORKSPACE` allinea l’ispezione al percorso del runner. In locale o sulla VPS il controller mantiene il fallback al workspace adiacente già previsto dal catalogo.
 
 ## Architettura
 

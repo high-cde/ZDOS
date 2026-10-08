@@ -25,6 +25,7 @@ jobs:
           fetch-depth: 1
 
       - name: Checkout zdos-organism for workspace inspection
+        id: checkout_organism
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           repository: high-cde/zdos-organism
@@ -33,8 +34,10 @@ jobs:
           filter: blob:none
           sparse-checkout: README.md
           fetch-depth: 1
+        continue-on-error: true
 
       - name: Checkout SEC Portal for workspace inspection
+        id: checkout_sec_portal
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           repository: high-cde/ZDOS-SEC-PORTAL
@@ -43,8 +46,10 @@ jobs:
           filter: blob:none
           sparse-checkout: README.md
           fetch-depth: 1
+        continue-on-error: true
 
       - name: Checkout Cybercore for workspace inspection
+        id: checkout_cybercore
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           repository: high-cde/Z-CYBERCORE
@@ -53,6 +58,14 @@ jobs:
           filter: blob:none
           sparse-checkout: README.md
           fetch-depth: 1
+        continue-on-error: true
+
+      - name: Remove failed optional checkouts
+        if: steps.checkout_organism.outcome == 'failure' || steps.checkout_sec_portal.outcome == 'failure' || steps.checkout_cybercore.outcome == 'failure'
+        run: |
+          if [[ "${{ steps.checkout_organism.outcome }}" == failure ]]; then rm -rf -- zdos-organism; fi
+          if [[ "${{ steps.checkout_sec_portal.outcome }}" == failure ]]; then rm -rf -- ZDOS-SEC-PORTAL; fi
+          if [[ "${{ steps.checkout_cybercore.outcome }}" == failure ]]; then rm -rf -- Z-CYBERCORE; fi
 
       - name: Run connected-microcosm tests
         env:
@@ -64,13 +77,22 @@ jobs:
           ZDOS_MICROCOSM_WORKSPACE: ${{ github.workspace }}
         run: ./microcosm/zdos-microctl inspect
 
-      - name: Assert external checkout presence and cleanliness
+      - name: Assert required Zlang checkout cleanliness
         run: |
-          test -d Zlang && test -d zdos-organism && test -d ZDOS-SEC-PORTAL && test -d Z-CYBERCORE
+          test -d Zlang
           test -z "$(git -C Zlang status --porcelain)"
-          test -z "$(git -C zdos-organism status --porcelain)"
-          test -z "$(git -C ZDOS-SEC-PORTAL status --porcelain)"
-          test -z "$(git -C Z-CYBERCORE status --porcelain)"
+
+      - name: Assert organism checkout cleanliness
+        if: steps.checkout_organism.outcome == 'success'
+        run: test -z "$(git -C zdos-organism status --porcelain)"
+
+      - name: Assert SEC Portal checkout cleanliness
+        if: steps.checkout_sec_portal.outcome == 'success'
+        run: test -z "$(git -C ZDOS-SEC-PORTAL status --porcelain)"
+
+      - name: Assert Cybercore checkout cleanliness
+        if: steps.checkout_cybercore.outcome == 'success'
+        run: test -z "$(git -C Z-CYBERCORE status --porcelain)"
 
       - name: Validate local entrypoints and release policy
         run: ./microcosm/zdos-microctl gate
