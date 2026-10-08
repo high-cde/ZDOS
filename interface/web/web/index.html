@@ -1,13 +1,163 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>DSN‑LIVE · Z‑GENESIS</title>
-  <link rel="stylesheet" href="css/style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Dashboard locale read-only per orientarsi nello stato verificabile di ZDOS.">
+  <title>ZDOS — Console locale</title>
+  <link rel="stylesheet" href="css/dashboard.css">
+  <script src="js/dashboard.js" defer></script>
 </head>
 <body>
-  <h1>DSN‑LIVE · Z‑GENESIS</h1>
-  <div id="status"></div>
-  <script src="js/app.js"></script>
+  <header class="topbar">
+    <a class="brand" href="#inizio" aria-label="ZDOS, pagina iniziale">
+      <span class="brand-mark" aria-hidden="true">Z</span>
+      <span>ZDOS <small>CONSOLE LOCALE</small></span>
+    </a>
+    <nav aria-label="Navigazione principale">
+      <a href="#stato">Stato</a>
+      <a href="#iniziare">Inizia</a>
+      <a href="#sviluppo">Sviluppo</a>
+      <a href="#limiti">Limiti</a>
+    </nav>
+    <button class="button button-small" id="refresh-button" type="button">Aggiorna stato</button>
+  </header>
+
+  <main id="inizio">
+    <section class="hero">
+      <p class="eyebrow">Sistema sperimentale · stato locale</p>
+      <h1>Una console per capire<br>cosa è <span>davvero disponibile.</span></h1>
+      <p class="hero-copy">Esplora i percorsi verificabili di ZDOS, segui una guida per iniziare e consulta lo stato di questo servizio web. Nessuna azione viene eseguita sul sistema.</p>
+      <div class="hero-meta">
+        <span class="live-dot" aria-hidden="true"></span>
+        <span id="service-summary" role="status" aria-live="polite">Lettura dello stato locale…</span>
+        <span class="meta-divider" aria-hidden="true">·</span>
+        <span id="updated-at">In attesa</span>
+      </div>
+    </section>
+
+    <section class="section" id="stato" aria-labelledby="status-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">01 / Quadro del progetto</p>
+          <h2 id="status-heading">Capacità e maturità</h2>
+        </div>
+        <p class="section-note">Livelli dichiarati nella documentazione del repository; non sono misurazioni live del dispositivo.</p>
+      </div>
+      <div class="capability-grid" id="capabilities" aria-live="polite">
+        <p class="loading">Caricamento delle capacità…</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="diagnostics-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">02 / Diagnostica</p>
+          <h2 id="diagnostics-heading">Cosa osserva questa pagina</h2>
+        </div>
+        <p class="section-note">La diagnostica copre solo il processo web locale, non il kernel o l’host.</p>
+      </div>
+      <div class="diagnostic-grid">
+        <article class="panel diagnostic-panel">
+          <div class="panel-title">
+            <span class="icon" aria-hidden="true">◎</span>
+            <h3>Servizio web locale</h3>
+          </div>
+          <dl class="diagnostic-list">
+            <div><dt>API di stato</dt><dd id="api-status">In verifica…</dd></div>
+            <div><dt>Modalità</dt><dd id="api-mode">—</dd></div>
+            <div><dt>Tempo attivo</dt><dd id="uptime">—</dd></div>
+            <div><dt>Runtime</dt><dd id="runtime">—</dd></div>
+          </dl>
+        </article>
+        <article class="panel diagnostic-panel unknown-panel">
+          <div class="panel-title">
+            <span class="icon icon-muted" aria-hidden="true">?</span>
+            <h3>Non osservato da qui</h3>
+          </div>
+          <ul class="plain-list">
+            <li>Esito del boot Linux o bare metal sul tuo hardware.</li>
+            <li>Stato del disco persistente e disponibilità della rete.</li>
+            <li>Integrità o sicurezza di servizi e nodi esterni.</li>
+          </ul>
+          <p class="small-note">Per verificarli, usa i test e le procedure locali documentati.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="iniziare" aria-labelledby="getting-started-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">03 / Primo avvio</p>
+          <h2 id="getting-started-heading">Scegli il tuo percorso</h2>
+        </div>
+        <p class="section-note">ZDOS è una base di sviluppo sperimentale, non una distro general-purpose.</p>
+      </div>
+      <div class="path-grid">
+        <article class="panel path-card">
+          <span class="step">PERCORSO 01</span>
+          <h3>Provare ZDOS Linux</h3>
+          <p>Costruisci l’immagine e avviala in QEMU. Il boot live è disponibile; l’installer non è ancora incluso.</p>
+          <a class="text-link" href="https://github.com/high-cde/ZDOS/blob/main/docs/OPERATIONS.md">Prerequisiti e guida operativa <span aria-hidden="true">↗</span></a>
+        </article>
+        <article class="panel path-card">
+          <span class="step">PERCORSO 02</span>
+          <h3>Sviluppare e verificare</h3>
+          <p>Prepara Zlang e gli strumenti di build, quindi esegui i gate riproducibili per distro e runtime.</p>
+          <a class="text-link" href="https://github.com/high-cde/ZDOS/blob/main/tools/zdos-selftest.sh">Esplora i test automatici <span aria-hidden="true">↗</span></a>
+        </article>
+        <article class="panel path-card">
+          <span class="step">PERCORSO 03</span>
+          <h3>Usare MemPalace</h3>
+          <p>Modulo opzionale da terminale per memoria e ricerca. Questa console non legge né modifica i tuoi dati.</p>
+          <a class="text-link" href="https://github.com/high-cde/ZDOS/tree/main/core/memory">Guida e comandi MemPalace <span aria-hidden="true">↗</span></a>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="sviluppo" aria-labelledby="developer-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">04 / Area sviluppatore</p>
+          <h2 id="developer-heading">Build, test e prove</h2>
+        </div>
+        <a class="text-link" href="https://github.com/high-cde/ZDOS/tree/main/evidence">Evidence Chain <span aria-hidden="true">↗</span></a>
+      </div>
+      <div class="developer-panel">
+        <div>
+          <h3>Gate locale completo</h3>
+          <p>Esegui i controlli di build e boot dalla root del repository, dopo aver installato i prerequisiti indicati nella guida operativa.</p>
+        </div>
+        <code class="command">./tools/zdos-selftest.sh --all</code>
+        <a class="button" href="https://github.com/high-cde/ZDOS/blob/main/docs/OPERATIONS.md#ci">Come interpretare i risultati</a>
+      </div>
+    </section>
+
+    <section class="section" id="limiti" aria-labelledby="limits-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">05 / Confini espliciti</p>
+          <h2 id="limits-heading">Sicurezza e funzioni future</h2>
+        </div>
+      </div>
+      <div class="limits-grid">
+        <article class="panel">
+          <h3>Attivo qui</h3>
+          <p>Consultazione in sola lettura dello stato di questo processo web e collegamenti a prove e documentazione.</p>
+        </article>
+        <article class="panel roadmap-panel">
+          <h3>Non disponibile in questa console</h3>
+          <p>Account, ruoli, comandi remoti, deploy, gestione diretta della memoria e rete multi-nodo. Non inserire credenziali o dati personali: non esiste un flusso account o di invio.</p>
+        </article>
+      </div>
+      <p class="trust-note">Un controllo di raggiungibilità non dimostra anonimato, cifratura o sicurezza. La maturità delle capacità segue <a href="https://github.com/high-cde/ZDOS/blob/main/docs/MATURITY.md">il modello documentato</a>.</p>
+    </section>
+  </main>
+
+  <footer>
+    <a class="brand footer-brand" href="#inizio"><span class="brand-mark" aria-hidden="true">Z</span><span>ZDOS</span></a>
+    <span>Stato locale osservabile · nessuna mutazione · nessun nodo remoto collegato</span>
+    <a href="https://github.com/high-cde/ZDOS">Repository <span aria-hidden="true">↗</span></a>
+  </footer>
 </body>
 </html>
