@@ -35,17 +35,6 @@ jobs:
           sparse-checkout: README.md
           fetch-depth: 1
 
-      - name: Checkout SEC Portal for workspace inspection
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
-        continue-on-error: true
-        with:
-          repository: high-cde/ZDOS-SEC-PORTAL
-          ref: 47247dfd3eff79fbd0078b4187547dba37ac4818
-          path: ZDOS-SEC-PORTAL
-          filter: blob:none
-          sparse-checkout: README.md
-          fetch-depth: 1
-
       - name: Checkout Cybercore for workspace inspection
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         continue-on-error: true
@@ -71,7 +60,7 @@ jobs:
         run: |
           test -d Zlang
           test -z "$(git -C Zlang status --porcelain)"
-          for repo in zdos-organism ZDOS-SEC-PORTAL Z-CYBERCORE; do
+          for repo in zdos-organism Z-CYBERCORE; do
             if git -C "$repo" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
               test -z "$(git -C "$repo" status --porcelain)"
             fi

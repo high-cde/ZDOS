@@ -43,7 +43,7 @@ Non risultano duplicati esatti di file di dimensione significativa fra i tre che
 
 ### Integrazione già dichiarata
 
-`connected-microcosm.yml` esegue checkout pinned di Zlang, `zdos-organism`, `ZDOS-SEC-PORTAL` e `Z-CYBERCORE`, poi esegue test e gate. È già l'embrione della soluzione richiesta, ma non include ancora il repository `zdos-microcosm-beta` come client Expo da testare né un adapter verso l'app pubblica `app.x-zdos.it`.
+`connected-microcosm.yml` esegue checkout pinned di Zlang, `zdos-organism` e `Z-CYBERCORE`, poi esegue test e gate. È già l'embrione della soluzione richiesta, ma non include ancora il repository `zdos-microcosm-beta` come client Expo da testare né un adapter verso l'app pubblica `app.x-zdos.it`.
 
 Il catalogo dichiara `zdos-organism` come `EXPERIMENTAL`, coerentemente con l'analisi precedente: nel checkout corrente della sandbox il percorso adiacente `../Zlang` manca e il runtime Rust del clone hybrid non era compilabile. Questo deve restare **EXPERIMENTAL**, non essere promosso automaticamente a runtime attivo.
 
