@@ -77,10 +77,10 @@ Il profilo pubblico espone soltanto workflow con responsabilità distinte. `Vali
 | Workflow | Scopo | Dipendenze esterne |
 |---|---|---|
 | `validate-x86_64.yml` | Build, bytecode, boot QEMU e contratto web | Zlang checkout canonico |
-| `connected-microcosm.yml` | Test identity/commands/microcosm, inspect e gate | Zlang checkout canonico; gli altri checkout restano osservati dall’inspect |
+| `connected-microcosm.yml` | Test identity/commands/microcosm, inspect e gate | Zlang checkout canonico, zdos-organism e Z-CYBERCORE |
 | `release-x86_64.yml` | Build e pubblicazione release | Toolchain Linux e permesso GitHub release |
 
-Il workflow del micro-mondo esegue i quattro checkout esterni in directory controllate del workspace. Zlang viene passato al bridge tramite `ZDOS_ZLANG_ROOT`, mentre `ZDOS_MICROCOSM_WORKSPACE` allinea l’ispezione al percorso del runner. In locale o sulla VPS il controller mantiene il fallback al workspace adiacente già previsto dal catalogo.
+Il workflow del micro-mondo esegue tre checkout esterni in directory controllate del workspace. Zlang viene passato al bridge tramite `ZDOS_ZLANG_ROOT`, mentre `ZDOS_MICROCOSM_WORKSPACE` allinea l’ispezione al percorso del runner. In locale o sulla VPS il controller mantiene il fallback al workspace adiacente già previsto dal catalogo.
 
 ## Architettura
 
@@ -271,7 +271,7 @@ Il repository include un **micro-mondo connesso** che incorpora il modello di co
 | `./microcosm/zdos-microctl gate` | Valida entrypoint, policy, catalogo e contratto | Sola lettura |
 | `./microcosm/zdos-microctl attest-persistence` | Esegue due boot QEMU e registra l'attestazione | Genera build e ledger locali |
 
-Il collegamento già **VERIFIED** è `persistent-storage-evidence-v1`: due boot QEMU, marker di scrittura e lettura, clean shutdown, quindi evento `filesystem.persistence.attestation` in una Evidence Chain verificata. Zlang e ZDOS-SEC-PORTAL sono fonti primarie esterne ora verificate nel rispettivo perimetro locale; zdos-organism e Z-CYBERCORE restano `EXPERIMENTAL` finché non sono disponibili tutte le verifiche dichiarate. La specifica completa è in [`docs/MICROCOSM.md`](docs/MICROCOSM.md).
+Il collegamento già **VERIFIED** è `persistent-storage-evidence-v1`: due boot QEMU, marker di scrittura e lettura, clean shutdown, quindi evento `filesystem.persistence.attestation` in una Evidence Chain verificata. Zlang è verificato nel proprio perimetro; zdos-organism e Z-CYBERCORE restano `EXPERIMENTAL` finché non sono disponibili tutte le verifiche dichiarate. La specifica completa è in [`docs/MICROCOSM.md`](docs/MICROCOSM.md).
 
 ## Identità ZDOS e ZSpace
 
@@ -432,7 +432,7 @@ ZDOS segue un modello **default-deny**. Le capacità devono essere dichiarate, l
 
 La persistenza v1 non formatta dispositivi automaticamente e usa soltanto un UUID dichiarato. I test sono progettati per usare immagini QEMU locali. Prima di usare una futura immagine su hardware reale è necessario verificare il dispositivo di destinazione e predisporre un backup.
 
-Il portale SEC contiene endpoint orientati alla build e, nel codice corrente, una password di sviluppo hard-coded. **Non esporre il portale su Internet** senza autenticazione reale, secret tramite environment, rate limiting, validazione degli URL, sandbox del compilatore e audit degli eventi. Per i dettagli, consultare la documentazione del [portale ZDOS-SEC][3].
+La console web inclusa in `interface/web` è locale e read-only; non implementa account, ruoli o autenticazione per accesso remoto. **Non esporla su Internet** né usarla come pannello operativo remoto.
 
 La Evidence Chain locale garantisce integrità e ordine delle prove, non autenticità forte multi-organizzazione. PKI distribuita, consenso BFT, storage remoto delle prove e firma crittografica degli eventi sono capacità future.
 
@@ -498,7 +498,6 @@ Consulta [`CONTRIBUTING.md`](CONTRIBUTING.md), [`SECURITY.md`](SECURITY.md), [`C
 | [`CHANGELOG.md`](CHANGELOG.md) | Modifiche rilevanti |
 | [Zlang][1] | Compilatore e linguaggio |
 | [Profilo ZLB2 v2.5][2] | Contratto bytecode x86_64 |
-| [ZDOS-SEC Portal][3] | Repository separato del portale SEC |
 
 ## Licenza
 
@@ -512,4 +511,3 @@ Questo progetto è distribuito secondo la licenza indicata in [`LICENSE`](LICENS
 
 [1]: https://github.com/high-cde/Zlang "Repository Zlang"
 [2]: https://github.com/high-cde/Zlang/blob/main/docs/zdos-x86_64-profile.md "Profilo ZLB2 v2.5 per ZDOS x86_64"
-[3]: https://github.com/high-cde/ZDOS-SEC-PORTAL "ZDOS-SEC Portal"

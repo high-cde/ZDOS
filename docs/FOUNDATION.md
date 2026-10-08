@@ -11,7 +11,7 @@ ZDOS è un ecosistema operativo sperimentale costruito attorno a una regola semp
 | **Foundation** | Contratti, versioni, governance e policy | Documento versionato e controllo CI |
 | **Runtime** | ZDOS Linux, kernel bare-metal e Zlang | Build riproducibile e boot osservabile |
 | **Evidence** | Eventi, hash, attestazioni e revoche | Ledger verificabile e test negativo |
-| **Operations** | Portale, operatori, release e incidenti | Log, policy e audit senza claim impliciti |
+| **Operations** | Build, release e gestione degli incidenti | Log, policy e audit senza claim impliciti |
 
 ## Contratto di capacità
 
@@ -27,7 +27,7 @@ Le modifiche che impattano boot, bytecode, identità, policy o dati devono esser
 
 ## Separazione delle responsabilità
 
-ZDOS esegue il runtime e conserva gli eventi. Zlang definisce contratti deterministici, senza accesso arbitrario al filesystem o alla rete. ZDOS-SEC amministra policy, identità, revoche e audit; non deve diventare un canale di esecuzione remota non autenticato.
+ZDOS esegue il runtime e conserva gli eventi. Zlang definisce contratti deterministici, senza accesso arbitrario al filesystem o alla rete. Policy, identità, revoche e audit devono restare capability esplicite; il repository non include un portale operativo remoto.
 
 ## Definizione di “production-ready”
 
