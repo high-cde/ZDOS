@@ -1,0 +1,139 @@
+{
+  "schema": "zdos.videotel.pages.v1",
+  "service": "ZDOS-SIP VIDEOTEL",
+  "pages": {
+    "0": {
+      "title": "ZDOS-SIP VIDEOTEL",
+      "lines": [
+        "",
+        "   ZDOS-SIP  *  SERVIZIO VIDEOTEL",
+        "   =============================",
+        "",
+        "   Il videotex rinasce in Zlang.",
+        "",
+        "   1  Evidence Chain",
+        "   2  Zlang Runtime",
+        "   3  Microcosm",
+        "   4  Allerte ufficiali",
+        "   5  ZComm / GhostNet",
+        "   9  Stato del servizio",
+        "",
+        "   Digita il numero e premi INVIO.",
+        "   0 = indice    * = pagina precedente"
+      ],
+      "links": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "9"
+      ]
+    },
+    "1": {
+      "title": "EVIDENCE CHAIN",
+      "lines": [
+        "",
+        "   1  EVIDENCE CHAIN",
+        "   ----------------",
+        "",
+        "   Registro append-only di prove",
+        "   con hash concatenati.",
+        "",
+        "   Le attestazioni descrivono cio'",
+        "   che e' stato verificato, non",
+        "   promettono sicurezza assoluta.",
+        "",
+        "   Verifica dal pannello Evidence",
+        "   Wallet della console.",
+        "",
+        "   0 = indice"
+      ],
+      "links": [
+        "0"
+      ]
+    },
+    "2": {
+      "title": "ZLANG RUNTIME",
+      "lines": [
+        "",
+        "   2  ZLANG RUNTIME",
+        "   ----------------",
+        "",
+        "   Zlang e' il linguaggio di ZDOS:",
+        "   programmi piccoli, limitati e",
+        "   osservabili (bytecode ZLB2).",
+        "",
+        "   Questo servizio Videotel e'",
+        "   avviato da un programma Zlang:",
+        "   services/videotel/videotel.zlang",
+        "",
+        "   0 = indice"
+      ],
+      "links": [
+        "0"
+      ]
+    },
+    "3": {
+      "title": "MICROCOSM",
+      "lines": [
+        "",
+        "   3  MICROCOSM",
+        "   ------------",
+        "",
+        "   Catalogo dei componenti del",
+        "   microcosmo ZDOS e relativo",
+        "   stato di verifica.",
+        "",
+        "   Da terminale:",
+        "   microcosm/zdos-microctl inspect",
+        "",
+        "   0 = indice"
+      ],
+      "links": [
+        "0"
+      ]
+    },
+    "4": {
+      "title": "ALLERTE UFFICIALI",
+      "lines": [
+        "",
+        "   4  ALLERTE UFFICIALI",
+        "   --------------------",
+        "",
+        "   Alert Command Center: fonti",
+        "   ufficiali, store & forward.",
+        "   Consulta il pannello Alert",
+        "   della console.",
+        "",
+        "   In emergenza usa sempre i",
+        "   canali ufficiali (112).",
+        "",
+        "   0 = indice"
+      ],
+      "links": [
+        "0"
+      ]
+    },
+    "5": {
+      "title": "ZCOMM / GHOSTNET",
+      "lines": [
+        "",
+        "   5  ZCOMM / GHOSTNET",
+        "   -------------------",
+        "",
+        "   Messaggistica local-first con",
+        "   coda persistente e bridge",
+        "   autenticato.",
+        "",
+        "   Nessuna shell o file remoto",
+        "   viene esposto.",
+        "",
+        "   0 = indice"
+      ],
+      "links": [
+        "0"
+      ]
+    }
+  }
+}

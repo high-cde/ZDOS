@@ -162,6 +162,7 @@ app.use((req, res, next) => {
   next();
 });
 app.use(express.json({ limit: "16kb" }));
+app.use("/api/videotel", require("./videotel").createRouter());
 app.use(express.static(path.join(__dirname, "..", "web"), { index: "index.html" }));
 
 app.get("/status", (_req, res) => res.json({ schema: "zdos.glass-engine.status.v1", status: "LOCAL_READ_ONLY", service: "zdos-interface-web", console: "GLASS_ENGINE", version: "2026.2", started_at: startedAt, mutations: false, remote_origin: remoteOrigin, policy: "DEFAULT-DENY" }));

@@ -1,0 +1,3 @@
+# ZDOS-SIP Videotel: resident videotex service tick (observable only).
+emit videotel-online
+emit videotel-pages-ready
