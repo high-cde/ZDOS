@@ -1,5 +1,5 @@
 [Unit]
-Description=ZDOS Web Portal Socket
+Description=ZDOS Local Web Console Socket
 
 [Socket]
 ListenStream=127.0.0.1:3000

@@ -2,7 +2,7 @@
 
 ## Scopo
 
-ZDOS è un ecosistema operativo sperimentale costruito attorno a una regola semplice: **nessuna capacità viene considerata reale senza codice, contratto, prova riproducibile e limite dichiarato**. La distribuzione Linux, il laboratorio bare-metal, Zlang, la Evidence Chain e il portale SEC sono parti diverse dello stesso sistema, non prodotti indipendenti con promesse sovrapposte.
+ZDOS è un ecosistema operativo sperimentale costruito attorno a una regola semplice: **nessuna capacità viene considerata reale senza codice, contratto, prova riproducibile e limite dichiarato**. La distribuzione Linux, il laboratorio bare-metal, Zlang e la Evidence Chain sono parti diverse dello stesso sistema, non prodotti indipendenti con promesse sovrapposte.
 
 ## Modello a quattro livelli
 
@@ -27,7 +27,7 @@ Le modifiche che impattano boot, bytecode, identità, policy o dati devono esser
 
 ## Separazione delle responsabilità
 
-ZDOS esegue il runtime e conserva gli eventi. Zlang definisce contratti deterministici, senza accesso arbitrario al filesystem o alla rete. Policy, identità, revoche e audit devono restare capability esplicite; il repository non include un portale operativo remoto.
+ZDOS esegue il runtime e conserva gli eventi. Zlang definisce contratti deterministici, senza accesso arbitrario al filesystem o alla rete. Policy, identità, revoche e audit devono restare capability esplicite; il repository non include un pannello operativo remoto.
 
 ## Definizione di “production-ready”
 

@@ -394,7 +394,7 @@ ZLANG_ROOT=../Zlang ./scripts/evolve-zlang-evidence.sh
 | [`scripts/`](scripts/) | Pipeline di evoluzione, sincronizzazione e verifiche |
 | [`core/`](core/) | Cortex, AAAK, memoria e componenti di ricerca |
 | [`network/`](network/) | Nodi e servizi distribuiti |
-| [`interface/`](interface/) | CLI, dashboard e interfacce cloud |
+| [`interface/`](interface/) | CLI e console web locale read-only |
 | [`dev/zen/`](dev/zen/) | Toolchain e automazione dello sviluppo |
 | [`docs/`](docs/) | Architettura, operazioni, contratti e roadmap |
 

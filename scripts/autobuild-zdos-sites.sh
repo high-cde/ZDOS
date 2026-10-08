@@ -67,7 +67,7 @@ write_site() {
         </div>
         <div class="hero-panel">
           <div class="panel-top"><span>ZDOS SYSTEM CONSOLE</span><span class="state">● ONLINE</span></div>
-          <div class="terminal"><div class="info">[0.234567] $domain</div><div class="zlang">[0.312890] ZLB2 RUNTIME READY</div><div class="ok">[0.456789] EVIDENCE PATH CONFIGURED</div><div class="ok">[0.678901] OPERATIONAL HUD AVAILABLE</div><div style="padding-top:15px;color:var(--text)">zdos@system:~$ <span style="color:var(--cyan)">_</span></div></div>
+          <div class="terminal"><div class="info">[0.234567] $domain</div><div class="zlang">[0.312890] ZLB2 RUNTIME READY</div><div class="ok">[0.456789] EVIDENCE PATH CONFIGURED</div><div class="ok">[0.678901] LOCAL READ-ONLY STATUS AVAILABLE</div><div style="padding-top:15px;color:var(--text)">zdos@system:~$ <span style="color:var(--cyan)">_</span></div></div>
         </div>
       </div>
     </section>
