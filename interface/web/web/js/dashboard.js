@@ -51,7 +51,12 @@ function decodeAbiString(value) {
 function formatTokenBalance(rawBalance, decimals) {
   const divisor = 10n ** BigInt(decimals);
   const whole = rawBalance / divisor;
-  const fraction = (rawBalance % divisor).toString().padStart(decimals, "0").slice(0, 6).replace(/0+$/, "");
+  const fractionalDigits = (rawBalance % divisor).toString().padStart(decimals, "0").replace(/0+$/, "");
+  const firstSignificantDigit = fractionalDigits.search(/[1-9]/);
+  const significantDigitsEnd = firstSignificantDigit + 6;
+  const fraction = firstSignificantDigit === -1
+    ? ""
+    : `${fractionalDigits.slice(0, significantDigitsEnd)}${fractionalDigits.length > significantDigitsEnd ? "…" : ""}`;
   const formattedWhole = new Intl.NumberFormat("it-IT", { maximumFractionDigits: 0 }).format(whole);
   return fraction ? `${formattedWhole},${fraction}` : formattedWhole;
 }
