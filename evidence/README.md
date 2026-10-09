@@ -32,7 +32,7 @@ Il ledger garantisce ordine e rilevazione della manomissione locale. Non garanti
 
 ## Integrazione dell’ecosistema
 
-**ZDOS** ospita il ledger e il verificatore. **Zlang** è il livello previsto per contratti deterministici che validano eventi e transizioni. **ZDOS-SEC** può emettere policy, gestire revoche e inviare soltanto attestazioni firmate al ledger; segreti, password e dati sensibili restano fuori catena.
+**ZDOS** ospita il ledger e il verificatore. **Zlang** è il livello previsto per contratti deterministici che validano eventi e transizioni. Il ledger resta locale: policy e revoche sono descritte come eventi verificabili, mentre segreti, password e dati sensibili restano fuori catena.
 
 La prima applicazione è la provenienza delle release: commit → compilazione → test → boot QEMU → attestazione → verifica prima dell’installazione.
 

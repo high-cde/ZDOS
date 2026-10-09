@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "node server/server.js",
-    "check": "node --check server/server.js"
+    "check": "node --check server/server.js && node --check web/js/dashboard.js"
   },
   "dependencies": {
     "express": "5.2.1"

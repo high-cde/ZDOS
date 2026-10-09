@@ -1,5 +1,5 @@
 [Unit]
-Description=ZDOS Web Portal
+Description=ZDOS Local Read-Only Web Console
 After=network.target
 
 [Service]
