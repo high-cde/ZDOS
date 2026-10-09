@@ -50,20 +50,6 @@
         "cargo test",
         "cargo run -- --once"
       ]
-    },
-    {
-      "id": "z-cybercore",
-      "name": "Z-CYBERCORE",
-      "role": "componente dimostrativo di sicurezza difensiva e simulata",
-      "remote": "https://github.com/high-cde/Z-CYBERCORE.git",
-      "local_path": "Z-CYBERCORE",
-      "authority": "external-primary",
-      "status": "EXPERIMENTAL",
-      "verified_scope": "Compilazione Rust e simulazioni locali; non è un componente offensivo operativo.",
-      "checks": [
-        "cargo build --locked",
-        "cargo test"
-      ]
     }
   ],
   "flows": [
