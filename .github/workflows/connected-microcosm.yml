@@ -72,7 +72,9 @@ jobs:
           test -d Zlang
           test -z "$(git -C Zlang status --porcelain)"
           for repo in zdos-organism ZDOS-SEC-PORTAL Z-CYBERCORE; do
-            if git -C "$repo" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+            if [ -e "$repo/.git" ] &&
+              git -C "$repo" rev-parse --verify HEAD >/dev/null 2>&1 &&
+              [ "$(git -C "$repo" rev-parse --show-toplevel 2>/dev/null)" = "$(cd "$repo" && pwd -P)" ]; then
               test -z "$(git -C "$repo" status --porcelain)"
             fi
           done
