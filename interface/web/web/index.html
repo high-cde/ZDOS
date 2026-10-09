@@ -16,6 +16,7 @@
     </a>
     <nav aria-label="Navigazione principale">
       <a href="#stato">Stato</a>
+      <a href="#dsn">DSN</a>
       <a href="#iniziare">Inizia</a>
       <a href="#sviluppo">Sviluppo</a>
       <a href="#limiti">Limiti</a>
@@ -49,10 +50,37 @@
       </div>
     </section>
 
+    <section class="section" id="dsn" aria-labelledby="dsn-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">02 / Asset informativo</p>
+          <h2 id="dsn-heading">DSN su Polygon</h2>
+        </div>
+        <p class="section-note">Consultazione facoltativa del saldo del wallet collegato; nessuna transazione viene inviata.</p>
+      </div>
+      <article class="panel dsn-panel">
+        <div class="dsn-overview">
+          <div>
+            <span class="step">CONTRATTO INDICATO DAL TITOLARE</span>
+            <p><code id="dsn-contract">0xfc90516a1f736FaC557e09D8853dB80dA192c296</code></p>
+            <a class="text-link" href="https://polygonscan.com/token/0xfc90516a1f736fac557e09d8853db80da192c296" target="_blank" rel="noreferrer">Apri su PolygonScan <span aria-hidden="true">↗</span></a>
+          </div>
+          <button class="button" id="dsn-connect-button" type="button">Collega wallet</button>
+        </div>
+        <p id="dsn-status" role="status" aria-live="polite">Wallet non collegato.</p>
+        <dl class="diagnostic-list dsn-details">
+          <div><dt>Rete</dt><dd id="dsn-network">Polygon PoS · chain ID 137</dd></div>
+          <div><dt>Wallet</dt><dd id="dsn-account">—</dd></div>
+          <div><dt>Saldo <span id="dsn-symbol">DSN</span></dt><dd id="dsn-balance">—</dd></div>
+        </dl>
+        <p class="small-note">La connessione usa il wallet del browser solo per leggere indirizzo e saldo on-chain. Non inserire qui seed phrase o chiavi private: la pagina non richiede né invia transazioni e non offre rendimenti o promesse di guadagno. Saldo e chiamate RPC possono essere visibili al wallet o al provider RPC.</p>
+      </article>
+    </section>
+
     <section class="section" aria-labelledby="diagnostics-heading">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">02 / Diagnostica</p>
+          <p class="eyebrow">03 / Diagnostica</p>
           <h2 id="diagnostics-heading">Cosa osserva questa pagina</h2>
         </div>
         <p class="section-note">La diagnostica copre solo il processo web locale, non il kernel o l’host.</p>
@@ -88,7 +116,7 @@
     <section class="section" id="iniziare" aria-labelledby="getting-started-heading">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">03 / Primo avvio</p>
+          <p class="eyebrow">04 / Primo avvio</p>
           <h2 id="getting-started-heading">Scegli il tuo percorso</h2>
         </div>
         <p class="section-note">ZDOS è una base di sviluppo sperimentale, non una distro general-purpose.</p>
@@ -118,7 +146,7 @@
     <section class="section" id="sviluppo" aria-labelledby="developer-heading">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">04 / Area sviluppatore</p>
+          <p class="eyebrow">05 / Area sviluppatore</p>
           <h2 id="developer-heading">Build, test e prove</h2>
         </div>
         <a class="text-link" href="https://github.com/high-cde/ZDOS/tree/main/evidence">Evidence Chain <span aria-hidden="true">↗</span></a>
@@ -136,7 +164,7 @@
     <section class="section" id="limiti" aria-labelledby="limits-heading">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">05 / Confini espliciti</p>
+          <p class="eyebrow">06 / Confini espliciti</p>
           <h2 id="limits-heading">Sicurezza e funzioni future</h2>
         </div>
       </div>
@@ -156,7 +184,7 @@
 
   <footer>
     <a class="brand footer-brand" href="#inizio"><span class="brand-mark" aria-hidden="true">Z</span><span>ZDOS</span></a>
-    <span>Stato locale osservabile · nessuna mutazione · nessun nodo remoto collegato</span>
+    <span>Stato locale osservabile · nessuna mutazione locale · il server Node non è collegato a nodi remoti; il wallet può usare un provider RPC remoto</span>
     <a href="https://github.com/high-cde/ZDOS">Repository <span aria-hidden="true">↗</span></a>
   </footer>
 </body>
