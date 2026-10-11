@@ -93,5 +93,25 @@ async function refreshStatus() {
   }
 }
 
+async function refreshChain() {
+  try {
+    const response = await fetch("/api/chain", { cache: "no-store", headers: { Accept: "application/json" } });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const data = await response.json();
+    document.getElementById("chain-valid").textContent = data.valid ? "Valida (locale)" : "NON valida";
+    document.getElementById("chain-height").textContent = String(data.height);
+    document.getElementById("chain-tip").textContent = `${data.tip.slice(0, 16)}…`;
+    document.getElementById("chain-source").textContent = data.source ? `${data.source.sha256.slice(0, 16)}…` : "Sorgente non trovato";
+    const list = document.getElementById("chain-blocks");
+    list.replaceChildren();
+    for (const block of data.blocks) {
+      appendText(list, "li", "", `#${block.height} ${block.hash.slice(0, 12)}… ${block.payload}`);
+    }
+  } catch {
+    document.getElementById("chain-valid").textContent = "Non disponibile";
+  }
+}
+
 refreshButton.addEventListener("click", refreshStatus);
 refreshStatus();
+refreshChain();

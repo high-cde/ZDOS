@@ -74,6 +74,7 @@ app.use((req, res, next) => {
 });
 app.use(express.json({ limit: "16kb" }));
 app.use(express.static(path.join(__dirname, "..", "web"), { index: "index.html" }));
+api.setCapabilities(capabilities);
 app.use("/api", api);
 
 app.get("/status", (_req, res) => {

@@ -1,0 +1,12 @@
+# ZDOSChain: prova locale della blockchain in Zlang/ZLB2.
+# Registro a blocchi con hash concatenati; nessun consenso multi-nodo,
+# nessuna rete, nessun valore monetario.
+
+emit [CHAIN] Avvio ZDOSChain locale...
+let genesis_height = 0
+let genesis_prev = 0
+let block_height = genesis_height + 1
+let block_nonce = block_height * 2
+emit [CHAIN] Blocco genesis creato (altezza 0).
+emit [CHAIN] Blocco 1 collegato al genesis.
+emit [CHAIN] Catena locale verificata: nessun nodo remoto.

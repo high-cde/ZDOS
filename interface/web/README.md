@@ -23,3 +23,7 @@ La UI è servita da Node ed è la superficie canonica di questa console. `web/in
 ```sh
 npm run check
 ```
+
+## ZDOSChain
+
+`GET /api/chain` espone ZDOSChain, catena a blocchi con hash SHA-256 concatenati derivata in modo deterministico dalle capacità dichiarate; il sorgente Zlang è `blockchain/zdoschain.zlang` (se ne riporta l'hash). È locale e in sola lettura: nessun consenso, rete multi-nodo, token o attestazione indipendente.
