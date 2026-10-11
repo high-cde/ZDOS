@@ -3,6 +3,7 @@
 mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
+mount -t tmpfs tmpfs /run
 modprobe_bin=$(command -v modprobe 2>/dev/null || true)
 if [ -n "$modprobe_bin" ]; then
   for module in ahci nvme sd_mod xhci_pci ehci_pci ohci_pci uhci_hcd usb_storage uas usbhid hid_generic e1000 e1000e igb r8169 virtio_net; do
@@ -12,7 +13,6 @@ fi
 if command -v mdev >/dev/null 2>&1; then
   mdev -s 2>/run/mdev.log || true
 fi
-mount -t tmpfs tmpfs /run
 
 hostname zdos
 mkdir -p /home/zdos /mnt/data
