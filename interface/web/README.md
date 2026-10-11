@@ -16,6 +16,8 @@ Aprire `http://127.0.0.1:8080/`. Gli endpoint disponibili sono:
 
 Le risposte dichiarano `mutations: false`. Il server si lega a `127.0.0.1` per impostazione predefinita; impostare `HOST` esplicitamente solo quando si comprende l'esposizione di rete. Non esporre questa console come pannello remoto: autenticazione, ruoli, audit e autorizzazione delle mutazioni non sono implementati.
 
+La sezione DSN della UI è una vista facoltativa e in sola lettura del contratto Polygon indicato nella pagina. Con un wallet compatibile installato, l'utente può autorizzare la lettura dell'indirizzo e del saldo ERC-20: la UI controlla la chain ID, la presenza di bytecode e legge symbol, decimals e balance con chiamate `eth_call`. Non richiede seed phrase o chiavi private e non invia transazioni. Non è un sistema di pagamento, investimento o rendimento; wallet e provider RPC possono osservare le richieste. L'indirizzo del contratto è configurato nella UI e va verificato autonomamente prima di usarlo.
+
 La UI è servita da Node ed è la superficie canonica di questa console. `web/index.html` è una pagina pubblica separata per la telemetria PHP locale e non è collegata a questo server. Le prove del kernel, del compilatore e del boot sono disponibili nei workflow e nella documentazione del repository ZDOS; questa interfaccia non le sostituisce né esegue build o test nel browser.
 
 ## Verifica

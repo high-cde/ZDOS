@@ -3,6 +3,12 @@ const summary = document.getElementById("service-summary");
 const updatedAt = document.getElementById("updated-at");
 const refreshButton = document.getElementById("refresh-button");
 const liveDot = document.querySelector(".live-dot");
+const dsnConnectButton = document.getElementById("dsn-connect-button");
+const dsnStatus = document.getElementById("dsn-status");
+const dsnContract = "0xfc90516a1f736FaC557e09D8853dB80dA192c296";
+const polygonChainId = "0x89";
+let connectedAccount = "";
+let dsnRefreshId = 0;
 
 function appendText(parent, tagName, className, text) {
   const element = document.createElement(tagName);
@@ -20,6 +26,108 @@ function formatUptime(seconds) {
   if (hours > 0) return `${hours} h ${minutes} min`;
   if (minutes > 0) return `${minutes} min ${remainingSeconds} s`;
   return `${remainingSeconds} s`;
+}
+
+function decodeAbiString(value) {
+  if (!/^0x[0-9a-f]+$/i.test(value)) throw new Error("metadata");
+  const data = value.slice(2);
+  if (data.length === 64) {
+    return new TextDecoder().decode(Uint8Array.from(
+      data.match(/.{2}/g).map((byte) => Number.parseInt(byte, 16)),
+    )).replace(/\0+$/, "");
+  }
+  const offset = Number.parseInt(data.slice(0, 64), 16) * 2;
+  const length = Number.parseInt(data.slice(offset, offset + 64), 16);
+  if (!Number.isSafeInteger(offset) || !Number.isSafeInteger(length) || offset + 64 + length * 2 > data.length) {
+    throw new Error("metadata");
+  }
+  const encoded = data.slice(offset + 64, offset + 64 + length * 2);
+  return new TextDecoder().decode(Uint8Array.from(
+    encoded.match(/.{2}/g) || [],
+    (byte) => Number.parseInt(byte, 16),
+  ));
+}
+
+function formatTokenBalance(rawBalance, decimals) {
+  const divisor = 10n ** BigInt(decimals);
+  const whole = rawBalance / divisor;
+  const fractionalDigits = (rawBalance % divisor).toString().padStart(decimals, "0").replace(/0+$/, "");
+  const firstSignificantDigit = fractionalDigits.search(/[1-9]/);
+  const significantDigitsEnd = firstSignificantDigit + 6;
+  const fraction = firstSignificantDigit === -1
+    ? ""
+    : `${fractionalDigits.slice(0, significantDigitsEnd)}${fractionalDigits.length > significantDigitsEnd ? "…" : ""}`;
+  const formattedWhole = new Intl.NumberFormat("it-IT", { maximumFractionDigits: 0 }).format(whole);
+  return fraction ? `${formattedWhole},${fraction}` : formattedWhole;
+}
+
+function setDsnUnavailable(message) {
+  document.getElementById("dsn-account").textContent = "—";
+  document.getElementById("dsn-balance").textContent = "—";
+  dsnStatus.textContent = message;
+}
+
+async function readDsnBalance(account) {
+  const refreshId = ++dsnRefreshId;
+  dsnConnectButton.disabled = true;
+  dsnStatus.textContent = "Verifica rete e saldo on-chain…";
+
+  try {
+    const provider = window.ethereum;
+    const chainId = await provider.request({ method: "eth_chainId" });
+    if (refreshId !== dsnRefreshId) return;
+    if (chainId.toLowerCase() !== polygonChainId) throw new Error("network");
+
+    const code = await provider.request({
+      method: "eth_getCode",
+      params: [dsnContract, "latest"],
+    });
+    if (refreshId !== dsnRefreshId) return;
+    if (!/^0x[0-9a-f]+$/i.test(code) || /^0x0*$/i.test(code)) throw new Error("contract");
+
+    const [symbolResult, decimalsResult] = await Promise.all([
+      provider.request({
+        method: "eth_call",
+        params: [{ to: dsnContract, data: "0x95d89b41" }, "latest"],
+      }),
+      provider.request({
+        method: "eth_call",
+        params: [{ to: dsnContract, data: "0x313ce567" }, "latest"],
+      }),
+    ]);
+    if (refreshId !== dsnRefreshId) return;
+    const symbol = decodeAbiString(symbolResult);
+    const decimals = Number(BigInt(decimalsResult));
+    if (!symbol || !Number.isInteger(decimals) || decimals < 0 || decimals > 36) {
+      throw new Error("contract");
+    }
+
+    const address = account.slice(2).toLowerCase().padStart(64, "0");
+    const balanceResult = await provider.request({
+      method: "eth_call",
+      params: [{ to: dsnContract, data: `0x70a08231${address}` }, "latest"],
+    });
+    if (refreshId !== dsnRefreshId) return;
+    if (!/^0x[0-9a-f]+$/i.test(balanceResult)) throw new Error("contract");
+
+    document.getElementById("dsn-symbol").textContent = symbol;
+    document.getElementById("dsn-account").textContent = `${account.slice(0, 6)}…${account.slice(-4)}`;
+    document.getElementById("dsn-balance").textContent = `${formatTokenBalance(BigInt(balanceResult), decimals)} ${symbol}`;
+    document.getElementById("dsn-network").textContent = "Polygon PoS · chain ID 137";
+    dsnStatus.textContent = "Saldo letto dalla blockchain. Nessuna transazione è stata inviata.";
+  } catch (error) {
+    if (refreshId !== dsnRefreshId) return;
+    if (error.message === "network") {
+      document.getElementById("dsn-network").textContent = "Rete wallet diversa da Polygon PoS";
+      setDsnUnavailable("Passa a Polygon PoS nel wallet e aggiorna il saldo.");
+    } else if (error.message === "contract" || error.message === "metadata") {
+      setDsnUnavailable("Il contratto non ha restituito metadati ERC-20 validi su Polygon.");
+    } else {
+      setDsnUnavailable("Lettura del saldo non riuscita. Verifica il wallet e riprova.");
+    }
+  } finally {
+    if (refreshId === dsnRefreshId) dsnConnectButton.disabled = false;
+  }
 }
 
 function renderCapabilities(capabilities) {
@@ -94,4 +202,48 @@ async function refreshStatus() {
 }
 
 refreshButton.addEventListener("click", refreshStatus);
+dsnConnectButton.addEventListener("click", async () => {
+  if (!window.ethereum || typeof window.ethereum.request !== "function") {
+    dsnStatus.textContent = "Nessun wallet compatibile rilevato in questo browser.";
+    return;
+  }
+
+  dsnConnectButton.disabled = true;
+  dsnStatus.textContent = "Richiesta di connessione al wallet…";
+  try {
+    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    const account = accounts?.[0];
+    if (!/^0x[a-f0-9]{40}$/i.test(account || "")) {
+      setDsnUnavailable("Il wallet non ha fornito un indirizzo valido.");
+      dsnConnectButton.disabled = false;
+      return;
+    }
+    connectedAccount = account;
+    await readDsnBalance(account);
+  } catch (error) {
+    dsnStatus.textContent = error.code === 4001
+      ? "Connessione rifiutata nel wallet."
+      : "Connessione al wallet non riuscita.";
+    dsnConnectButton.disabled = false;
+  }
+});
+
+if (window.ethereum?.on) {
+  window.ethereum.on("accountsChanged", (accounts) => {
+    const account = accounts?.[0];
+    if (!account) {
+      connectedAccount = "";
+      dsnRefreshId += 1;
+      setDsnUnavailable("Wallet non collegato.");
+      dsnConnectButton.disabled = false;
+    } else if (account.toLowerCase() !== connectedAccount.toLowerCase()) {
+      connectedAccount = account;
+      readDsnBalance(account);
+    }
+  });
+  window.ethereum.on("chainChanged", () => {
+    if (connectedAccount) readDsnBalance(connectedAccount);
+  });
+}
+
 refreshStatus();
