@@ -63,7 +63,7 @@ jobs:
       - name: Install Linux distro build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends bzip2 cpio e2fsprogs file gcc grub-pc-bin mtools qemu-system-x86 qemu-utils xorriso
+          sudo apt-get install -y --no-install-recommends bzip2 cpio e2fsprogs file gcc grub-pc-bin kmod mtools qemu-system-x86 qemu-utils xorriso
 
       - name: Run strict Linux distro gate
         env:

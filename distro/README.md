@@ -17,7 +17,7 @@ La prima immagine deve fornire:
 | Boot | GRUB BIOS con kernel e initramfs |
 | Test | Boot automatico in QEMU e controllo del marker `ZDOS_READY` |
 
-Questa è una distro reale minimale, non ancora una distro general-purpose. Le milestone successive aggiungeranno gestione pacchetti, installer, aggiornamenti firmati e immagini UEFI.
+Questa è una distro Linux avviabile e minimale, non ancora una distro general-purpose. Le milestone successive aggiungeranno gestione pacchetti, installer, aggiornamenti firmati e immagini UEFI.
 
 ## Build
 
@@ -27,7 +27,7 @@ Dalla radice del repository:
 ./distro/build.sh
 ```
 
-Il processo verifica contro `sources.lock` il kernel Debian, il pacchetto dei moduli ABI-coerenti e BusyBox; compila BusyBox in modo statico, genera l'initramfs e crea `build/zdos-linux-x86_64.iso` con il relativo checksum SHA-256. Il kernel è un input binario bloccato: non viene compilato localmente.
+Il processo verifica contro `sources.lock` il kernel Debian, il pacchetto dei moduli ABI-coerenti e BusyBox; compila BusyBox in modo statico, genera l'initramfs e crea `build/zdos-linux-x86_64.iso` con il relativo checksum SHA-256. Il kernel è un input binario bloccato: non viene compilato localmente. Quando i moduli vengono preparati dal pacchetto bloccato, `depmod` raccoglie anche le dipendenze dei driver selezionati.
 
 Per il gate completo di build, persistenza e boot:
 
@@ -39,7 +39,9 @@ Il gate verifica il boot in console non privilegiata, due boot con persistenza e
 
 ## Milestone 0.2
 
-La milestone 0.2 aggiunge una base userspace più reale. Sono presenti gli account `root` e `zdos`, i gruppi di sistema, il tentativo automatico DHCP su `eth0` tramite BusyBox `udhcpc` e il mount opzionale di `/dev/vda1` su `/mnt/data`. L’account root è bloccato e la console live viene avviata come `zdos`; una shell root è consentita solo tramite l’opzione esplicita di recovery `zdos.insecure_root_shell=1`. L'immagine live continua ad avviarsi anche quando non è disponibile una scheda di rete o un disco persistente.
+La milestone 0.2 aggiunge una base userspace più reale. Sono presenti gli account `root` e `zdos`, i gruppi di sistema, il tentativo automatico DHCP sulle interfacce Ethernet rilevate tramite BusyBox `udhcpc` e il mount opzionale di `/dev/vda1` su `/mnt/data`. La preparazione dei moduli include, se disponibili nel kernel bloccato, driver comuni per SATA/AHCI, NVMe, controller USB, tastiere e archiviazione USB, oltre a schede Ethernet Intel, Realtek e virtio. L’account root è bloccato e la console live viene avviata come `zdos`; una shell root è consentita solo tramite l’opzione esplicita di recovery `zdos.insecure_root_shell=1`. L'immagine live continua ad avviarsi anche quando non è disponibile una scheda di rete o un disco persistente.
+
+Questa selezione è un primo baseline, non una matrice di compatibilità: non comprende firmware Wi-Fi, un supplicant, un desktop grafico né la certificazione dei singoli PC. Il profilo hardware reale va ancora verificato su macchine fisiche; i test automatici coprono QEMU.
 
 ## Persistent storage v1
 
@@ -69,4 +71,4 @@ La milestone Linux corrente è classificata **M2 — Reproducible**: produce una
 
 ## Requisiti
 
-Sono necessari `bzip2`, `curl`, `gcc`, `make`, `cpio`, `gzip`, `file`, `sha256sum`, `xorriso`, `mtools`, `grub-mkrescue`, `qemu-img`, `mkfs.ext4`, `e2fsck`, `debugfs` e `qemu-system-x86_64`. Per limiti e procedura di verifica dell’artefatto, consultare [`PRODUCTION.md`](PRODUCTION.md).
+Sono necessari `bzip2`, `curl`, `gcc`, `make`, `cpio`, `gzip`, `file`, `sha256sum`, `xorriso`, `mtools`, `grub-mkrescue`, `qemu-img`, `mkfs.ext4`, `e2fsck`, `debugfs` e `qemu-system-x86_64`. `kmod` è necessario quando la build deve preparare il set di moduli dal pacchetto kernel. Per limiti e procedura di verifica dell'artefatto, consultare [`PRODUCTION.md`](PRODUCTION.md).

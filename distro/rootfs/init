@@ -3,17 +3,28 @@
 mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 mount -t devtmpfs devtmpfs /dev 2>/dev/null || true
+mount -t tmpfs tmpfs /run
+modprobe_bin=$(command -v modprobe 2>/dev/null || true)
+if [ -n "$modprobe_bin" ]; then
+  for module in ahci nvme sd_mod xhci_pci ehci_pci ohci_pci uhci_hcd usb_storage uas usbhid hid_generic e1000 e1000e igb r8169 virtio_net; do
+    "$modprobe_bin" "$module" 2>/run/hardware-modules.log || true
+  done
+fi
 if command -v mdev >/dev/null 2>&1; then
   mdev -s 2>/run/mdev.log || true
 fi
-mount -t tmpfs tmpfs /run
 
 hostname zdos
 mkdir -p /home/zdos /mnt/data
 
-# Configure the first Ethernet interface when BusyBox provides udhcpc.
-if [ -x /bin/udhcpc ] && [ -e /sys/class/net/eth0 ]; then
-  /bin/udhcpc -i eth0 -n -q -t 3 >/run/udhcpc.log 2>&1 || true
+# Configure detected Ethernet interfaces when BusyBox provides udhcpc.
+if [ -x /bin/udhcpc ] && [ -d /sys/class/net ]; then
+  for interface in /sys/class/net/*; do
+    [ -e "$interface" ] || continue
+    interface=${interface##*/}
+    [ "$interface" = lo ] && continue
+    /bin/udhcpc -i "$interface" -n -q -t 3 >>/run/udhcpc.log 2>&1 || true
+  done
 fi
 
 # Persistent storage v1: only mount the first data volume after verifying the
@@ -29,7 +40,6 @@ get_cmdline_value() {
 data_uuid=$(get_cmdline_value zdos.data_uuid || true)
 persistence_test=$(get_cmdline_value zdos.persistence_test || true)
 persistence_state=live-only
-modprobe_bin=$(command -v modprobe 2>/dev/null || true)
 if [ -n "$modprobe_bin" ]; then
   for module in virtio virtio_ring virtio_pci virtio_blk ata_generic ata_piix libata sd_mod mbcache jbd2 ext4; do
     "$modprobe_bin" "$module" 2>/run/persistence-modprobe.log || true
