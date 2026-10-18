@@ -1,0 +1,7 @@
+// ZDOS Mesh Routing Protocol - Node: ZDOS
+network_mesh {
+    node_id: "ZDOS";
+    status: "ACTIVE_SOVEREIGN";
+    routing_protocol: "Z-ROUTER-V4";
+    encryption: "ED25519-STRICT";
+}
