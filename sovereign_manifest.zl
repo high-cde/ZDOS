@@ -1,0 +1,5 @@
+// ZDOS - Sovereign ZDOS Enclave
+module ZDOS {
+    verify_zero_legacy();
+    connect_dsn_mesh();
+}
