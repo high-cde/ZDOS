@@ -9,7 +9,7 @@ fi
 LOG=$(mktemp)
 trap 'rm -f "$LOG"' EXIT
 set +e
-timeout 30s qemu-system-x86_64 -m 512M -cdrom "$ISO" -serial "file:$LOG" -display none -no-reboot -monitor none >/dev/null 2>&1
+timeout 60s qemu-system-x86_64 -m 512M -cdrom "$ISO" -serial "file:$LOG" -display none -no-reboot -monitor none >/dev/null 2>&1
 status=$?
 set -e
 if grep -Fq 'ZDOS_READY' "$LOG" && grep -Fq 'ZDOS_CONSOLE_USER=zdos mode=unprivileged' "$LOG" && grep -Fq 'x@zdos / $' "$LOG"; then

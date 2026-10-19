@@ -184,5 +184,11 @@ printf 'ZDOS_CONSOLE_USER=zdos mode=unprivileged\n'
 if command -v su >/dev/null 2>&1; then
   exec su -p -s /bin/sh zdos
 fi
-printf 'ZDOS_CONSOLE_HALTED reason=privilege-drop-unavailable\n' >&2
-exec /bin/sh
+printf 'ZDOS_CONSOLE_HALTED reason=privilege-drop-unavailable; refusing root shell\n' >&2
+if command -v poweroff >/dev/null 2>&1; then
+  exec poweroff -f
+fi
+if command -v halt >/dev/null 2>&1; then
+  exec halt -f
+fi
+while :; do sleep 3600; done
