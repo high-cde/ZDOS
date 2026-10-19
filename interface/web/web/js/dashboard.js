@@ -95,3 +95,52 @@ async function refreshStatus() {
 
 refreshButton.addEventListener("click", refreshStatus);
 refreshStatus();
+
+
+function updateCurrentNavigation() {
+  const currentHash = window.location.hash || "#stato";
+  for (const link of document.querySelectorAll(".primary-nav .nav-menu a")) {
+    if (link.getAttribute("href") === currentHash) {
+      link.setAttribute("aria-current", "location");
+    } else {
+      link.removeAttribute("aria-current");
+    }
+  }
+}
+
+const compactNavigation = window.matchMedia("(max-width: 950px)");
+const navigationGroups = [...document.querySelectorAll(".nav-group")];
+
+function syncNavigationDisclosure() {
+  for (const group of navigationGroups) group.open = !compactNavigation.matches;
+}
+
+compactNavigation.addEventListener("change", syncNavigationDisclosure);
+syncNavigationDisclosure();
+
+for (const group of navigationGroups) {
+  group.addEventListener("toggle", () => {
+    if (!compactNavigation.matches || !group.open) return;
+    for (const otherGroup of navigationGroups) {
+      if (otherGroup !== group) otherGroup.open = false;
+    }
+  });
+}
+
+document.querySelectorAll(".nav-menu a").forEach((link) => {
+  link.addEventListener("click", () => {
+    link.closest("details")?.removeAttribute("open");
+  });
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape") return;
+  const openMenus = [...document.querySelectorAll(".topbar details[open]")];
+  const lastMenu = openMenus.at(-1);
+  if (!lastMenu) return;
+  lastMenu.removeAttribute("open");
+  lastMenu.querySelector("summary")?.focus();
+});
+
+window.addEventListener("hashchange", updateCurrentNavigation);
+updateCurrentNavigation();
