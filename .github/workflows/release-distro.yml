@@ -1,0 +1,37 @@
+name: Release ZDOS Linux
+
+on:
+  push:
+    tags:
+      - 'zdos-v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build and QEMU dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            bzip2 curl make gcc cpio gzip file xorriso grub-pc-bin mtools \
+            qemu-system-x86 coreutils kmod dpkg-dev
+      - name: Build ZDOS Linux ISO
+        run: ZDOS_BUNDLE_ORGANISM=0 ./distro/build.sh
+      - name: Boot ISO in QEMU
+        run: ./distro/test-qemu.sh
+      - name: Prepare checksums
+        run: |
+          cp distro/build/zdos-linux-x86_64.iso .
+          sha256sum zdos-linux-x86_64.iso > SHA256SUMS
+      - name: Publish official release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            zdos-linux-x86_64.iso SHA256SUMS \
+            --title "ZDOS Linux $GITHUB_REF_NAME" \
+            --generate-notes --latest

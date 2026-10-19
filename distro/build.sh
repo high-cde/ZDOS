@@ -90,7 +90,7 @@ fi
 fetch_verified "$BUSYBOX_URL" "$BUSYBOX_TARBALL" "$BUSYBOX_SHA256"
 if [ ! -d "$BUILD/busybox-${BUSYBOX_VERSION}" ]; then tar -xf "$BUSYBOX_TARBALL" -C "$BUILD"; fi
 BUSYBOX="$BUILD/busybox-${BUSYBOX_VERSION}"
-if [ ! -f "$BUSYBOX/.zdos-configured" ] || ! grep -q '^CONFIG_BLKID=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_FEATURE_VOLUMEID_EXT=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_MODPROBE_SMALL=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_MDEV=y' "$BUSYBOX/.config" || grep -q '^CONFIG_TC=y' "$BUSYBOX/.config"; then
+if [ ! -f "$BUSYBOX/.zdos-configured" ] || ! grep -q '^CONFIG_BLKID=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_FEATURE_VOLUMEID_EXT=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_MODPROBE_SMALL=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_MDEV=y' "$BUSYBOX/.config" || ! grep -q '^CONFIG_FEATURE_DEFAULT_PASSWD_ALGO="sha512"$' "$BUSYBOX/.config" || grep -q '^CONFIG_TC=y' "$BUSYBOX/.config"; then
   make -C "$BUSYBOX" distclean
   make -C "$BUSYBOX" defconfig
   set_bool() {
@@ -111,11 +111,20 @@ if [ ! -f "$BUSYBOX/.zdos-configured" ] || ! grep -q '^CONFIG_BLKID=y' "$BUSYBOX
       printf '# %s is not set\n' "$option" >> "$BUSYBOX/.config"
     fi
   }
+  set_string() {
+    local option="$1" value="$2"
+    if grep -q "^$option=" "$BUSYBOX/.config"; then
+      sed -i "s|^$option=.*|$option=\"$value\"|" "$BUSYBOX/.config"
+    else
+      printf '%s="%s"\n' "$option" "$value" >> "$BUSYBOX/.config"
+    fi
+  }
   set_bool CONFIG_STATIC
   set_bool CONFIG_BLKID
   set_bool CONFIG_FEATURE_VOLUMEID_EXT
   set_bool CONFIG_MODPROBE_SMALL
   set_bool CONFIG_MDEV
+  set_string CONFIG_FEATURE_DEFAULT_PASSWD_ALGO sha512
   # tc depends on host kernel traffic-control headers and is not needed by ZDOS.
   set_unbool CONFIG_TC
   make -C "$BUSYBOX" oldconfig </dev/null
@@ -130,18 +139,22 @@ cp -a "$ZDOS_MODULES_DIR" "$ROOTFS/lib/modules/"
 if command -v depmod >/dev/null 2>&1; then
   depmod -b "$ROOTFS" "$KERNEL_RELEASE" 2>/dev/null || true
 fi
-mkdir -p "$ROOTFS/etc" "$ROOTFS/etc/zdos" "$ROOTFS/dev" "$ROOTFS/proc" "$ROOTFS/sys" "$ROOTFS/run" "$ROOTFS/tmp" "$ROOTFS/root" "$ROOTFS/home/zdos" "$ROOTFS/var/lib/zdos/organism"
+mkdir -p "$ROOTFS/etc" "$ROOTFS/etc/zdos" "$ROOTFS/dev" "$ROOTFS/proc" "$ROOTFS/sys" "$ROOTFS/run" "$ROOTFS/tmp" "$ROOTFS/root" "$ROOTFS/home/zdos" "$ROOTFS/var/lib/zdos/organism" "$ROOTFS/usr/sbin"
 cp "$DISTRO/rootfs/init" "$ROOTFS/init"
 cp "$DISTRO/rootfs/etc/inittab" "$ROOTFS/etc/inittab"
 cp "$DISTRO/rootfs/etc/motd" "$ROOTFS/etc/motd"
 cp "$DISTRO/rootfs/etc/passwd" "$ROOTFS/etc/passwd"
+cp "$DISTRO/rootfs/etc/shadow" "$ROOTFS/etc/shadow"
 cp "$DISTRO/rootfs/etc/group" "$ROOTFS/etc/group"
 cp "$DISTRO/rootfs/etc/profile" "$ROOTFS/etc/profile"
 cp "$DISTRO/rootfs/etc/zdos/organism.conf" "$ROOTFS/etc/zdos/organism.conf"
+cp "$DISTRO/rootfs/usr/sbin/zdos-pkg" "$ROOTFS/usr/sbin/zdos-pkg"
 chmod 0755 "$ROOTFS/init"
+chmod 0755 "$ROOTFS/usr/sbin/zdos-pkg"
 chmod 0755 "$ROOTFS/home/zdos"
 chmod 0700 "$ROOTFS/var/lib/zdos/organism"
 chmod 0644 "$ROOTFS/etc/inittab" "$ROOTFS/etc/motd" "$ROOTFS/etc/passwd" "$ROOTFS/etc/group" "$ROOTFS/etc/profile" "$ROOTFS/etc/zdos/organism.conf"
+chmod 0600 "$ROOTFS/etc/shadow"
 
 if [ "$ZDOS_BUNDLE_ORGANISM" = 1 ]; then
   need python3
@@ -168,6 +181,11 @@ rm -rf "$ISO_DIR"
 mkdir -p "$ISO_DIR/boot/grub"
 cp "$ZDOS_KERNEL" "$ISO_DIR/boot/vmlinuz"
 cp "$BUILD/initramfs.cpio.gz" "$ISO_DIR/boot/initramfs.cpio.gz"
+cp "$DISTRO/install.sh" "$ISO_DIR/zdos-install.sh"
+(
+  cd "$ISO_DIR"
+  sha256sum boot/vmlinuz boot/initramfs.cpio.gz zdos-install.sh > boot/MANIFEST.sha256
+)
 cat > "$ISO_DIR/boot/grub/grub.cfg" <<'EOF'
 set timeout=0
 set default=0

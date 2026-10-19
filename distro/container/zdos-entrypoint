@@ -1,0 +1,18 @@
+#!/bin/sh
+set -eu
+
+memory=${ZDOS_MEMORY:-512M}
+case "$memory" in
+  *[!0-9MGmg]*) echo "ZDOS_MEMORY must be a QEMU size such as 512M or 1G" >&2; exit 2 ;;
+esac
+
+exec qemu-system-x86_64 \
+  -machine accel=tcg \
+  -m "$memory" \
+  -kernel /opt/zdos/vmlinuz \
+  -initrd /opt/zdos/initramfs.cpio.gz \
+  -append 'console=ttyS0,115200n8 init=/init' \
+  -display none \
+  -serial stdio \
+  -monitor none \
+  -no-reboot

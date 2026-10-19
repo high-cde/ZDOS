@@ -69,6 +69,7 @@ printf 'ZDOS_SELFTEST_ZLANG_ROOT=%s\n' "$ZLANG_ROOT"
 
 run_check 'shell syntax' bash -n \
   distro/build.sh distro/prepare-persistence-modules.sh distro/rootfs/init \
+  distro/rootfs/usr/sbin/zdos-pkg distro/pkg/build.sh distro/install.sh distro/test-package-manager.sh distro/test-installed-root-qemu.sh distro/test-installer-qemu.sh \
   distro/test-qemu.sh distro/test-organism-boot.sh distro/test-persistence-qemu.sh distro/test-security-contract.sh distro/test-hardware-contract.sh \
   os/x86_64/update_and_build.sh os/x86_64/tools/verify_qemu.sh \
   tools/zdos-launcher.sh tools/zdos-selftest.sh
@@ -76,6 +77,8 @@ run_check 'Python syntax' "$PYTHON_BIN" -m compileall -q commands evidence ident
 run_check 'resident organism boot contract' bash distro/test-organism-boot.sh
 run_check 'distro security contract' bash distro/test-security-contract.sh
 run_check 'distro hardware baseline contract' bash distro/test-hardware-contract.sh
+run_check 'distro package manager' bash distro/test-package-manager.sh
+run_check 'installer help contract' distro/install.sh --help
 run_check 'ZRetro unit tests' "$PYTHON_BIN" -m unittest discover -s zretro/ide -p 'test_*.py'
 run_check 'ZRetro Castel Goblin manifests' bash -c '
   set -Eeuo pipefail
@@ -126,6 +129,7 @@ else
   printf 'INFO  Linux distro build non richiesto (usa --distro o --all)\n'
 fi
 if [ "$RUN_QEMU" -eq 1 ]; then
+  run_check 'Installed root pivot QEMU test' ./distro/test-installed-root-qemu.sh
   run_check 'Linux distro persistence QEMU test' ./distro/test-persistence-qemu.sh
   run_check 'Linux distro console QEMU test' ./distro/test-qemu.sh
 else

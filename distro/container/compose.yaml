@@ -1,0 +1,18 @@
+services:
+  zdos:
+    image: localhost/zdos:latest
+    stdin_open: true
+    tty: true
+    restart: "no"
+
+  zlang:
+    image: localhost/zlang:latest
+    build:
+      context: ../../../Zlang
+      dockerfile: container/Dockerfile
+    profiles: [cli]
+    volumes:
+      - ${PWD:-.}:/workspace:ro
+    working_dir: /workspace
+    entrypoint: ["zlang"]
+    command: ["--help"]

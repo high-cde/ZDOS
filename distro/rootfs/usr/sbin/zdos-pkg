@@ -1,0 +1,158 @@
+#!/bin/sh
+set -eu
+
+usage() {
+  cat <<'EOF'
+Usage:
+  zdos-pkg install PACKAGE.tar.gz SHA256
+  zdos-pkg remove NAME
+  zdos-pkg list
+  zdos-pkg verify
+
+Packages are local archives. The SHA-256 must come from a trusted channel.
+Live packages are stored below /mnt/data; installed packages use the system root.
+EOF
+}
+
+fail() { printf 'zdos-pkg: %s\n' "$*" >&2; exit 1; }
+if [ -n "${ZDOS_PKG_ROOT:-}" ]; then
+  root=$ZDOS_PKG_ROOT
+elif [ -f /etc/zdos/installed ]; then
+  root=/
+else
+  root=/mnt/data
+fi
+db=$root/var/lib/zdos/packages
+tmp=
+cleanup() { [ -z "$tmp" ] || rm -rf "$tmp"; }
+trap cleanup EXIT HUP INT TERM
+
+valid_name() { case $1 in ''|*[!A-Za-z0-9._+-]*) return 1 ;; *) return 0 ;; esac; }
+valid_relpath() {
+  case $1 in ''|/*|*..*|*[!A-Za-z0-9._+/-]*) return 1 ;; esac
+  case /$1/ in */./*|*//*|*/../*) return 1 ;; esac
+  return 0
+}
+
+[ "$(id -u)" = 0 ] || [ -n "${ZDOS_PKG_ROOT:-}" ] || fail 'run as root'
+[ "$#" -ge 1 ] || { usage >&2; exit 2; }
+command=$1; shift
+case $command in
+  list)
+    [ "$#" = 0 ] || fail 'list takes no arguments'
+    if [ -d "$db" ]; then
+      found=0
+      for record in "$db"/*.meta; do
+        [ -f "$record" ] || continue
+        found=1
+        cat "$record"
+      done
+      [ "$found" = 1 ] || printf 'No packages installed.\n'
+    else
+      printf 'No packages installed.\n'
+    fi
+    ;;
+  verify)
+    [ "$#" = 0 ] || fail 'verify takes no arguments'
+    [ -d "$db" ] || { printf 'Package database is empty.\n'; exit 0; }
+    failures=0
+    for record in "$db"/*.files; do
+      [ -f "$record" ] || continue
+      while IFS= read -r rel || [ -n "$rel" ]; do
+        valid_relpath "$rel" || { printf 'INVALID PATH: %s\n' "$rel" >&2; failures=1; continue; }
+        [ -f "$root/$rel" ] || { printf 'MISSING: %s\n' "$root/$rel" >&2; failures=1; }
+      done < "$record"
+    done
+    [ "$failures" = 0 ] || fail 'verification failed'
+    printf 'Installed package files verified.\n'
+    ;;
+  remove)
+    [ "$#" = 1 ] || { usage >&2; exit 2; }
+    name=$1; valid_name "$name" || fail 'invalid package name'
+    [ -f "$db/$name.files" ] || fail "package is not installed: $name"
+    while IFS= read -r rel || [ -n "$rel" ]; do
+      valid_relpath "$rel" || fail "invalid database path: $rel"
+      rm -f "$root/$rel"
+    done < "$db/$name.files"
+    rm -f "$db/$name.files" "$db/$name.meta"
+    printf 'Removed %s.\n' "$name"
+    ;;
+  install)
+    [ "$#" = 2 ] || { usage >&2; exit 2; }
+    archive=$1; expected=$2
+    case $expected in *[!0-9a-fA-F]*|'') fail 'expected SHA-256 must be 64 hexadecimal characters' ;; esac
+    [ "${#expected}" = 64 ] || fail 'expected SHA-256 must be 64 hexadecimal characters'
+    [ -f "$archive" ] || fail "package archive not found: $archive"
+    actual=$(sha256sum "$archive" | awk '{print $1}')
+    [ "$actual" = "$expected" ] || fail 'package SHA-256 mismatch'
+    mkdir -p "$db" "$root"
+    tmp=$(mktemp -d "$root/.zdos-pkg.XXXXXX") || fail 'cannot create transaction directory'
+    tar -tzf "$archive" > "$tmp/archive.list" || fail 'invalid package archive'
+    tar -tvzf "$archive" > "$tmp/archive.verbose" || fail 'invalid package archive'
+    # Only regular files and directories under control/ or payload/ are accepted.
+    while IFS= read -r entry || [ -n "$entry" ]; do
+      safe_entry=${entry%/}
+      case $safe_entry in control|control/*|payload|payload/*) ;; *) fail "unsafe archive path: $entry" ;; esac
+      case /$safe_entry/ in */../*|*//*|*/./*) fail "unsafe archive path: $entry" ;; esac
+      case $safe_entry in *[!A-Za-z0-9._+/-]*) fail 'package paths may contain only ASCII letters, digits, dot, underscore, plus, dash, and slash' ;; esac
+    done < "$tmp/archive.list"
+    while IFS= read -r detail || [ -n "$detail" ]; do
+      kind=${detail%% *}
+      case $kind in -*|d*) ;; *) fail "links and special files are forbidden in packages: $detail" ;; esac
+    done < "$tmp/archive.verbose"
+    tar -xzf "$archive" -C "$tmp" || fail 'cannot unpack package'
+    [ -f "$tmp/control/name" ] && [ -f "$tmp/control/version" ] || fail 'package control files are missing'
+    name=$(cat "$tmp/control/name"); version=$(cat "$tmp/control/version")
+    valid_name "$name" || fail 'invalid package name in control data'
+    valid_name "$version" || fail 'invalid package version in control data'
+    [ ! -e "$db/$name.files" ] || fail "package is already installed: $name"
+    [ -d "$tmp/payload" ] || fail 'package payload is missing'
+    : > "$tmp/files"
+    find "$tmp/payload" -type f -print | LC_ALL=C sort > "$tmp/files.abs"
+    while IFS= read -r path; do
+      rel=${path#"$tmp/payload/"}
+      valid_relpath "$rel" || fail "unsafe payload path: $rel"
+      [ ! -e "$root/$rel" ] && [ ! -L "$root/$rel" ] || fail "file already exists: $root/$rel"
+      parent=$root
+      old_ifs=$IFS; IFS=/
+      set -- $rel
+      IFS=$old_ifs
+      last=0
+      for component do last=$((last + 1)); done
+      index=0
+      for component do
+        index=$((index + 1))
+        [ "$index" -eq "$last" ] && break
+        parent=$parent/$component
+        [ ! -L "$parent" ] || fail "payload would traverse a symlink: $parent"
+        mkdir -p "$parent"
+      done
+      printf '%s\n' "$rel" >> "$tmp/files"
+    done < "$tmp/files.abs"
+    # Refuse symlinks and non-regular payload entries even if tar listing was ambiguous.
+    links=$(find "$tmp/payload" ! -type d ! -type f -print)
+    [ -z "$links" ] || fail 'payload contains links or special files'
+    copy_failed=0
+    while IFS= read -r rel; do
+      parent_rel=${rel%/*}
+      [ "$parent_rel" != "$rel" ] || parent_rel=.
+      mkdir -p "$root/$parent_rel"
+      if ! cp -p "$tmp/payload/$rel" "$root/$rel" || ! chmod u-s,g-s "$root/$rel"; then
+        copy_failed=1
+        break
+      fi
+    done < "$tmp/files"
+    if [ "$copy_failed" = 1 ]; then
+      while IFS= read -r rel; do rm -f "$root/$rel"; done < "$tmp/files"
+      fail 'copy failed; transaction rolled back'
+    fi
+    printf '%s\t%s\n' "$name" "$version" > "$tmp/meta"
+    mv "$tmp/files" "$db/$name.files.tmp"
+    mv "$tmp/meta" "$db/$name.meta.tmp"
+    mv "$db/$name.files.tmp" "$db/$name.files"
+    mv "$db/$name.meta.tmp" "$db/$name.meta"
+    printf 'Installed %s %s.\n' "$name" "$version"
+    ;;
+  -h|--help|help) usage ;;
+  *) usage >&2; fail "unknown command: $command" ;;
+esac

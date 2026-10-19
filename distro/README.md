@@ -17,7 +17,7 @@ La prima immagine deve fornire:
 | Boot | GRUB BIOS con kernel e initramfs |
 | Test | Boot automatico in QEMU e controllo del marker `ZDOS_READY` |
 
-Questa è una distro Linux avviabile e minimale, non ancora una distro general-purpose. Le milestone successive aggiungeranno gestione pacchetti, installer, aggiornamenti firmati e immagini UEFI.
+Questa è una distro Linux avviabile e minimale. Sono ora presenti un package manager locale iniziale e un installer BIOS su host Linux; repository autenticati, UEFI e aggiornamenti firmati restano capacità successive.
 
 ## Build
 
@@ -29,13 +29,13 @@ Dalla radice del repository:
 
 Il processo verifica contro `sources.lock` il kernel Debian, il pacchetto dei moduli ABI-coerenti e BusyBox; compila BusyBox in modo statico, genera l'initramfs e crea `build/zdos-linux-x86_64.iso` con il relativo checksum SHA-256. Il kernel è un input binario bloccato: non viene compilato localmente. Quando i moduli vengono preparati dal pacchetto bloccato, `depmod` raccoglie anche le dipendenze dei driver selezionati.
 
-Per il gate completo di build, persistenza e boot:
+Per il gate completo di build, gestore pacchetti, root persistente, storage live e boot:
 
 ```sh
 ./tools/zdos-selftest.sh --all
 ```
 
-Il gate verifica il boot in console non privilegiata, due boot con persistenza ext4 e la pulizia del filesystem. Il test isolato di console resta disponibile con `./distro/test-qemu.sh`.
+Il gate verifica il boot in console non privilegiata, il pivot QEMU a un root ext4 persistente, due boot live con persistenza ext4 e la pulizia del filesystem. Non esegue il partizionamento distruttivo o `grub-install` dell'installer. Il test isolato di console resta disponibile con `./distro/test-qemu.sh`.
 
 ## Milestone 0.2
 
@@ -61,13 +61,23 @@ ZDOS_PERSISTENCE_QEMU_TEST_PASSED uuid=11111111-2222-4333-8444-555555555555
 
 Il contratto di boot utilizza `zdos.data_uuid=<UUID>` e, per il test, `zdos.persistence_test=write|read`. La capacità è limitata alla distro Linux in QEMU: non è ancora un filesystem nativo del kernel bare-metal e non espone accesso storage a Zlang.
 
-La milestone 0.3 introdurrà un package manager iniziale basato su pacchetti tar firmati e un repository dichiarativo. La milestone 0.4 introdurrà installer BIOS/UEFI, logging persistente, aggiornamenti atomici e test hardware più estesi.
+## Installer BIOS e root persistente
+
+`distro/install.sh` installa la rootfs contenuta nell'initramfs della ISO su una partizione ext4 MBR, installa GRUB per BIOS e configura l'UUID root nel menu di avvio. Il boot verifica il filesystem marcato dall'installer e usa `switch_root` per passare dall'initramfs al sistema installato. L'installer richiede un host Linux con gli strumenti elencati nello script; non è ancora invocabile dalla console live. Prima di scrivere chiede la password amministrativa e la conferma digitando il percorso esatto del disco; `--yes` salta soltanto la conferma del dispositivo. L'intero disco scelto viene cancellato.
+
+La versione corrente installa solo BIOS legacy su MBR e dischi fino a 2 TiB. Non offre ancora UEFI, Secure Boot, resize o recovery automatica. `distro/test-installer-qemu.sh` esercita partizionamento, formattazione, GRUB e boot su un’immagine temporanea tramite loop device; richiede root. Nessun test formatta un disco fisico.
+
+## Package manager locale
+
+`distro/pkg/build.sh` crea archivi tar.gz riproducibili da un albero di file. `zdos-pkg install ARCHIVE SHA256` controlla un digest atteso, rifiuta link e percorsi non ammessi, registra i file installati e non sovrascrive file già presenti. `list`, `verify` e `remove` operano sul database locale. Nella ISO live i pacchetti persistono sotto `/mnt/data`; nel sistema installato sono collocati nel root filesystem.
+
+Il digest deve arrivare da un canale fidato: non è una firma digitale. Il sistema non ha ancora repository, chiavi di firma, risoluzione dipendenze, aggiornamenti o rollback. Il test `distro/test-package-manager.sh` copre build/install/list/verify/remove e digest errati su un root temporaneo.
 
 ## Fondazione e maturità
 
 La distro fa parte dell’ecosistema ZDOS e segue un criterio di capacità verificabile: codice, contratto, test e limite dichiarato. La governance tecnica, la separazione tra runtime ed Evidence Chain, oltre al modello M0–M5, sono descritti in [`docs/FOUNDATION.md`](../docs/FOUNDATION.md) e [`docs/MATURITY.md`](../docs/MATURITY.md).
 
-La milestone Linux corrente è classificata **M2 — Reproducible**: produce una ISO e raggiunge il boot QEMU in modo verificabile, ma non è ancora una distro general-purpose. Package manager, installer, aggiornamenti con rollback, rete completa e hardening restano milestone successive.
+La milestone Linux corrente resta **M2 — Reproducible**: la ISO e i test live QEMU sono riproducibili. Installer e gestore pacchetti hanno implementazioni iniziali ma non hanno ancora un gate QEMU end-to-end o prove su hardware. UEFI, autenticazione repository, rollback, rete completa e hardening restano necessari prima di una distribuzione general-purpose.
 
 ## Requisiti
 

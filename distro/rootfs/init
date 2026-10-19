@@ -15,10 +15,10 @@ if command -v mdev >/dev/null 2>&1; then
 fi
 
 hostname zdos
-mkdir -p /home/zdos /mnt/data
+mkdir -p /home/zdos /mnt/data /mnt/root
 
 # Configure detected Ethernet interfaces when BusyBox provides udhcpc.
-if [ -x /bin/udhcpc ] && [ -d /sys/class/net ]; then
+if [ "${1:-}" != zdos-root-mounted ] && [ -x /bin/udhcpc ] && [ -d /sys/class/net ]; then
   for interface in /sys/class/net/*; do
     [ -e "$interface" ] || continue
     interface=${interface##*/}
@@ -38,6 +38,7 @@ get_cmdline_value() {
   done
 }
 data_uuid=$(get_cmdline_value zdos.data_uuid || true)
+root_uuid=$(get_cmdline_value zdos.root_uuid || true)
 persistence_test=$(get_cmdline_value zdos.persistence_test || true)
 persistence_state=live-only
 if [ -n "$modprobe_bin" ]; then
@@ -68,6 +69,42 @@ if command -v insmod >/dev/null 2>&1; then
     [ -f "$module_path" ] && insmod "$module_path" 2>>/run/persistence-modprobe.log || true
   done
   command -v mdev >/dev/null 2>&1 && mdev -s 2>>/run/mdev.log || true
+fi
+if [ -n "$root_uuid" ] && [ "${1:-}" != zdos-root-mounted ]; then
+  case $root_uuid in
+    *[!A-Fa-f0-9-]*)
+      printf 'ZDOS_ROOT_HALTED reason=invalid-root-uuid\n' >&2
+      if command -v poweroff >/dev/null 2>&1; then exec poweroff -f; fi
+      if command -v halt >/dev/null 2>&1; then exec halt -f; fi
+      while :; do sleep 3600; done
+      ;;
+  esac
+  root_device=
+  root_attempt=0
+  printf 'ZDOS_ROOT_SEARCH uuid=%s\n' "$root_uuid"
+  while [ -n "$root_uuid" ] && [ "$root_attempt" -lt 50 ] && [ -z "$root_device" ]; do
+    for candidate in /dev/vda1 /dev/vda /dev/xvda1 /dev/sda1 /dev/sda /dev/hda1 /dev/hda /dev/nvme*n*p* /dev/mmcblk*p*; do
+      [ -b "$candidate" ] || continue
+      root_blkid=$(/sbin/blkid "$candidate" 2>/run/root-blkid.log || true)
+      actual_root_uuid=$(printf '%s\n' "$root_blkid" | sed -n 's/.*UUID="\([^"]*\)".*/\1/p')
+      [ -n "$actual_root_uuid" ] && printf 'ZDOS_ROOT_CANDIDATE device=%s uuid=%s\n' "$candidate" "$actual_root_uuid"
+      if [ "$actual_root_uuid" = "$root_uuid" ]; then root_device=$candidate; break; fi
+    done
+    [ -n "$root_device" ] || { sleep 0.1; root_attempt=$((root_attempt + 1)); }
+  done
+  if [ -n "$root_device" ] && mount -t ext4 "$root_device" /mnt/root 2>/run/root-mount.log; then
+    if [ -f /mnt/root/etc/zdos/installed ] && command -v switch_root >/dev/null 2>&1; then
+      printf 'ZDOS_ROOT_PIVOT uuid=%s\n' "$root_uuid"
+      exec switch_root /mnt/root /init zdos-root-mounted
+    fi
+    umount /mnt/root 2>/dev/null || true
+  fi
+  printf 'ZDOS_ROOT_HALTED reason=root-volume-unavailable\n' >&2
+  [ -s /run/root-blkid.log ] && cat /run/root-blkid.log >&2
+  [ -s /run/root-mount.log ] && cat /run/root-mount.log >&2
+  if command -v poweroff >/dev/null 2>&1; then exec poweroff -f; fi
+  if command -v halt >/dev/null 2>&1; then exec halt -f; fi
+  while :; do sleep 3600; done
 fi
 blkid_bin=$(command -v blkid 2>/dev/null || true)
 persistence_device=
@@ -172,7 +209,7 @@ fi
 # local boot decision and is never enabled by a passwordless default account.
 export ZDOS_CONSOLE=1
 export HOME=/home/zdos
-export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+export PATH=/mnt/data/usr/bin:/mnt/data/usr/sbin:/bin:/sbin:/usr/bin:/usr/sbin
 cd /
 if [ "$(get_cmdline_value zdos.insecure_root_shell || true)" = 1 ]; then
   export PS1='x@zdos ${PWD} # '
