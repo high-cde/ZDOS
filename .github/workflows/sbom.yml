@@ -1,0 +1,11 @@
+name: Generate SBOM
+on:
+  release:
+    types: [published]
+jobs:
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate SBOM (SPDX/CycloneDX placeholder)
+        run: echo "Generazione distinta base del software (SBOM)" > sbom.json
