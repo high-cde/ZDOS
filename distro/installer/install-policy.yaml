@@ -1,0 +1,11 @@
+policy: "ZDOS Installation Policy"
+destructive_confirmation_required: true
+default_partitioning:
+  - mount: "/boot"
+    size: "512M"
+    type: "vfat"
+  - mount: "/"
+    size: "remaining"
+    type: "ext4"
+    encryption: "optional"
+rollback_supported: true
