@@ -1,0 +1,19 @@
+# /etc/zdos/dsn-release — zdos-dsn-code-align v1. Formato os-release, solo dati pubblici.
+ZDOS_ID=zdos
+ZDOS_NAME="ZDOS Linux"
+ZDOS_VARIANT_ID=experimental
+ZDOS_HOME_URL=https://x-zdos.it
+ZDOS_IDENTITY_ROOT="did:zdos (Ed25519, local)"
+DSN_NAME=NETkali
+DSN_SYMBOL='$DSN'
+DSN_STANDARD=ERC-20
+DSN_CHAIN="Polygon PoS"
+DSN_CHAIN_ID=137
+DSN_DECIMALS=18
+DSN_CONTRACT=0xfc90516a1f736FaC557e09D8853dB80dA192c296
+DSN_PORTAL_URL=https://x-zdos.it/dsn
+DSN_EXPLORER_URL=https://polygonscan.com/token/0xfc90516a1f736FaC557e09D8853dB80dA192c296
+DSN_RPC_URL=https://polygon-bor-rpc.publicnode.com
+DSN_RPC_FALLBACK_URL=https://polygon.drpc.org
+DSN_ROLE="access,identity"
+DSN_REQUIRED_TO_BOOT=no

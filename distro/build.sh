@@ -148,12 +148,14 @@ cp "$DISTRO/rootfs/etc/shadow" "$ROOTFS/etc/shadow"
 cp "$DISTRO/rootfs/etc/group" "$ROOTFS/etc/group"
 cp "$DISTRO/rootfs/etc/profile" "$ROOTFS/etc/profile"
 cp "$DISTRO/rootfs/etc/zdos/organism.conf" "$ROOTFS/etc/zdos/organism.conf"
+cp "$DISTRO/rootfs/etc/zdos/dsn-release" "$ROOTFS/etc/zdos/dsn-release"  # zdos-dsn-code-align v1
 cp "$DISTRO/rootfs/usr/sbin/zdos-pkg" "$ROOTFS/usr/sbin/zdos-pkg"
 chmod 0755 "$ROOTFS/init"
 chmod 0755 "$ROOTFS/usr/sbin/zdos-pkg"
 chmod 0755 "$ROOTFS/home/zdos"
 chmod 0700 "$ROOTFS/var/lib/zdos/organism"
 chmod 0644 "$ROOTFS/etc/inittab" "$ROOTFS/etc/motd" "$ROOTFS/etc/passwd" "$ROOTFS/etc/group" "$ROOTFS/etc/profile" "$ROOTFS/etc/zdos/organism.conf"
+chmod 0644 "$ROOTFS/etc/zdos/dsn-release"  # zdos-dsn-code-align v1
 chmod 0600 "$ROOTFS/etc/shadow"
 
 if [ "$ZDOS_BUNDLE_ORGANISM" = 1 ]; then

@@ -77,6 +77,7 @@ run_check 'Python syntax' "$PYTHON_BIN" -m compileall -q commands evidence ident
 run_check 'resident organism boot contract' bash distro/test-organism-boot.sh
 run_check 'distro security contract' bash distro/test-security-contract.sh
 run_check 'distro hardware baseline contract' bash distro/test-hardware-contract.sh
+run_check 'distro DSN release contract' bash distro/test-dsn-release.sh
 run_check 'distro package manager' bash distro/test-package-manager.sh
 run_check 'installer help contract' distro/install.sh --help
 run_check 'ZRetro unit tests' "$PYTHON_BIN" -m unittest discover -s zretro/ide -p 'test_*.py'
