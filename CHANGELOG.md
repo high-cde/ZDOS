@@ -9,6 +9,9 @@ Tutte le modifiche rilevanti sono annotate in questo file secondo i principi di 
 - Pipeline evolutiva Zlang–ZDOS–Evidence Chain con prove di compilazione, boot QEMU e hash degli artefatti.
 - Struttura standard per collaborazione, supporto, segnalazioni e revisione delle modifiche.
 - Collegamenti alla documentazione Wiki e alla governance del repository.
+- Prototipo multi-nodo / DSN (M1): `network/dsn/node.py`, discovery statica, replica base con verifica hash, script di test locale `tools/test-multinode.sh`.
+- Documenti di migrazione: `docs/migrations/M0-to-M2-multi-nodo.md` e `docs/migrations/M2-to-M5-os-core.md`.
+- Stato di avanzamento ecosistema: `docs/STATUS-AVANZAMENTO.md`.
 
 ## [0.1.0] - 2026-08-28
 
