@@ -1,7 +1,7 @@
 # Status Finale di Completamento — Ecosistema ZDOS
 
 **Data:** 2026-11-15  
-**Versione documento:** 1.0  
+**Versione documento:** 1.1  
 **Dichiarazione:** Questo documento racchiude lo stato allineato dell'ecosistema dopo le sessioni di avanzamento. Non dichiara produzione completa (M5) su tutti i pilastri, ma unifica riferimenti, supporta hardware old/new e prepara la chiusura formale.
 
 ## 1. Visione unificata
@@ -14,6 +14,7 @@ ZDOS è una distro sperimentale sovrana con:
 - Comunicazione (ZComm, evoluzione eSIM laboratorio).
 - Sicurezza globale tramite **ZDOS-Security-Agent**.
 - Integrazione K.I.R.A.
+- **Z-X Solana Store** (viaggi, eSIM, store crypto con Scudo K.I.R.A.).
 
 ## 2. Repository allineati
 
@@ -23,6 +24,7 @@ ZDOS è una distro sperimentale sovrana con:
 | ZDOS-Security-Agent | Agente di sicurezza globale autonomo | https://github.com/high-cde/ZDOS-Security-Agent |
 | ZDOS-e660-Security | Adattamento hardware old (legacy BIOS) | https://github.com/high-cde/ZDOS-e660-Security |
 | Zcomm | Comunicazione E2E + eSIM laboratorio | https://github.com/high-cde/Zcomm |
+| Z-X-Solana-Store | Prototipo agenzia viaggi + eSIM + store | https://github.com/high-cde/Z-X-Solana-Store |
 | K.I.R.A / ai-K.I.R.A / Zdos-K.I.R.A | AI OS e bridge | (privati, referenziati) |
 | zBAG / aesir | Wallet e gate $DSN | (privati) |
 
@@ -43,6 +45,7 @@ ZDOS è una distro sperimentale sovrana con:
 - Agente autonomo in `ZDOS-Security-Agent`.
 - Intercetta richieste, cattura attacchi su file, comunica con K.I.R.A.
 - Integrabile con nodi DSN e ZComm.
+- Scudo K.I.R.A. presente nel Z-X Solana Store.
 
 ## 5. Stato di maturità (sintesi)
 
@@ -52,12 +55,13 @@ ZDOS è una distro sperimentale sovrana con:
 | Rete multi-nodo | M1 | Prototipo + evidenze software |
 | Security Agent | M1 | Codice eseguibile + docs |
 | ZComm eSIM | M1 | Laboratorio con controlli base |
+| Z-X Solana Store | M1 | Prototipo frontend + docs |
 | $DSN / Æsir | Lab | Gate presente |
 
 ## 6. Cosa è stato racchiuso e allineato
 
 - Documenti di migrazione e prove software.
-- Prototipi DSN, eSIM, security agent.
+- Prototipi DSN, eSIM, security agent, Z-X Store.
 - Riferimenti incrociati tra repo.
 - Supporto esplicito old + new hardware.
 - Questo status finale.
