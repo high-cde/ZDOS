@@ -3,7 +3,8 @@
 Nodo DSN ZDOS con record tipizzati (M1+).
 
 Supporta payload opachi (compatibilità) e record JSON strutturati.
-Tipi: security-event, esim-profile, onion-message, heartbeat.
+Tipi: security-event, esim-profile, onion-message, heartbeat,
+fee-paid, governance-vote, policy-update.
 """
 
 import argparse
@@ -30,6 +31,9 @@ class DSNNode:
         self.peers = self._load_peers(peers_path)
         self.local_records = {}
         self.sock = None
+        # Soft PoP / governance state (lab)
+        self.votes = {}  # proposal_id -> list of votes
+        self.fees = []
 
     def _load_peers(self, path: str):
         if not os.path.exists(path):
@@ -62,6 +66,7 @@ class DSNNode:
                     record = json.loads(payload.decode())
                     h = sha256(payload)
                     self.local_records[h] = record
+                    self._process_record(record)
                     print(f"[{self.node_id}] typed record type={record.get('type')} hash={h[:12]}... da {addr}")
                     conn.sendall(b"OK")
                 except Exception as e:
@@ -80,6 +85,18 @@ class DSNNode:
         finally:
             conn.close()
 
+    def _process_record(self, record):
+        rtype = record.get("type")
+        payload = record.get("payload", {})
+        if rtype == "governance-vote":
+            pid = payload.get("proposal_id")
+            if pid:
+                self.votes.setdefault(pid, []).append(payload)
+                print(f"[{self.node_id}] voto registrato per {pid}")
+        elif rtype == "fee-paid":
+            self.fees.append(payload)
+            print(f"[{self.node_id}] fee registrata: {payload.get('amount')} $DSN per {payload.get('service')}")
+
     def propagate_record(self, record_type: str, payload: dict, src: str = None):
         """Propaga un record tipizzato."""
         record = {
@@ -93,9 +110,47 @@ class DSNNode:
         raw = json.dumps(record).encode()
         h = sha256(raw)
         self.local_records[h] = record
+        self._process_record(record)
         print(f"[{self.node_id}] propago typed {record_type} id={record['id']}")
         msg = TYPED_MARKER + raw
         self._send_to_peers(msg)
+
+    def cast_vote(self, proposal_id: str, vote: str, weight: float):
+        """Registra e propaga un voto di governance."""
+        payload = {
+            "proposal_id": proposal_id,
+            "vote": vote,
+            "weight": weight,
+            "voter_node": self.node_id
+        }
+        self.propagate_record("governance-vote", payload)
+
+    def pay_fee(self, amount: float, service: str, chain: str = "solana"):
+        """Registra e propaga una commissione."""
+        payload = {
+            "amount": amount,
+            "service": service,
+            "chain": chain,
+            "wallet": "lab-wallet"
+        }
+        self.propagate_record("fee-paid", payload)
+
+    def calculate_quorum(self, proposal_id: str, total_weight: float = 100.0) -> dict:
+        """Calcola lo stato del quorum per una proposta (lab)."""
+        votes = self.votes.get(proposal_id, [])
+        yes_weight = sum(v.get("weight", 0) for v in votes if v.get("vote") == "yes")
+        no_weight = sum(v.get("weight", 0) for v in votes if v.get("vote") == "no")
+        total_voted = yes_weight + no_weight
+        quorum_pct = (total_voted / total_weight) * 100 if total_weight > 0 else 0
+        approved = quorum_pct >= 15 and yes_weight > no_weight
+        return {
+            "proposal_id": proposal_id,
+            "yes": yes_weight,
+            "no": no_weight,
+            "quorum_pct": round(quorum_pct, 2),
+            "approved": approved,
+            "votes_count": len(votes)
+        }
 
     def propagate(self, payload: bytes):
         """Compatibilità opaca."""
@@ -133,6 +188,7 @@ def main():
     parser.add_argument("--peers", default="peers.json")
     parser.add_argument("--propagate", help="Payload opaco")
     parser.add_argument("--demo-typed", action="store_true", help="Invia record di esempio")
+    parser.add_argument("--demo-governance", action="store_true", help="Demo voto e quorum")
     args = parser.parse_args()
 
     node = DSNNode(args.node_id, args.listen, args.peers)
@@ -154,6 +210,14 @@ def main():
             "hops": 3,
             "payload_hint": "private-comm"
         })
+
+    if args.demo_governance:
+        time.sleep(0.5)
+        node.pay_fee(0.1, "z-onion-hop")
+        node.cast_vote("sec-policy-001", "yes", 25.0)
+        node.cast_vote("sec-policy-001", "no", 10.0)
+        result = node.calculate_quorum("sec-policy-001", total_weight=100.0)
+        print(f"[{args.node_id}] Quorum result: {result}")
 
     print(f"[{args.node_id}] in esecuzione. Ctrl+C per uscire.")
     try:
