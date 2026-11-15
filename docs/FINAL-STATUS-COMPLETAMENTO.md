@@ -1,7 +1,7 @@
 # Status Finale di Completamento — Ecosistema ZDOS
 
 **Data:** 2026-11-15  
-**Versione documento:** 1.2  
+**Versione documento:** 1.3  
 **Dichiarazione:** Questo documento racchiude lo stato allineato dell'ecosistema dopo le sessioni di avanzamento. Non dichiara produzione completa (M5) su tutti i pilastri, ma unifica riferimenti, supporta hardware old/new e prepara la chiusura formale.
 
 ## 1. Visione unificata
@@ -10,11 +10,19 @@ ZDOS è una distro sperimentale sovrana con:
 - Percorso **Linux live** (x86_64) e **bare-metal** + ZLang.
 - Supporto dichiarato per **hardware new** (UEFI target, QEMU moderno) e **hardware old** (legacy BIOS, es. Compaq Evo N610c / e660 via repo dedicato).
 - Rete multi-nodo / DSN (M1).
-- Token $DSN + gate (Æsir / zBAG).
+- Token **$DSN**, **$OV** e contratto Polygon + gate (Æsir / zBAG).
 - Comunicazione (ZComm, evoluzione eSIM laboratorio).
 - Sicurezza globale tramite **ZDOS-Security-Agent**.
 - Integrazione K.I.R.A.
 - **Z-X Solana Store** (viaggi, eSIM, store crypto con Scudo K.I.R.A. e wallet Phantom).
+
+## Token ufficiali
+
+| Token | Chain | Indirizzo |
+|-------|-------|-----------|
+| $DSN | Solana | `35w74RT77BPSYNpmzpvxmR9wu2ihpgzubKy4bkGHR3F4` |
+| $OV (VELVET) | Solana | `2EN6Y1zM4yyt41gE2muzdJSAgRCAZiXqnmkgpbrspump` |
+| $DSN / correlato | Polygon | `0xfc90516a1f736FaC557e09D8853dB80dA192c296` |
 
 ## 2. Repository allineati
 
@@ -58,7 +66,7 @@ ZDOS è una distro sperimentale sovrana con:
 | Security Agent | M1 | Codice eseguibile + docs |
 | ZComm eSIM | M1 | Laboratorio con controlli base |
 | Z-X Solana Store | M1 | Prototipo frontend + wallet + demo Pages |
-| $DSN / Æsir | Lab | Gate presente |
+| $DSN / $OV / Æsir | Lab | Gate presente, tutti i token referenziati |
 
 ## 6. Cosa è stato racchiuso e allineato
 
@@ -68,6 +76,7 @@ ZDOS è una distro sperimentale sovrana con:
 - Riferimenti incrociati tra repo.
 - Supporto esplicito old + new hardware.
 - Protocollo di comunicazione unificato.
+- Tutti i token ($DSN, $OV, Polygon) documentati.
 - Questo status finale.
 
 ## 7. Per dichiarare chiusura formale al 100%
