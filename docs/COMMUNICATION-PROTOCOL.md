@@ -1,59 +1,47 @@
 # Protocollo di Comunicazione Ecosistema ZDOS
 
 **Data:** 2026-11-15  
-**Obiettivo:** Far comunicare tutti i componenti in modo coerente.
+**Obiettivo:** Far comunicare tutti i componenti in modo coerente, con record tipizzati e layer privato Z-Onion.
 
 ## Componenti
 
-- **ZDOS-Security-Agent** — intercettazione e cattura
+- **ZDOS-Security-Agent** — intercettazione, cattura e audit
 - **ZComm** — comunicazione E2E e provisioning eSIM
-- **DSN Node** (`network/dsn/node.py`) — replica stato
-- **Z-X-Solana-Store** — frontend viaggi/eSIM/store
+- **DSN Node** (`network/dsn/node.py`) — replica stato con record tipizzati
+- **Z-Onion** — comunicazione privata sovrana (oltre Web3)
+- **Z-X-Solana-Store** — frontend
 - **K.I.R.A.** — analisi e policy (Scudo)
-- **xCLOUD** — gestionale e pannello Starlink
 - **Æsir / zBAG** — gate $DSN
 
-## Messaggi standard (JSON)
+## Record tipizzati DSN
 
 ```json
 {
-  "type": "SUSPICIOUS_REQUEST | ESIM_PROVISION | ATTACK_CAPTURE | POLICY_UPDATE | HEARTBEAT",
-  "src": "component-name",
-  "dst": "target-component",
-  "payload": {},
+  "v": 1,
+  "type": "security-event | esim-profile | onion-message | heartbeat | policy-update",
+  "id": "hex",
   "ts": "ISO8601",
-  "hash": "sha256"
+  "src": "component-or-node",
+  "payload": {}
 }
 ```
 
+Marker di trasporto: `ZDOS_DSN_TYPED_V1`
+
 ## Flussi principali
 
-1. **Store → Scudo K.I.R.A. / Security Agent**  
-   Ogni link esterno viene inviato per verifica prima del redirect.
+1. Store → Scudo / Security Agent  
+2. Security Agent → K.I.R.A. e → DSN (`security-event`)  
+3. ZComm → DSN (`esim-profile`)  
+4. Qualsiasi → Z-Onion → DSN (`onion-message`)  
+5. Tutti → Gate $DSN (Æsir)
 
-2. **Security Agent → K.I.R.A.**  
-   Eventi sospetti → analisi → decisione (allow/monitor/block).
+## Sicurezza e Audit
 
-3. **Security Agent → DSN**  
-   Alert replicati come record `security-event`.
+- Ogni evento sospetto è catturato dal Security Agent su file JSONL.
+- I record DSN possono essere firmati in futuro (HMAC o firma nodo).
+- Z-Onion logga ogni hop per audit locale.
 
-4. **ZComm → DSN**  
-   Record `esim-profile` propagati per coerenza multi-nodo.
+## Stato
 
-5. **Store / xCLOUD → ZComm**  
-   Apertura chat cifrata o richiesta provisioning eSIM.
-
-6. **Tutti → Gate $DSN**  
-   Controllo balance prima di azioni privilegiate.
-
-## Implementazione attuale
-
-- Stub e prototipi presenti nei rispettivi repo.
-- Protocollo definito qui come contratto.
-- Avanzamento a M2 richiede test end-to-end osservabili.
-
-## Prossimi passi
-
-- [ ] Endpoint HTTP locale comune per i messaggi (es. `:7778/events`)
-- [ ] Test di propagazione Store → Agent → DSN
-- [ ] Aggiornamento demo Store con chiamate reali agli stub
+Prototipi di laboratorio allineati. Record tipizzati attivi nel nodo DSN. Z-Onion documentato e supportato come tipo di record.
