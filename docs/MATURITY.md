@@ -19,6 +19,6 @@ La maturità ZDOS è assegnata per capacità, non per repository intero. Un comp
 | Bare-metal ZDOS | M2 | Build, runtime ZLB2 e boot QEMU verificati |
 | Zlang ZLB2 | M2 | Formato versionato e runtime bounds-checked; capability ancora limitate |
 | Evidence Chain locale | M2 | Hash chain, attestazioni e verifica append-only |
-| Rete multi-nodo | M0 | Da definire consenso, discovery, replica e governance |
+| Rete multi-nodo | **M1** | Prototipo `network/dsn/node.py` + prove software di replica, gate $DSN e provisioning eSIM documentate in `docs/evidence/prove-software-20261115.md` |
 
 Un incremento di livello richiede un documento di migrazione e non può essere ottenuto modificando soltanto badge, colori o messaggi dell’interfaccia.
