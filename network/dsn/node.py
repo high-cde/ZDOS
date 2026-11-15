@@ -4,7 +4,7 @@ Nodo DSN ZDOS con record tipizzati (M1+).
 
 Supporta payload opachi (compatibilità) e record JSON strutturati.
 Tipi: security-event, esim-profile, onion-message, heartbeat,
-fee-paid, governance-vote, policy-update.
+fee-paid, governance-vote, policy-update, soft-pop.
 """
 
 import argparse
@@ -14,12 +14,13 @@ import os
 import socket
 import threading
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 DEFAULT_PORT = 7777
 RECORD_MARKER = b"ZDOS_DSN_RECORD_V1"
 TYPED_MARKER = b"ZDOS_DSN_TYPED_V1"
+SOFT_POP_LOCK_DAYS = 7
 
 def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
@@ -32,8 +33,9 @@ class DSNNode:
         self.local_records = {}
         self.sock = None
         # Soft PoP / governance state (lab)
-        self.votes = {}  # proposal_id -> list of votes
+        self.votes = {}
         self.fees = []
+        self.soft_pop = {}  # node_id -> lock_until
 
     def _load_peers(self, path: str):
         if not os.path.exists(path):
@@ -96,9 +98,32 @@ class DSNNode:
         elif rtype == "fee-paid":
             self.fees.append(payload)
             print(f"[{self.node_id}] fee registrata: {payload.get('amount')} $DSN per {payload.get('service')}")
+        elif rtype == "soft-pop":
+            nid = payload.get("node_id")
+            lock = payload.get("lock_until")
+            if nid and lock:
+                self.soft_pop[nid] = lock
+                print(f"[{self.node_id}] Soft PoP registrato per {nid}")
+
+    def register_soft_pop(self):
+        """Registra Soft PoP con time-lock (laboratorio)."""
+        lock_until = (datetime.utcnow() + timedelta(days=SOFT_POP_LOCK_DAYS)).isoformat() + "Z"
+        payload = {
+            "node_id": self.node_id,
+            "lock_until": lock_until,
+            "binding": "pubkey-lab"
+        }
+        self.propagate_record("soft-pop", payload)
+        return lock_until
+
+    def is_soft_pop_valid(self, node_id: str = None) -> bool:
+        nid = node_id or self.node_id
+        lock = self.soft_pop.get(nid)
+        if not lock:
+            return False
+        return datetime.utcnow() < datetime.fromisoformat(lock.replace("Z", ""))
 
     def propagate_record(self, record_type: str, payload: dict, src: str = None):
-        """Propaga un record tipizzato."""
         record = {
             "v": 1,
             "type": record_type,
@@ -116,7 +141,9 @@ class DSNNode:
         self._send_to_peers(msg)
 
     def cast_vote(self, proposal_id: str, vote: str, weight: float):
-        """Registra e propaga un voto di governance."""
+        if not self.is_soft_pop_valid():
+            print(f"[{self.node_id}] Soft PoP non valido, voto rifiutato")
+            return
         payload = {
             "proposal_id": proposal_id,
             "vote": vote,
@@ -126,7 +153,6 @@ class DSNNode:
         self.propagate_record("governance-vote", payload)
 
     def pay_fee(self, amount: float, service: str, chain: str = "solana"):
-        """Registra e propaga una commissione."""
         payload = {
             "amount": amount,
             "service": service,
@@ -136,7 +162,6 @@ class DSNNode:
         self.propagate_record("fee-paid", payload)
 
     def calculate_quorum(self, proposal_id: str, total_weight: float = 100.0) -> dict:
-        """Calcola lo stato del quorum per una proposta (lab)."""
         votes = self.votes.get(proposal_id, [])
         yes_weight = sum(v.get("weight", 0) for v in votes if v.get("vote") == "yes")
         no_weight = sum(v.get("weight", 0) for v in votes if v.get("vote") == "no")
@@ -153,7 +178,6 @@ class DSNNode:
         }
 
     def propagate(self, payload: bytes):
-        """Compatibilità opaca."""
         h = sha256(payload)
         self.local_records[h] = payload
         msg = RECORD_MARKER + payload
@@ -187,8 +211,8 @@ def main():
     parser.add_argument("--listen", default="0.0.0.0:7777")
     parser.add_argument("--peers", default="peers.json")
     parser.add_argument("--propagate", help="Payload opaco")
-    parser.add_argument("--demo-typed", action="store_true", help="Invia record di esempio")
-    parser.add_argument("--demo-governance", action="store_true", help="Demo voto e quorum")
+    parser.add_argument("--demo-typed", action="store_true")
+    parser.add_argument("--demo-governance", action="store_true")
     args = parser.parse_args()
 
     node = DSNNode(args.node_id, args.listen, args.peers)
@@ -205,18 +229,15 @@ def main():
             "anomaly_score": 0.92,
             "action": "log_and_monitor"
         })
-        node.propagate_record("onion-message", {
-            "circuit_id": "demo-circuit-1",
-            "hops": 3,
-            "payload_hint": "private-comm"
-        })
 
     if args.demo_governance:
         time.sleep(0.5)
+        node.register_soft_pop()
         node.pay_fee(0.1, "z-onion-hop")
         node.cast_vote("sec-policy-001", "yes", 25.0)
         node.cast_vote("sec-policy-001", "no", 10.0)
         result = node.calculate_quorum("sec-policy-001", total_weight=100.0)
+        print(f"[{args.node_id}] Soft PoP valido: {node.is_soft_pop_valid()}")
         print(f"[{args.node_id}] Quorum result: {result}")
 
     print(f"[{args.node_id}] in esecuzione. Ctrl+C per uscire.")
