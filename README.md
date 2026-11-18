@@ -1,5 +1,9 @@
 # ZDOS
 
+> **STATUS: MAINNET ONLINE** ⚡⚖️
+> Branch `main` allineato, pulito e sincronizzato.
+> Ultimo allineamento: 2026-11-18
+
 ZDOS è un sistema operativo sperimentale con una distribuzione Linux live x86_64 avviabile. L'immagine usa un kernel Linux versionato, BusyBox statico e initramfs; include console seriale e virtuale, account operatore non privilegiato, rete DHCP opzionale e volume dati ext4 montato solo dopo la verifica dell'UUID.
 
 ## Avvio in QEMU
@@ -70,3 +74,8 @@ Il gate locale riproducibile è:
 ```
 
 Documentazione: [`distro/README.md`](distro/README.md), [`docs/OPERATIONS.md`](docs/OPERATIONS.md), [`docs/MATURITY.md`](docs/MATURITY.md) e [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
+## Mainnet
+- Default branch: `main`
+- Stato: **LIVE / MAINNET**
+- Sincronizzazione: Completa
